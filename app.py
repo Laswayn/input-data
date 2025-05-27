@@ -43,11 +43,6 @@ def submit():
         tanggal_pencacah = request.form.get('tanggal_pencacah')
         ttd_pencacah = request.files.get('ttd_pencacah')  # Tanda tangan tidak wajib
         
-        nama_pemeriksa = request.form.get('nama_pemeriksa')
-        hp_pemeriksa = request.form.get('hp_pemeriksa')
-        tanggal_pemeriksa = request.form.get('tanggal_pemeriksa')
-        ttd_pemeriksa = request.files.get('ttd_pemeriksa')  # Tanda tangan tidak wajib
-        
         nama_pemberi_jawaban = request.form.get('nama_pemberi_jawaban')
         hp_pemberi_jawaban = request.form.get('hp_pemberi_jawaban')
         tanggal_pemberi_jawaban = request.form.get('tanggal_pemberi_jawaban')
@@ -58,7 +53,6 @@ def submit():
         # Server-side validation
         if not all([rt, rw, dusun, nama_kepala, alamat, jumlah_anggota, jumlah_anggota_15plus,
                      nama_pencacah, hp_pencacah, tanggal_pencacah,
-                     nama_pemeriksa, hp_pemeriksa, tanggal_pemeriksa,
                      nama_pemberi_jawaban, hp_pemberi_jawaban, tanggal_pemberi_jawaban]):
             return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
         
@@ -89,7 +83,6 @@ def submit():
         signature_paths = {}
         for role, file, nama in [
             ('pencacah', ttd_pencacah, nama_pencacah),
-            ('pemeriksa', ttd_pemeriksa, nama_pemeriksa),
             ('pemberi_jawaban', ttd_pemberi_jawaban, nama_pemberi_jawaban)
         ]:
             if file:
@@ -146,9 +139,6 @@ def submit():
             'HP Pencacah': hp_pencacah,
             'Tanggal Pencacah': tanggal_pencacah,
             'TTD Pencacah': signature_paths.get('pencacah', ''),
-            'Nama Pemeriksa': nama_pemeriksa,
-            'HP Pemeriksa': hp_pemeriksa,
-            'Tanggal Pemeriksa': tanggal_pemeriksa,
             'TTD Pemeriksa': signature_paths.get('pemeriksa', ''),
             'Nama Pemberi Jawaban': nama_pemberi_jawaban,
             'HP Pemberi Jawaban': hp_pemberi_jawaban,
@@ -192,9 +182,6 @@ def submit():
                     'hp_pencacah': hp_pencacah,
                     'tanggal_pencacah': tanggal_pencacah,
                     'ttd_pencacah': signature_paths.get('pencacah', ''),
-                    'nama_pemeriksa': nama_pemeriksa,
-                    'hp_pemeriksa': hp_pemeriksa,
-                    'tanggal_pemeriksa': tanggal_pemeriksa,
                     'ttd_pemeriksa': signature_paths.get('pemeriksa', ''),
                     'nama_pemberi_jawaban': nama_pemberi_jawaban,
                     'hp_pemberi_jawaban': hp_pemberi_jawaban,
