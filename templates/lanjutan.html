@@ -125,6 +125,7 @@
             </div>
 
             <!-- 5.1 Hubungan Dengan Kepala Keluarga -->
+            <!-- HTML Code -->
             <div>
               <label
                 for="hubungan"
@@ -136,12 +137,14 @@
                   id="hubungan"
                   name="hubungan"
                   class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
+                  onchange="checkHubungan()"
                 >
                   <option value="" disabled selected>Pilih hubungan</option>
-                  <option value="Suami/Istri">1. Suami/Istri</option>
-                  <option value="Anak">2. Anak</option>
-                  <option value="Menantu">3. Menantu</option>
-                  <option value="Lainnya">4. Lainnya</option>
+                  <option value="Kepala Keluarga">1. Kepala Keluarga</option>
+                  <option value="Suami/Istri">2. Suami/Istri</option>
+                  <option value="Anak">3. Anak</option>
+                  <option value="Menantu">4. Menantu</option>
+                  <option value="Lainnya">5. Lainnya</option>
                 </select>
                 <div
                   class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500"

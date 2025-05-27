@@ -3,7 +3,6 @@ import pandas as pd
 import os
 from datetime import datetime
 import secrets
-import json
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -11,9 +10,7 @@ app.secret_key = secrets.token_hex(16)
 # Create static/Excel folder if it doesn't exist
 STATIC_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 EXCEL_FOLDER = os.path.join(STATIC_FOLDER, 'Excel')
-SIGNATURES_FOLDER = os.path.join(STATIC_FOLDER, 'signatures')
 os.makedirs(EXCEL_FOLDER, exist_ok=True)
-os.makedirs(SIGNATURES_FOLDER, exist_ok=True)
 
 EXCEL_FILENAME = 'data_sensus.xlsx'
 EXCEL_FILE = os.path.join(EXCEL_FOLDER, EXCEL_FILENAME)
@@ -36,24 +33,9 @@ def submit():
         
         # Print received data for debugging
         print("Received data:", request.form)
-
-        # Get surveyor information
-        nama_pencacah = request.form.get('nama_pencacah')
-        hp_pencacah = request.form.get('hp_pencacah')
-        tanggal_pencacah = request.form.get('tanggal_pencacah')
-        ttd_pencacah = request.files.get('ttd_pencacah')  # Tanda tangan tidak wajib
-        
-        nama_pemberi_jawaban = request.form.get('nama_pemberi_jawaban')
-        hp_pemberi_jawaban = request.form.get('hp_pemberi_jawaban')
-        tanggal_pemberi_jawaban = request.form.get('tanggal_pemberi_jawaban')
-        ttd_pemberi_jawaban = request.files.get('ttd_pemberi_jawaban')  # Tanda tangan tidak wajib
-        
-        catatan = request.form.get('catatan')
         
         # Server-side validation
-        if not all([rt, rw, dusun, nama_kepala, alamat, jumlah_anggota, jumlah_anggota_15plus,
-                     nama_pencacah, hp_pencacah, tanggal_pencacah,
-                     nama_pemberi_jawaban, hp_pemberi_jawaban, tanggal_pemberi_jawaban]):
+        if not all([rt, rw, dusun, nama_kepala, alamat, jumlah_anggota, jumlah_anggota_15plus]):
             return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
         
         # Convert to integers
@@ -72,25 +54,9 @@ def submit():
             
         if jumlah_anggota_15plus > jumlah_anggota:
             return jsonify({'success': False, 'message': 'Jumlah anggota usia 15+ tidak boleh lebih dari jumlah anggota keluarga'}), 400
-        
-        # ... (rest of the code)
-
 
         timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         keluarga_id = f"KEL-{rt}{rw}-{datetime.now().strftime('%d%m%Y%H%M%S')}"
-        
-        # Save signature images
-        signature_paths = {}
-        for role, file, nama in [
-            ('pencacah', ttd_pencacah, nama_pencacah),
-            ('pemberi_jawaban', ttd_pemberi_jawaban, nama_pemberi_jawaban)
-        ]:
-            if file:
-                filename = f'ttd_{role}.jpg'
-                filepath = os.path.join(SIGNATURES_FOLDER, filename)
-                file.save(filepath)
-                signature_paths[role] = filepath
-
         
         # Data for the head of family (first row)
         new_data = {
@@ -114,37 +80,22 @@ def submit():
             'Apakah Memiliki Pekerjaan': '',
             'Status Pekerjaan yang Diinginkan': '',
             'Bidang Usaha yang Diminati': '',
-            # Pekerjaan Utama
             'Status Pekerjaan Utama': '',
             'Pemasaran Usaha Utama': '',
             'Penjualan Marketplace Utama': '',
             'Status Pekerjaan Diinginkan Utama': '',
             'Bidang Usaha Utama': '',
-            # Pekerjaan Sampingan 1
             'Status Pekerjaan Sampingan 1': '',
             'Pemasaran Usaha Sampingan 1': '',
             'Penjualan Marketplace Sampingan 1': '',
             'Status Pekerjaan Diinginkan Sampingan 1': '',
             'Bidang Usaha Sampingan 1': '',
-            # Pekerjaan Sampingan 2
             'Status Pekerjaan Sampingan 2': '',
             'Pemasaran Usaha Sampingan 2': '',
             'Penjualan Marketplace Sampingan 2': '',
             'Status Pekerjaan Diinginkan Sampingan 2': '',
             'Bidang Usaha Sampingan 2': '',
-            # Info tambahan
-            'Memiliki Lebih dari Satu Pekerjaan': '',
-            # Surveyor information
-            'Nama Pencacah': nama_pencacah,
-            'HP Pencacah': hp_pencacah,
-            'Tanggal Pencacah': tanggal_pencacah,
-            'TTD Pencacah': signature_paths.get('pencacah', ''),
-            'TTD Pemeriksa': signature_paths.get('pemeriksa', ''),
-            'Nama Pemberi Jawaban': nama_pemberi_jawaban,
-            'HP Pemberi Jawaban': hp_pemberi_jawaban,
-            'Tanggal Pemberi Jawaban': tanggal_pemberi_jawaban,
-            'TTD Pemberi Jawaban': signature_paths.get('pemberi_jawaban', ''),
-            'Catatan': catatan or ''
+            'Memiliki Lebih dari Satu Pekerjaan': ''
         }
         
         try:
@@ -158,15 +109,11 @@ def submit():
                         'message': 'File Excel sedang digunakan oleh program lain. Tutup file dan coba lagi.'
                     }), 500
             else:
-                # Create new DataFrame if file doesn't exist
                 df = pd.DataFrame([new_data])
             
-            # Save to Excel
             df.to_excel(EXCEL_FILE, index=False)
             
-            # If there are members aged 15+, redirect to next form
             if jumlah_anggota_15plus > 0:
-                # Save data to session
                 session['keluarga_data'] = {
                     'keluarga_id': keluarga_id,
                     'rt': rt,
@@ -176,28 +123,16 @@ def submit():
                     'alamat': alamat,
                     'jumlah_anggota': jumlah_anggota,
                     'jumlah_anggota_15plus': jumlah_anggota_15plus,
-                    'anggota_count': 1,
-                    # Add surveyor information to session
-                    'nama_pencacah': nama_pencacah,
-                    'hp_pencacah': hp_pencacah,
-                    'tanggal_pencacah': tanggal_pencacah,
-                    'ttd_pencacah': signature_paths.get('pencacah', ''),
-                    'ttd_pemeriksa': signature_paths.get('pemeriksa', ''),
-                    'nama_pemberi_jawaban': nama_pemberi_jawaban,
-                    'hp_pemberi_jawaban': hp_pemberi_jawaban,
-                    'tanggal_pemberi_jawaban': tanggal_pemberi_jawaban,
-                    'ttd_pemberi_jawaban': signature_paths.get('pemberi_jawaban', ''),
-                    'catatan': catatan
+                    'anggota_count': 1
                 }
                 
                 return jsonify({
                     'success': True,
-                    'message' :("Validasi berhasil, melanjutkan ke penyimpanan..."),
+                    'message': "Validasi berhasil, melanjutkan ke penyimpanan...",
                     'redirect': True,
                     'redirect_url': url_for('lanjutan')
                 })
             
-            # If no members aged 15+, return normal response
             return jsonify({
                 'success': True, 
                 'message': 'Data berhasil disimpan',
@@ -216,7 +151,6 @@ def submit():
 
 @app.route('/lanjutan')
 def lanjutan():
-    # Check if family data exists in session
     if 'keluarga_data' not in session:
         return redirect(url_for('index'))
     
@@ -225,14 +159,12 @@ def lanjutan():
 
 @app.route('/pekerjaan')
 def pekerjaan():
-    # Check if family and individual data exist in session
     if 'keluarga_data' not in session or 'individu_data' not in session:
         return redirect(url_for('index'))
     
     keluarga_data = session['keluarga_data']
     individu_data = session['individu_data']
     return render_template('pekerjaan.html', keluarga_data=keluarga_data, individu_data=individu_data)
-
 
 @app.route('/submit-individu', methods=['POST'])
 def submit_individu():
@@ -242,7 +174,6 @@ def submit_individu():
         
         keluarga_data = session['keluarga_data']
         
-        # Collect individual data from form
         nama = request.form.get('nama')
         umur = request.form.get('umur')
         hubungan = request.form.get('hubungan')
@@ -254,7 +185,6 @@ def submit_individu():
         status_pekerjaan_diinginkan = request.form.get('status_pekerjaan_diinginkan')
         bidang_usaha_diminati = request.form.get('bidang_usaha')
         
-        # Validate individual data
         required_fields = [nama, umur, hubungan, jenis_kelamin, status_perkawinan, pendidikan, kegiatan, memiliki_pekerjaan]
         if not all(required_fields):
             return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
@@ -267,18 +197,14 @@ def submit_individu():
         if umur_int < 15:
             return jsonify({'success': False, 'message': 'Usia minimal 15 tahun'}), 400
         
-        # Increment anggota_count
         keluarga_data['anggota_count'] = keluarga_data.get('anggota_count', 0) + 1
         session['keluarga_data'] = keluarga_data
         
-        # Check if this person needs to go to pekerjaan page
-        # Only if 5.10 = "Ya" (memiliki pekerjaan) or if any of 5.7, 5.8, 5.9 is "Ya"
         needs_pekerjaan_page = (
             memiliki_pekerjaan == 'Ya'
         )
         
         if needs_pekerjaan_page:
-            # Store individual data temporarily in session for pekerjaan page
             session['individu_data'] = {
                 'Nama Anggota': nama,
                 'Umur': umur_int,
@@ -294,16 +220,13 @@ def submit_individu():
                 'Timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             
-            # Redirect to pekerjaan input
             return jsonify({
-            'success': True,
-            'message': 'Data individu berhasil disimpan di sesi. Silakan lanjutkan input pekerjaan.',
-            'redirect_to_pekerjaan': True,
-            'redirect_url': url_for('pekerjaan') 
-        }) 
-
+                'success': True,
+                'message': 'Data individu berhasil disimpan di sesi. Silakan lanjutkan input pekerjaan.',
+                'redirect_to_pekerjaan': True,
+                'redirect_url': url_for('pekerjaan')
+            })
         else:
-            # Save directly to Excel without going to pekerjaan page
             row_data = {
                 'Timestamp': datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
                 'ID Keluarga': keluarga_data['keluarga_id'],
@@ -325,7 +248,6 @@ def submit_individu():
                 'Apakah Memiliki Pekerjaan': memiliki_pekerjaan or '',
                 'Status Pekerjaan yang Diinginkan': status_pekerjaan_diinginkan or '',
                 'Bidang Usaha yang Diminati': bidang_usaha_diminati or '',
-                # Empty pekerjaan fields since no job details needed
                 'Status Pekerjaan Utama': '',
                 'Pemasaran Usaha Utama': '',
                 'Penjualan Marketplace Utama': '',
@@ -341,24 +263,9 @@ def submit_individu():
                 'Penjualan Marketplace Sampingan 2': '',
                 'Status Pekerjaan Diinginkan Sampingan 2': '',
                 'Bidang Usaha Sampingan 2': '',
-                'Memiliki Lebih dari Satu Pekerjaan': '',
-                # Add surveyor information
-                'Nama Pencacah': keluarga_data['nama_pencacah'],
-                'HP Pencacah': keluarga_data['hp_pencacah'],
-                'Tanggal Pencacah': keluarga_data['tanggal_pencacah'],
-                'TTD Pencacah': keluarga_data['ttd_pencacah'],
-                'Nama Pemeriksa': keluarga_data['nama_pemeriksa'],
-                'HP Pemeriksa': keluarga_data['hp_pemeriksa'],
-                'Tanggal Pemeriksa': keluarga_data['tanggal_pemeriksa'],
-                'TTD Pemeriksa': keluarga_data['ttd_pemeriksa'],
-                'Nama Pemberi Jawaban': keluarga_data['nama_pemberi_jawaban'],
-                'HP Pemberi Jawaban': keluarga_data['hp_pemberi_jawaban'],
-                'Tanggal Pemberi Jawaban': keluarga_data['tanggal_pemberi_jawaban'],
-                'TTD Pemberi Jawaban': keluarga_data['ttd_pemberi_jawaban'],
-                'Catatan': keluarga_data['catatan']
+                'Memiliki Lebih dari Satu Pekerjaan': ''
             }
-            
-            # Save to Excel
+
             try:
                 if os.path.exists(EXCEL_FILE):
                     try:
@@ -377,11 +284,9 @@ def submit_individu():
             except Exception as e:
                 return jsonify({'success': False, 'message': f'Error saving to Excel: {str(e)}'}), 500
 
-            # Decrease remaining members count
             keluarga_data['jumlah_anggota_15plus'] -= 1
             session['keluarga_data'] = keluarga_data
 
-            # Check if there are more members to process
             if keluarga_data['jumlah_anggota_15plus'] > 0:
                 return jsonify({
                     'success': True,
@@ -390,7 +295,6 @@ def submit_individu():
                     'continue_next_member': True
                 })
             else:
-                # All members processed, clear session
                 session.pop('keluarga_data', None)
                 return jsonify({
                     'success': True,
@@ -415,7 +319,6 @@ def submit_pekerjaan():
         individu_data = session['individu_data']
         form_data = request.form.to_dict()
 
-        # Build single row with all job data
         row_data = {
             'Timestamp': datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
             'ID Keluarga': keluarga_data['keluarga_id'],
@@ -436,27 +339,11 @@ def submit_pekerjaan():
             'Kegiatan Sehari-hari': individu_data['Kegiatan Sehari-hari'],
             'Apakah Memiliki Pekerjaan': individu_data['Apakah Memiliki Pekerjaan'],
             'Status Pekerjaan yang Diinginkan': individu_data['Status Pekerjaan yang Diinginkan'],
-            'Bidang Usaha yang Diminati': individu_data['Bidang Usaha yang Diminati'],
-            # Add surveyor information
-            'Nama Pencacah': keluarga_data['nama_pencacah'],
-            'HP Pencacah': keluarga_data['hp_pencacah'],
-            'Tanggal Pencacah': keluarga_data['tanggal_pencacah'],
-            'TTD Pencacah': keluarga_data['ttd_pencacah'],
-            'Nama Pemeriksa': keluarga_data['nama_pemeriksa'],
-            'HP Pemeriksa': keluarga_data['hp_pemeriksa'],
-            'Tanggal Pemeriksa': keluarga_data['tanggal_pemeriksa'],
-            'TTD Pemeriksa': keluarga_data['ttd_pemeriksa'],
-            'Nama Pemberi Jawaban': keluarga_data['nama_pemberi_jawaban'],
-            'HP Pemberi Jawaban': keluarga_data['hp_pemberi_jawaban'],
-            'Tanggal Pemberi Jawaban': keluarga_data['tanggal_pemberi_jawaban'],
-            'TTD Pemberi Jawaban': keluarga_data['ttd_pemberi_jawaban'],
-            'Catatan': keluarga_data['catatan']
+            'Bidang Usaha yang Diminati': individu_data['Bidang Usaha yang Diminati']
         }
 
-        # Add multiple jobs info
         row_data['Memiliki Lebih dari Satu Pekerjaan'] = form_data.get('lebih_dari_satu_pekerjaan', 'Tidak')
 
-        # Process main job (index 0)
         main_job_status = form_data.get('status_pekerjaan_0', '')
         if not main_job_status:
             return jsonify({'success': False, 'message': 'Status pekerjaan utama harus diisi'}), 400
@@ -466,20 +353,18 @@ def submit_pekerjaan():
             'Pemasaran Usaha Utama': form_data.get('pemasaran_usaha_0', ''),
             'Penjualan Marketplace Utama': form_data.get('penjualan_marketplace_0', ''),
             'Status Pekerjaan Diinginkan Utama': form_data.get('status_pekerjaan_diinginkan_0', ''),
-            'Bidang Usaha Utama': form_data.get('bidang_usaha_0', ''),
+            'Bidang Usaha Utama': form_data.get('bidang_usaha_0', '')
         })
 
-        # Process side jobs (up to 2 side jobs)
-        for i in range(1, 3):  # Side jobs 1 and 2
+        for i in range(1, 3):
             row_data.update({
                 f'Status Pekerjaan Sampingan {i}': form_data.get(f'status_pekerjaan_{i}', ''),
                 f'Pemasaran Usaha Sampingan {i}': form_data.get(f'pemasaran_usaha_{i}', ''),
                 f'Penjualan Marketplace Sampingan {i}': form_data.get(f'penjualan_marketplace_{i}', ''),
                 f'Status Pekerjaan Diinginkan Sampingan {i}': form_data.get(f'status_pekerjaan_diinginkan_{i}', ''),
-                f'Bidang Usaha Sampingan {i}': form_data.get(f'bidang_usaha_{i}', ''),
+                f'Bidang Usaha Sampingan {i}': form_data.get(f'bidang_usaha_{i}', '')
             })
 
-        # Save to Excel
         try:
             if os.path.exists(EXCEL_FILE):
                 try:
@@ -498,26 +383,20 @@ def submit_pekerjaan():
         except Exception as e:
             return jsonify({'success': False, 'message': f'Error saving to Excel: {str(e)}'}), 500
 
-        # Decrease remaining members count
         keluarga_data['jumlah_anggota_15plus'] -= 1
         session['keluarga_data'] = keluarga_data
-
-        # Remove individual data from session
         session.pop('individu_data', None)
 
-        # Count how many jobs were entered
-        job_count = 1  # Main job
+        job_count = 1
         for i in range(1, 3):
             if form_data.get(f'status_pekerjaan_{i}'):
                 job_count += 1
 
-        # Prepare success message
         if job_count == 1:
             message = 'Data pekerjaan utama berhasil disimpan.'
         else:
             message = f'Data pekerjaan utama dan {job_count - 1} pekerjaan sampingan berhasil disimpan.'
 
-        # Check if there are more members to process
         if keluarga_data['jumlah_anggota_15plus'] > 0:
             return jsonify({
                 'success': True,
@@ -526,7 +405,6 @@ def submit_pekerjaan():
                 'redirect_url': url_for('lanjutan')
             })
         else:
-            # All members processed, clear session
             session.pop('keluarga_data', None)
             return jsonify({
                 'success': True,
@@ -540,19 +418,15 @@ def submit_pekerjaan():
 
 @app.route('/download/<filename>')
 def download_file(filename):
-    """Route to download Excel file"""
     try:
-        # Make sure filename is the allowed one
         if filename != EXCEL_FILENAME:
             return "File tidak ditemukan", 404
         
         file_path = os.path.join(EXCEL_FOLDER, filename)
         
-        # Make sure file exists
         if not os.path.exists(file_path):
             return "File tidak ditemukan", 404
         
-        # Set download filename
         download_name = f"data_sensus_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         
         return send_from_directory(
@@ -567,7 +441,6 @@ def download_file(filename):
 
 @app.route('/check-file')
 def check_file():
-    """Check if Excel file exists"""
     exists = os.path.exists(EXCEL_FILE)
     return jsonify({'exists': exists})
 

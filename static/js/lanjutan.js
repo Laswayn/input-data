@@ -241,3 +241,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+function checkHubungan() {
+  const hubungan = document.getElementById('hubungan').value;
+  const statusPerkawinan = document.getElementById('status_perkawinan');
+  const optionBelumKawin = statusPerkawinan.querySelector('option[value="Belum Kawin"]');
+
+
+  // Reset the status perkawinan dropdown
+  if (hubungan === "Suami/Istri") {
+    optionBelumKawin.disabled = true; // Disable "Belum Kawin"
+    if (statusPerkawinan.value === "Belum Kawin") {
+      statusPerkawinan.value = ""; // Reset if currently selected
+    }
+  } else {
+    optionBelumKawin.disabled = false; // Enable "Belum Kawin" for other relationships
+  }
+}
