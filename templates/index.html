@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Input Data Keluarga</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+                950: "#082f49",
+              },
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-in-out",
+              "slide-up": "slideUp 0.5s ease-out",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { transform: "translateY(20px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-primary-50 min-h-screen py-8 px-4 flex items-center justify-center">
+    <div class="container mx-auto max-w-2xl">
+        <div class="form-card bg-white">
+            <div class="form-header">
+                <h1 class="text-2xl font-bold text-center">Form Input Data Desa Sidokepung</h1>
+                <p class="text-center text-primary-100 mt-1 text-sm">Silakan isi data dengan lengkap dan benar</p>
+            </div>
+
+            <form id="dataForm" class="p-6 space-y-5">
+                <!-- RT/RW/Dusun Fields -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="relative">
+                        <label for="rt" class="block text-sm font-medium text-gray-700 mb-1">RT</label>
+                        <input type="text" id="rt" name="rt" placeholder="Contoh: 01" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                        <p id="rt_error" class="text-red-500 text-xs mt-1 hidden">Wajib diisi</p>
+                    </div>
+
+                    <div class="relative">
+                        <label for="rw" class="block text-sm font-medium text-gray-700 mb-1">RW</label>
+                        <input type="text" id="rw" name="rw" placeholder="Contoh: 03" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                        <p id="rw_error" class="text-red-500 text-xs mt-1 hidden">Wajib diisi</p>
+                    </div>
+
+                    <div class="relative">
+                        <label for="dusun" class="block text-sm font-medium text-gray-700 mb-1">Dusun</label>
+                        <input type="text" id="dusun" name="dusun" placeholder="Contoh: Melati" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                        <p id="dusun_error" class="text-red-500 text-xs mt-1 hidden">Wajib diisi</p>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <label for="nama_kepala" class="block text-sm font-medium text-gray-700 mb-1">Nama Kepala Keluarga</label>
+                    <input type="text" id="nama_kepala" name="nama_kepala" placeholder="Masukkan nama kepala keluarga" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                    <p id="nama_kepala_error" class="text-red-500 text-xs mt-1 hidden">Field ini tidak boleh kosong</p>
+                </div>
+
+                <div class="relative">
+                    <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label>
+                    <textarea id="alamat" name="alamat" rows="3" placeholder="Jalan/Gang dan Nomor Rumah" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 resize-none"></textarea>
+                    <p id="alamat_error" class="text-red-500 text-xs mt-1 hidden">Field ini tidak boleh kosong</p>
+                </div>
+
+                <!-- Jumlah Anggota Fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="relative">
+                        <label for="jumlah_anggota" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggota Keluarga</label>
+                        <input type="number" id="jumlah_anggota" name="jumlah_anggota" min="1" placeholder="Contoh: 4" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                        <p id="jumlah_anggota_error" class="text-red-500 text-xs mt-1 hidden">Wajib diisi</p>
+                    </div>
+
+                    <div class="relative">
+                        <label for="jumlah_anggota_15plus" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggota Usia 15+</label>
+                        <input type="number" id="jumlah_anggota_15plus" name="jumlah_anggota_15plus" min="0" placeholder="Contoh: 3" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                        <p id="jumlah_anggota_15plus_error" class="text-red-500 text-xs mt-1 hidden">Wajib diisi</p>
+                    </div>
+                </div>
+
+                <!-- Petugas Pencacah -->
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h2 class="text-lg font-semibold text-blue-800 mb-4">Petugas Pencacah</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nama Petugas</label>
+                            <input type="text" name="nama_pencacah" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nomor HP</label>
+                            <input type="tel" name="hp_pencacah" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tanggal Pelaksanaan</label>
+                            <input type="date" name="tanggal_pencacah" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tanda Tangan (Foto)</label>
+                            <input type="file" name="ttd_pencacah" accept="image/*" capture="camera" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg">
+                            <div id="preview_ttd_pencacah" class="mt-2 hidden">
+                                <img src="" alt="Preview tanda tangan" class="max-w-xs rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Petugas Pemeriksa -->
+                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h2 class="text-lg font-semibold text-green-800 mb-4">Petugas Pemeriksa</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nama Petugas</label>
+                            <input type="text" name="nama_pemeriksa" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nomor HP</label>
+                            <input type="tel" name="hp_pemeriksa" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tanggal Pemeriksaan</label>
+                            <input type="date" name="tanggal_pemeriksa" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tanda Tangan (Foto)</label>
+                            <input type="file" name="ttd_pemeriksa" accept="image/*" capture="camera" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg">
+                            <div id="preview_ttd_pemeriksa" class="mt-2 hidden">
+                                <img src="" alt="Preview tanda tangan" class="max-w-xs rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pemberi Jawaban -->
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <h2 class="text-lg font-semibold text-yellow-800 mb-4">Pemberi Jawaban</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nama</label>
+                            <input type="text" name="nama_pemberi_jawaban" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nomor HP</label>
+                            <input type="tel" name="hp_pemberi_jawaban" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tanggal</label>
+                            <input type="date" name="tanggal_pemberi_jawaban" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tanda Tangan (Foto)</label>
+                            <input type="file" name="ttd_pemberi_jawaban" accept="image/*" capture="camera" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg">
+                            <div id="preview_ttd_pemberi_jawaban" class="mt-2 hidden">
+                                <img src="" alt="Preview tanda tangan" class="max-w-xs rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Catatan -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Catatan</h2>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Catatan Tambahan</label>
+                        <textarea name="catatan" rows="4" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg" placeholder="Masukkan catatan tambahan jika ada..."></textarea>
+                    </div>
+                </div>
+
+                <div class="pt-3">
+                    <button type="submit" class="submit-btn w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        Simpan Data
+                    </button>
+                </div>
+            </form>
+
+            <div class="px-6 pb-6">
+                <a id="downloadExcel" href="#" class="download-btn hidden w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 text-center block flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Download Data Sensus
+                </a>
+            </div>
+        </div>
+        
+        <!-- Alert Success -->
+        <div id="successAlert" class="alert hidden mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md" role="alert">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="font-bold">Berhasil!</p>
+                    <p class="text-sm">Data telah berhasil disimpan.</p>
+                    <div class="mt-2">
+                        <a id="downloadLink" href="#" class="text-green-800 font-medium underline flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            Download Data Sensus
+                        </a>
+                    </div>
+                </div>
+                <button id="closeAlert" class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg p-1.5 hover:bg-green-200 inline-flex h-8 w-8">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        
+        <!-- Alert Error -->
+        <div id="errorAlert" class="alert hidden mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md" role="alert">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="font-bold">Error!</p>
+                    <p id="errorMessage" class="text-sm">Terjadi kesalahan.</p>
+                </div>
+                <button id="closeErrorAlert" class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg p-1.5 hover:bg-red-200 inline-flex h-8 w-8">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>

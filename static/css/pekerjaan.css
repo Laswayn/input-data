@@ -1,0 +1,82 @@
+/* Warna dasar */
+:root {
+    --primary-color: #3b82f6; /* Warna biru */
+    --primary-light: #93c5fd; /* Warna biru muda */
+    --primary-dark: #1e40af; /* Warna biru gelap */
+    --gray-light: #f3f4f6; /* Warna abu-abu terang */
+    --gray-dark: #374151; /* Warna abu-abu gelap */
+}
+
+/* Gaya untuk body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--primary-light);
+}
+
+/* Gaya untuk container */
+.container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Gaya untuk form card */
+.form-card {
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Gaya untuk input dan select */
+.form-input {
+    border: 1px solid #d1d5db; /* Warna abu-abu */
+    border-radius: 4px;
+    padding: 10px;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* Efek fokus */
+}
+
+/* Gaya untuk tombol */
+.submit-btn {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Gaya untuk tombol kembali */
+.back-btn {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+    padding: 12px;
+    border-radius: 4px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #e5e7eb; /* Warna abu-abu lebih terang */
+}
+
+/* Gaya untuk alert */
+.alert {
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}
