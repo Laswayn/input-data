@@ -258,3 +258,32 @@ function checkHubungan() {
     optionBelumKawin.disabled = false; // Enable "Belum Kawin" for other relationships
   }
 }
+
+function toggleOtherInput() {
+  const bidangUsahaSelect = document.getElementById('bidang_usaha');
+  const otherBidangUsahaDiv = document.getElementById('other_bidang_usaha');
+  const otherBidangUsahaInput = document.getElementById('other_bidang_usaha_input');
+
+
+  if (bidangUsahaSelect.value === "Lainnya") {
+    otherBidangUsahaDiv.classList.remove('hidden'); // Show the input field
+    otherBidangUsahaInput.value = ''; // Clear the input field
+  } else {
+    otherBidangUsahaDiv.classList.add('hidden'); // Hide the input field
+  }
+}
+
+function checkKegiatan() {
+  const kegiatan = document.getElementById('kegiatan').value;
+  const memilikiPekerjaanSelect = document.getElementById('memiliki_pekerjaan');
+
+  if (kegiatan === "Bekerja") {
+    // Set the "memiliki_pekerjaan" dropdown to "Ya" and disable it
+    memilikiPekerjaanSelect.value = "Ya";
+    memilikiPekerjaanSelect.disabled = true; // Disable the dropdown
+  } else {
+    // Enable the dropdown for other activities
+    memilikiPekerjaanSelect.disabled = false; // Enable the dropdown
+    memilikiPekerjaanSelect.value = ""; // Reset the selection
+  }
+}

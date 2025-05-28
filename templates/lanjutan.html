@@ -346,6 +346,7 @@
                   id="kegiatan"
                   name="kegiatan"
                   class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
+                  onchange="checkKegiatan()"
                 >
                   <option value="" disabled selected>
                     Pilih kegiatan sehari-hari
@@ -381,9 +382,9 @@
                 Wajib dipilih
               </p>
             </div>
+            &nbsp;
+            &nbsp;
 
-
-            <!-- 5.10 Memiliki Pekerjaan Tetapi Sedang Tidak Bekerja (hanya muncul jika 5.7, 5.8, 5.9 semua "Tidak") -->
             <div
               id="pertanyaan_5_10"
               class="bg-primary-50 p-4 rounded-lg border border-primary-200"
@@ -485,16 +486,55 @@
                 class="block text-sm font-medium text-gray-700 mb-2"
                 >Usaha di Bidang Apa yang Diminati oleh <span class="nama-placeholder">NAMA</span></label
               >
-              <input
-                type="text"
-                id="bidang_usaha"
-                name="bidang_usaha"
-                placeholder="Masukkan bidang usaha yang diminati"
-                class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300"
-              />
+              <div class="relative mt-2">
+                <select
+                  id="bidang_usaha"
+                  name="bidang_usaha"
+                  class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
+                  onchange="toggleOtherInput()"
+                >
+                  <option value="" disabled selected>Pilih bidang usaha</option>
+                  <option value="Pelatihan Barista">1. Pelatihan Barista</option>
+                  <option value="Pelatihan Pastry">2. Pelatihan Pastry</option>
+                  <option value="Pelatihan Perawatan AC">3. Pelatihan Perawatan AC</option>
+                  <option value="Pelatihan Menjahit">4. Pelatihan Menjahit</option>
+                  <option value="Lainnya">5. Lainnya</option>
+                </select>
+                <div
+                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500"
+                >
+                  <svg
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
               <p id="bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
-                Wajib diisi jika memilih "Berusaha Sendiri"
+                Wajib dipilih jika memilih "Berusaha Sendiri"
               </p>
+
+              <!-- Input for "Lainnya" -->
+              <div id="other_bidang_usaha" class="mt-2 hidden">
+                <input
+                  type="text"
+                  id="other_bidang_usaha_input"
+                  name="other_bidang_usaha_input"
+                  placeholder="Masukkan bidang usaha yang diminati"
+                  class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300"
+                />
+                <p id="other_bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
+                  Wajib diisi jika memilih "Lainnya"
+                </p>
+              </div>
             </div>
 
             <div class="pt-4 space-y-3">
