@@ -6,6 +6,29 @@
     <title>Form Input Data Pekerjaan</title>
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+                950: "#082f49",
+              },
+            },
+          },
+        },
+      };
+    </script>
     <link
       rel="stylesheet"
       type="text/css"
@@ -21,7 +44,7 @@
             </div>
 
             <div class="p-6">
-                <form id="pekerjaanForm" method="POST" action="{{ url_for('submit_pekerjaan') }}" class="space-y-6">
+                <form id="pekerjaanForm" method="POST" class="space-y-6">
                     <!-- Info Anggota -->
                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                         <h3 class="font-semibold text-blue-800 mb-2">Informasi Anggota</h3>
@@ -41,12 +64,41 @@
                             Pekerjaan Utama
                         </h2>
                         <div class="space-y-4">
+                            <!-- Bidang Pekerjaan Dropdown -->
+                            <div>
+                                <label for="bidang_pekerjaan" class="block text-sm font-medium text-gray-700">Bidang Pekerjaan *</label>
+                                <select id="bidang_pekerjaan" name="bidang_pekerjaan" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" required>
+                                    <option value="" disabled selected>Pilih Bidang Pekerjaan</option>
+                                    <option value="Pertanian, Kehutanan dan Perikanan">A - Pertanian, Kehutanan dan Perikanan</option>
+                                    <option value="Pertambangan dan Penggalian">B - Pertambangan dan Penggalian</option>
+                                    <option value="Industri Pengolahan">C - Industri Pengolahan</option>
+                                    <option value="Pengadaan Listrik, Gas, Uap dan AC">D - Pengadaan Listrik, Gas, Uap dan AC</option>
+                                    <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang">E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
+                                    <option value="Konstruksi">F - Konstruksi</option>
+                                    <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor">G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
+                                    <option value="Transportasi dan Pergudangan">H - Transportasi dan Pergudangan</option>
+                                    <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum">I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
+                                    <option value="Informasi dan Komunikasi">J - Informasi dan Komunikasi</option>
+                                    <option value="Jasa Keuangan dan Asuransi">K - Jasa Keuangan dan Asuransi</option>
+                                    <option value="Real Estat">L - Real Estat</option>
+                                    <option value="Jasa Profesional, Ilmiah dan Teknis">M - Jasa Profesional, Ilmiah dan Teknis</option>
+                                    <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya">N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
+                                    <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial">O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
+                                    <option value="Jasa Pendidikan">P - Jasa Pendidikan</option>
+                                    <option value="Jasa Kesehatan dan Kegiatan Sosial">Q - Jasa Kesehatan dan Kegiatan Sosial</option>
+                                    <option value="Kesenian, Hiburan dan Rekreasi">R - Kesenian, Hiburan dan Rekreasi</option>
+                                    <option value="Jasa lainnya">S - Jasa lainnya</option>
+                                    <option value="Jasa Perorangan yang Melayani Rumah Tangga">T - Jasa Perorangan yang Melayani Rumah Tangga</option>
+                                    <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional">U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
+                                </select>
+                            </div>
+                            
                             <div>
                                 <label for="status_pekerjaan_0" class="block text-sm font-medium text-gray-700">Status Pekerjaan *</label>
                                 <select id="status_pekerjaan_0" name="status_pekerjaan_0" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" required onchange="toggleFields(0)">
                                     <option value="" disabled selected>Pilih Status Pekerjaan</option>
                                     <option value="Berusaha Sendiri">Berusaha Sendiri</option>
-                                    <option value="Buruh/Karyawan/Pegawai">Buruh/Karyawan/Pegawai</option>
+                                    <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas">Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
                                     <option value="Pekerja Keluarga">Pekerja Keluarga</option>
                                 </select>
                             </div>
@@ -82,7 +134,44 @@
 
                                     <div id="bidang_usaha_container_0">
                                         <label for="bidang_usaha_0" class="block text-sm font-medium text-gray-700">Usaha di Bidang Apa yang Anda Minati</label>
-                                        <input type="text" id="bidang_usaha_0" name="bidang_usaha_0" placeholder="Masukkan bidang usaha" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" />
+                                        <div class="relative mt-2">
+                                            <select
+                                                id="bidang_usaha_0"
+                                                name="bidang_usaha_0"
+                                                class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
+                                                onchange="toggleOtherInput()"
+                                            >
+                                                <option value="" disabled selected>Pilih bidang usaha</option>
+                                                <option value="Pelatihan Barista">1. Pelatihan Barista</option>
+                                                <option value="Pelatihan Pastry">2. Pelatihan Pastry</option>
+                                                <option value="Pelatihan Perawatan AC">3. Pelatihan Perawatan AC</option>
+                                                <option value="Pelatihan Menjahit">4. Pelatihan Menjahit</option>
+                                                <option value="Lainnya">5. Lainnya</option>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <p id="bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
+                                            Wajib dipilih jika memilih "Berusaha Sendiri"
+                                        </p>
+
+
+                                        <!-- Input for "Lainnya" -->
+                                        <div id="other_bidang_usaha" class="mt-2 hidden">
+                                            <input
+                                                type="text"
+                                                id="other_bidang_usaha_input"
+                                                name="other_bidang_usaha_input"
+                                                placeholder="Masukkan bidang usaha yang diminati"
+                                                class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300"
+                                            />
+                                            <p id="other_bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
+                                                Wajib diisi jika memilih "Lainnya"
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -154,11 +243,11 @@
                             </svg>
                             Simpan & Lanjutkan
                         </button>
-                        <a href="/" class="back-btn w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-4 rounded-lg transition duration-300 text-center block flex items-center justify-center">
+                        <a href="{{ url_for('lanjutan') }}" class="back-btn w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-4 rounded-lg transition duration-300 text-center block flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                             </svg>
-                            Kembali ke Halaman Utama
+                            Kembali ke Data Individu
                         </a>
                     </div>
                 </form>

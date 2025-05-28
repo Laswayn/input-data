@@ -30,7 +30,7 @@
     </script>
   </head>
   <body class="bg-primary-50 min-h-screen py-8 px-4">
-    <div class="container mx-auto max-w-2xl">
+    <div class="container mx-auto max-w-4xl">
       <div class="bg-white rounded-lg shadow-lg overflow-hidden">
         <!-- Header -->
         <div
@@ -83,16 +83,140 @@
               <span class="font-medium">Anggota Usia 15+:</span> {{
               keluarga_data.all_members_data|length }}
             </div>
-            <a href="{{ url_for('edit_keluarga') }}">Edit Data Keluarga</a>
-            {% for member in keluarga_data.all_members_data %}
-            <div>
-              <p>Anggota Ke {{ loop.index }}: {{ member['Nama Anggota'] }}</p>
-              <a href="{{ url_for('edit_individu', index=loop.index0) }}"
-                >Edit Data Individu</a
-              >
-            </div>
-            {% endfor %}
           </div>
+          
+          <div class="mt-4">
+            <a href="{{ url_for('edit_keluarga') }}" class="text-blue-600 hover:text-blue-800 underline text-sm">Edit Data Keluarga</a>
+          </div>
+        </div>
+
+        <!-- Members Summary -->
+        <div class="bg-gray-50 p-4 border-b">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">
+            Data Anggota Keluarga
+          </h2>
+          
+          {% for member in keluarga_data.all_members_data %}
+          <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="font-semibold text-gray-800">
+                Anggota Ke {{ loop.index }}: {{ member['Nama Anggota'] }}
+              </h3>
+              <a href="{{ url_for('edit_individu', index=loop.index0) }}" 
+                 class="text-blue-600 hover:text-blue-800 underline text-sm">
+                Edit Data
+              </a>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+              <div><span class="font-medium">Umur:</span> {{ member['Umur'] }} tahun</div>
+              <div><span class="font-medium">Jenis Kelamin:</span> {{ member['Jenis Kelamin'] }}</div>
+              <div><span class="font-medium">Hubungan:</span> {{ member['Hubungan dengan Kepala Keluarga'] }}</div>
+              <div><span class="font-medium">Status Perkawinan:</span> {{ member['Status Perkawinan'] }}</div>
+              <div><span class="font-medium">Pendidikan:</span> {{ member['Pendidikan Terakhir'] }}</div>
+              <div><span class="font-medium">Kegiatan:</span> {{ member['Kegiatan Sehari-hari'] }}</div>
+              <div class="col-span-2"><span class="font-medium">Memiliki Pekerjaan:</span> {{ member['Apakah Memiliki Pekerjaan'] }}</div>
+            </div>
+
+            <!-- Job Information -->
+            {% if member['Apakah Memiliki Pekerjaan'] == 'Ya' %}
+            <div class="bg-green-50 p-3 rounded border border-green-200">
+              <h4 class="font-medium text-green-800 mb-2">Informasi Pekerjaan</h4>
+              
+              <!-- Bidang Pekerjaan -->
+              {% if member['Bidang Pekerjaan'] %}
+              <div class="mb-2">
+                <span class="font-medium text-green-700 text-sm">Bidang Pekerjaan:</span>
+                <span class="text-sm text-gray-600 ml-1">{{ member['Bidang Pekerjaan'] }}</span>
+              </div>
+              {% endif %}
+              
+              <!-- Main Job -->
+              {% if member['Status Pekerjaan Utama'] %}
+              <div class="mb-3">
+                <h5 class="font-medium text-green-700 text-sm">Pekerjaan Utama:</h5>
+                <div class="text-sm text-gray-600 ml-2">
+                  <div>Status: {{ member['Status Pekerjaan Utama'] }}</div>
+                  {% if member['Pemasaran Usaha Utama'] %}
+                  <div>Pemasaran: {{ member['Pemasaran Usaha Utama'] }}</div>
+                  {% endif %}
+                  {% if member['Penjualan Marketplace Utama'] %}
+                  <div>Marketplace: {{ member['Penjualan Marketplace Utama'] }}</div>
+                  {% endif %}
+                  {% if member['Status Pekerjaan Diinginkan Utama'] %}
+                  <div>Status Diinginkan: {{ member['Status Pekerjaan Diinginkan Utama'] }}</div>
+                  {% endif %}
+                  {% if member['Bidang Usaha Utama'] %}
+                  <div>Bidang Usaha: {{ member['Bidang Usaha Utama'] }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Side Jobs -->
+              {% if member['Memiliki Lebih dari Satu Pekerjaan'] == 'Ya' %}
+              <div class="text-sm">
+                <div class="font-medium text-green-700 mb-1">Pekerjaan Sampingan:</div>
+                
+                {% if member['Status Pekerjaan Sampingan 1'] %}
+                <div class="ml-2 mb-2">
+                  <div class="font-medium text-gray-700">Sampingan 1:</div>
+                  <div class="text-gray-600 ml-2">
+                    <div>Status: {{ member['Status Pekerjaan Sampingan 1'] }}</div>
+                    {% if member['Pemasaran Usaha Sampingan 1'] %}
+                    <div>Pemasaran: {{ member['Pemasaran Usaha Sampingan 1'] }}</div>
+                    {% endif %}
+                    {% if member['Penjualan Marketplace Sampingan 1'] %}
+                    <div>Marketplace: {{ member['Penjualan Marketplace Sampingan 1'] }}</div>
+                    {% endif %}
+                    {% if member['Status Pekerjaan Diinginkan Sampingan 1'] %}
+                    <div>Status Diinginkan: {{ member['Status Pekerjaan Diinginkan Sampingan 1'] }}</div>
+                    {% endif %}
+                    {% if member['Bidang Usaha Sampingan 1'] %}
+                    <div>Bidang Usaha: {{ member['Bidang Usaha Sampingan 1'] }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+
+                {% if member['Status Pekerjaan Sampingan 2'] %}
+                <div class="ml-2">
+                  <div class="font-medium text-gray-700">Sampingan 2:</div>
+                  <div class="text-gray-600 ml-2">
+                    <div>Status: {{ member['Status Pekerjaan Sampingan 2'] }}</div>
+                    {% if member['Pemasaran Usaha Sampingan 2'] %}
+                    <div>Pemasaran: {{ member['Pemasaran Usaha Sampingan 2'] }}</div>
+                    {% endif %}
+                    {% if member['Penjualan Marketplace Sampingan 2'] %}
+                    <div>Marketplace: {{ member['Penjualan Marketplace Sampingan 2'] }}</div>
+                    {% endif %}
+                    {% if member['Status Pekerjaan Diinginkan Sampingan 2'] %}
+                    <div>Status Diinginkan: {{ member['Status Pekerjaan Diinginkan Sampingan 2'] }}</div>
+                    {% endif %}
+                    {% if member['Bidang Usaha Sampingan 2'] %}
+                    <div>Bidang Usaha: {{ member['Bidang Usaha Sampingan 2'] }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+            {% else %}
+            <!-- No Job Information -->
+            <div class="bg-yellow-50 p-3 rounded border border-yellow-200">
+              <div class="text-sm text-yellow-800">
+                {% if member['Status Pekerjaan yang Diinginkan'] %}
+                <div><span class="font-medium">Status Pekerjaan yang Diinginkan:</span> {{ member['Status Pekerjaan yang Diinginkan'] }}</div>
+                {% endif %}
+                {% if member['Bidang Usaha yang Diminati'] %}
+                <div><span class="font-medium">Bidang Usaha yang Diminati:</span> {{ member['Bidang Usaha yang  }}</div>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
         </div>
 
         <form id="finalForm" class="p-6 space-y-6">
@@ -420,195 +544,6 @@
       </div>
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const finalForm = document.getElementById("finalForm");
-        const successAlert = document.getElementById("successAlert");
-        const errorAlert = document.getElementById("errorAlert");
-        const errorMessage = document.getElementById("errorMessage");
-        const closeAlert = document.getElementById("closeAlert");
-        const closeErrorAlert = document.getElementById("closeErrorAlert");
-        const downloadLink = document.getElementById("downloadLink");
-
-        // Set current date and time as default
-        const now = new Date();
-        const currentDateTime =
-          now.toLocaleDateString("id-ID", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }) +
-          " " +
-          now.toLocaleTimeString("id-ID");
-
-        document.getElementById("tanggal_pencacah").value = currentDateTime;
-        document.getElementById("tanggal_pemberi_jawaban").value =
-          currentDateTime;
-
-        // Form validation and submission
-        finalForm.addEventListener("submit", (e) => {
-          e.preventDefault();
-
-          // Reset error messages
-          document
-            .querySelectorAll(".text-red-500")
-            .forEach((el) => el.classList.add("hidden"));
-
-          let isValid = true;
-
-          // Validate required fields
-          const requiredFields = [
-            "nama_pencacah",
-            "hp_pencacah",
-            "nama_pemberi_jawaban",
-            "hp_pemberi_jawaban",
-          ];
-
-          requiredFields.forEach((field) => {
-            const input = document.getElementById(field);
-            const error = document.getElementById(`${field}_error`);
-
-            if (!input.value.trim()) {
-              error.classList.remove("hidden");
-              isValid = false;
-
-              // Add shake animation
-              input.classList.add("border-red-500");
-              input.animate(
-                [
-                  { transform: "translateX(0)" },
-                  { transform: "translateX(-5px)" },
-                  { transform: "translateX(5px)" },
-                  { transform: "translateX(-5px)" },
-                  { transform: "translateX(5px)" },
-                  { transform: "translateX(0)" },
-                ],
-                {
-                  duration: 500,
-                  easing: "ease-in-out",
-                }
-              );
-
-              // Remove red border after 2 seconds
-              setTimeout(() => {
-                input.classList.remove("border-red-500");
-              }, 2000);
-            }
-          });
-
-          if (isValid) {
-            // Create form data
-            const formData = new FormData(finalForm);
-
-            // Show loading state
-            const submitButton = finalForm.querySelector(
-              'button[type="submit"]'
-            );
-            const originalButtonText = submitButton.innerHTML;
-            submitButton.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Menyimpan...
-                    `;
-            submitButton.disabled = true;
-
-            // Send data to server
-            fetch("/submit-final", {
-              method: "POST",
-              body: formData,
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                // Reset button state
-                submitButton.innerHTML = originalButtonText;
-                submitButton.disabled = false;
-
-                if (data.success) {
-                  // Show success message
-                  successAlert.classList.remove("hidden");
-                  errorAlert.classList.add("hidden");
-
-                  // Update download link
-                  if (data.download_url) {
-                    downloadLink.href = data.download_url;
-                  }
-
-                  // Scroll to success message
-                  successAlert.scrollIntoView({ behavior: "smooth" });
-
-                  // Redirect after 3 seconds
-                  setTimeout(() => {
-                    if (data.redirect_url) {
-                      window.location.href = data.redirect_url;
-                    }
-                  }, 3000);
-                } else {
-                  // Show error message
-                  errorMessage.textContent =
-                    data.message || "Terjadi kesalahan.";
-                  errorAlert.classList.remove("hidden");
-                  successAlert.classList.add("hidden");
-
-                  // Scroll to error message
-                  errorAlert.scrollIntoView({ behavior: "smooth" });
-                }
-              })
-              .catch((error) => {
-                // Reset button state
-                submitButton.innerHTML = originalButtonText;
-                submitButton.disabled = false;
-
-                console.error("Error:", error);
-                errorMessage.textContent = "Terjadi kesalahan pada server.";
-                errorAlert.classList.remove("hidden");
-                successAlert.classList.add("hidden");
-
-                // Scroll to error message
-                errorAlert.scrollIntoView({ behavior: "smooth" });
-              });
-          } else {
-            // Show error message
-            errorAlert.classList.remove("hidden");
-            errorMessage.textContent =
-              "Mohon lengkapi semua field yang wajib diisi.";
-
-            // Scroll to first error
-            const firstError = document.querySelector(
-              ".text-red-500:not(.hidden)"
-            );
-            if (firstError) {
-              firstError.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }
-          }
-        });
-
-        // Input event listeners to hide error messages when typing
-        const allInputs = document.querySelectorAll("input, textarea");
-        allInputs.forEach((input) => {
-          input.addEventListener("input", function () {
-            const errorId = `${this.id}_error`;
-            const errorElement = document.getElementById(errorId);
-            if (errorElement) {
-              errorElement.classList.add("hidden");
-            }
-          });
-        });
-
-        // Close alerts
-        closeAlert.addEventListener("click", () => {
-          successAlert.classList.add("hidden");
-        });
-
-        closeErrorAlert.addEventListener("click", () => {
-          errorAlert.classList.add("hidden");
-        });
-      });
-    </script>
+    <script src="{{ url_for('static', filename='js/final.js') }}"></script>
   </body>
 </html>

@@ -295,3 +295,68 @@ function clearSavedData() {
   // Implementation of clearSavedData goes here
   console.log("clearSavedData called");
 }
+
+function checkHubungan() {
+  const hubungan = document.getElementById('hubungan').value;
+  const statusPerkawinan = document.getElementById('status_perkawinan');
+  const optionBelumKawin = statusPerkawinan.querySelector('option[value="Belum Kawin"]');
+
+
+  // Reset the status perkawinan dropdown
+  if (hubungan === "Suami/Istri") {
+    optionBelumKawin.disabled = true; // Disable "Belum Kawin"
+    if (statusPerkawinan.value === "Belum Kawin") {
+      statusPerkawinan.value = ""; // Reset if currently selected
+    }
+  } else {
+    optionBelumKawin.disabled = false; // Enable "Belum Kawin" for other relationships
+  }
+}
+
+function toggleOtherInput() {
+  const bidangUsahaSelect = document.getElementById('bidang_usaha');
+  const otherBidangUsahaDiv = document.getElementById('other_bidang_usaha');
+  const otherBidangUsahaInput = document.getElementById('other_bidang_usaha_input');
+
+
+  if (bidangUsahaSelect.value === "Lainnya") {
+    otherBidangUsahaDiv.classList.remove('hidden'); // Show the input field
+    otherBidangUsahaInput.value = ''; // Clear the input field
+  } else {
+    otherBidangUsahaDiv.classList.add('hidden'); // Hide the input field
+  }
+}
+
+function checkKegiatan() {
+    const kegiatan = document.getElementById('kegiatan').value;
+    const memilikiPekerjaanSelect = document.getElementById('memiliki_pekerjaan');
+    const tidakOption = memilikiPekerjaanSelect.querySelector('option[value="Tidak"]');
+    const statusPekerjaanContainer = document.getElementById("status_pekerjaan_container");
+    const bidangUsahaContainer = document.getElementById("bidang_usaha_container");
+    
+    if (kegiatan === "Bekerja") {
+        // Set the "memiliki_pekerjaan" dropdown to "Ya" and disable "Tidak"
+        memilikiPekerjaanSelect.value = "Ya"; // Automatically select "Ya"
+        tidakOption.disabled = true; // Disable "Tidak"
+
+        // Hide status pekerjaan and bidang usaha containers
+        statusPekerjaanContainer.classList.add("hidden");
+        bidangUsahaContainer.classList.add("hidden");
+
+        // Reset values when hiding
+        document.getElementById("status_pekerjaan_diinginkan").value = "";
+        document.getElementById("bidang_usaha").value = "";
+    } else {
+        // Enable the dropdown and reset the selection for other activities
+        tidakOption.disabled = false; // Enable "Tidak"
+        memilikiPekerjaanSelect.value = ""; // Reset the selection
+
+        // Show status pekerjaan container if "Tidak" is selected
+        if (memilikiPekerjaanSelect.value === "Tidak") {
+            statusPekerjaanContainer.classList.remove("hidden");
+        } else {
+            statusPekerjaanContainer.classList.add("hidden");
+            bidangUsahaContainer.classList.add("hidden");
+        }
+    }
+}

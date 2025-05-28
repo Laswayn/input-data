@@ -85,7 +85,7 @@ function addSideJobFields() {
                     <select id="status_pekerjaan_${jobIndex}" name="status_pekerjaan_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" onchange="toggleFields(${jobIndex})">
                         <option value="">Pilih Status Pekerjaan</option>
                         <option value="Berusaha Sendiri">Berusaha Sendiri</option>
-                        <option value="Buruh/Karyawan/Pegawai">Buruh/Karyawan/Pegawai</option>
+                        <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas">Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
                         <option value="Pekerja Keluarga">Pekerja Keluarga</option>
                     </select>
                 </div>
@@ -301,3 +301,15 @@ document.addEventListener("DOMContentLoaded", () => {
     errorAlert?.classList.add("hidden")
   })
 })
+
+function toggleOtherInput() {
+    const bidangUsahaSelect = document.getElementById('bidang_usaha_0');
+    const otherBidangUsahaDiv = document.getElementById('other_bidang_usaha');
+
+    if (bidangUsahaSelect.value === "Lainnya") {
+        otherBidangUsahaDiv.classList.remove('hidden'); // Show the input field
+    } else {
+        otherBidangUsahaDiv.classList.add('hidden'); // Hide the input field
+        document.getElementById('other_bidang_usaha_input').value = ''; // Clear the input field
+    }
+}

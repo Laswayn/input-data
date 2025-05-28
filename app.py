@@ -159,8 +159,8 @@ def submit_individu():
         # Increment anggota_count
         keluarga_data['anggota_count'] = keluarga_data.get('anggota_count', 0) + 1
         
-        # Always store member data without job details (simplified approach)
-        member_data = {
+        # Create individu data
+        individu_data = {
             'Anggota Ke': keluarga_data['anggota_count'],
             'Nama Anggota': nama,
             'Umur': umur_int,
@@ -172,48 +172,63 @@ def submit_individu():
             'Apakah Memiliki Pekerjaan': memiliki_pekerjaan or '',
             'Status Pekerjaan yang Diinginkan': status_pekerjaan_diinginkan or '',
             'Bidang Usaha yang Diminati': bidang_usaha_diminati or '',
-            # Empty job fields since we're skipping detailed job input
-            'Status Pekerjaan Utama': '',
-            'Pemasaran Usaha Utama': '',
-            'Penjualan Marketplace Utama': '',
-            'Status Pekerjaan Diinginkan Utama': '',
-            'Bidang Usaha Utama': '',
-            'Status Pekerjaan Sampingan 1': '',
-            'Pemasaran Usaha Sampingan 1': '',
-            'Penjualan Marketplace Sampingan 1': '',
-            'Status Pekerjaan Diinginkan Sampingan 1': '',
-            'Bidang Usaha Sampingan 1': '',
-            'Status Pekerjaan Sampingan 2': '',
-            'Pemasaran Usaha Sampingan 2': '',
-            'Penjualan Marketplace Sampingan 2': '',
-            'Status Pekerjaan Diinginkan Sampingan 2': '',
-            'Bidang Usaha Sampingan 2': '',
-            'Memiliki Lebih dari Satu Pekerjaan': '',
         }
         
-        # Add to all_members_data
-        keluarga_data['all_members_data'].append(member_data)
-        
-        # Decrease remaining members count
-        keluarga_data['jumlah_anggota_15plus'] -= 1
-        session['keluarga_data'] = keluarga_data
-
-        # Check if there are more members to process
-        if keluarga_data['jumlah_anggota_15plus'] > 0:
+        # If memiliki_pekerjaan is "Ya", redirect to pekerjaan page
+        if memiliki_pekerjaan == "Ya":
+            # Store individu_data in session for pekerjaan page
+            session['individu_data'] = individu_data
             return jsonify({
                 'success': True,
-                'message': 'Data berhasil disimpan. Lanjutkan ke anggota berikutnya.',
-                'remaining': keluarga_data['jumlah_anggota_15plus'],
-                'continue_next_member': True
+                'message': 'Data berhasil disimpan. Lanjutkan ke input data pekerjaan.',
+                'redirect': True,
+                'redirect_url': url_for('pekerjaan')
             })
         else:
-            # All members processed, go to final page
-            return jsonify({
-                'success': True,
-                'message': 'Semua data anggota berhasil disimpan. Lanjutkan ke halaman akhir.',
-                'redirect': True,
-                'redirect_url': url_for('final_page')
+            # Add empty job fields since we're skipping detailed job input
+            individu_data.update({
+                'Bidang Pekerjaan': '',
+                'Status Pekerjaan Utama': '',
+                'Pemasaran Usaha Utama': '',
+                'Penjualan Marketplace Utama': '',
+                'Status Pekerjaan Diinginkan Utama': '',
+                'Bidang Usaha Utama': '',
+                'Status Pekerjaan Sampingan 1': '',
+                'Pemasaran Usaha Sampingan 1': '',
+                'Penjualan Marketplace Sampingan 1': '',
+                'Status Pekerjaan Diinginkan Sampingan 1': '',
+                'Bidang Usaha Sampingan 1': '',
+                'Status Pekerjaan Sampingan 2': '',
+                'Pemasaran Usaha Sampingan 2': '',
+                'Penjualan Marketplace Sampingan 2': '',
+                'Status Pekerjaan Diinginkan Sampingan 2': '',
+                'Bidang Usaha Sampingan 2': '',
+                'Memiliki Lebih dari Satu Pekerjaan': '',
             })
+            
+            # Add to all_members_data
+            keluarga_data['all_members_data'].append(individu_data)
+            
+            # Decrease remaining members count
+            keluarga_data['jumlah_anggota_15plus'] -= 1
+            session['keluarga_data'] = keluarga_data
+
+            # Check if there are more members to process
+            if keluarga_data['jumlah_anggota_15plus'] > 0:
+                return jsonify({
+                    'success': True,
+                    'message': 'Data berhasil disimpan. Lanjutkan ke anggota berikutnya.',
+                    'remaining': keluarga_data['jumlah_anggota_15plus'],
+                    'continue_next_member': True
+                })
+            else:
+                # All members processed, go to final page
+                return jsonify({
+                    'success': True,
+                    'message': 'Semua data anggota berhasil disimpan. Lanjutkan ke halaman akhir.',
+                    'redirect': True,
+                    'redirect_url': url_for('final_page')
+                })
         
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
@@ -245,6 +260,9 @@ def submit_pekerjaan():
             'Status Pekerjaan yang Diinginkan': individu_data['Status Pekerjaan yang Diinginkan'],
             'Bidang Usaha yang Diminati': individu_data['Bidang Usaha yang Diminati'],
         }
+
+        # Add bidang pekerjaan
+        member_data['Bidang Pekerjaan'] = form_data.get('bidang_pekerjaan', '')
 
         # Add multiple jobs info
         member_data['Memiliki Lebih dari Satu Pekerjaan'] = form_data.get('lebih_dari_satu_pekerjaan', 'Tidak')
@@ -358,6 +376,7 @@ def submit_final():
             'Status Pekerjaan yang Diinginkan': '',
             'Bidang Usaha yang Diminati': '',
             # Empty job fields for head
+            'Bidang Pekerjaan': '',
             'Status Pekerjaan Utama': '',
             'Pemasaran Usaha Utama': '',
             'Penjualan Marketplace Utama': '',
