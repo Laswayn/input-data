@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from datetime import datetime
 import secrets
+import json
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -10,7 +11,9 @@ app.secret_key = secrets.token_hex(16)
 # Create static/Excel folder if it doesn't exist
 STATIC_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 EXCEL_FOLDER = os.path.join(STATIC_FOLDER, 'Excel')
+SIGNATURES_FOLDER = os.path.join(STATIC_FOLDER, 'signatures')
 os.makedirs(EXCEL_FOLDER, exist_ok=True)
+os.makedirs(SIGNATURES_FOLDER, exist_ok=True)
 
 EXCEL_FILENAME = 'data_sensus.xlsx'
 EXCEL_FILE = os.path.join(EXCEL_FOLDER, EXCEL_FILENAME)
@@ -30,9 +33,6 @@ def submit():
         alamat = request.form.get('alamat')
         jumlah_anggota = request.form.get('jumlah_anggota')
         jumlah_anggota_15plus = request.form.get('jumlah_anggota_15plus')
-        
-        # Print received data for debugging
-        print("Received data:", request.form)
         
         # Server-side validation
         if not all([rt, rw, dusun, nama_kepala, alamat, jumlah_anggota, jumlah_anggota_15plus]):
@@ -58,28 +58,121 @@ def submit():
         timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         keluarga_id = f"KEL-{rt}{rw}-{datetime.now().strftime('%d%m%Y%H%M%S')}"
         
-        # Data for the head of family (first row)
-        new_data = {
-            'Timestamp': timestamp,
-            'ID Keluarga': keluarga_id,
-            'RT': rt,
-            'RW': rw,
-            'Dusun': dusun,
-            'Nama Kepala Keluarga': nama_kepala,
-            'Alamat': alamat,
-            'Jumlah Anggota Keluarga': jumlah_anggota,
-            'Jumlah Anggota Usia 15+': jumlah_anggota_15plus,
-            'Anggota Ke': 1, 
-            'Nama Anggota': nama_kepala,
-            'Umur': '', 
-            'Hubungan dengan Kepala Keluarga': 'Kepala Keluarga',
-            'Jenis Kelamin': '', 
-            'Status Perkawinan': '',  
-            'Pendidikan Terakhir': '',  
-            'Kegiatan Sehari-hari': '',
-            'Apakah Memiliki Pekerjaan': '',
-            'Status Pekerjaan yang Diinginkan': '',
-            'Bidang Usaha yang Diminati': '',
+        # Save basic family data to session
+        session['keluarga_data'] = {
+            'keluarga_id': keluarga_id,
+            'rt': rt,
+            'rw': rw,
+            'dusun': dusun,
+            'nama_kepala': nama_kepala,
+            'alamat': alamat,
+            'jumlah_anggota': jumlah_anggota,
+            'jumlah_anggota_15plus': jumlah_anggota_15plus,
+            'anggota_count': 0,
+            'timestamp': timestamp,
+            'all_members_data': []  # Store all member data temporarily
+        }
+        
+        # If there are members aged 15+, redirect to member input
+        if jumlah_anggota_15plus > 0:
+            return jsonify({
+                'success': True,
+                'message': 'Data keluarga berhasil disimpan. Lanjutkan ke input anggota keluarga.',
+                'redirect': True,
+                'redirect_url': url_for('lanjutan')
+            })
+        else:
+            # No members 15+, go directly to final page
+            return jsonify({
+                'success': True,
+                'message': 'Data keluarga berhasil disimpan. Lanjutkan ke halaman akhir.',
+                'redirect': True,
+                'redirect_url': url_for('final_page')
+            })
+            
+    except Exception as e:
+        error_msg = f"Error: {str(e)}"
+        print(error_msg)
+        return jsonify({'success': False, 'message': error_msg}), 500
+
+@app.route('/lanjutan')
+def lanjutan():
+    # Check if family data exists in session
+    if 'keluarga_data' not in session:
+        return redirect(url_for('index'))
+    
+    keluarga_data = session['keluarga_data']
+    return render_template('lanjutan.html', keluarga_data=keluarga_data)
+
+@app.route('/pekerjaan')
+def pekerjaan():
+    # Check if family and individual data exist in session
+    if 'keluarga_data' not in session or 'individu_data' not in session:
+        return redirect(url_for('index'))
+    
+    keluarga_data = session['keluarga_data']
+    individu_data = session['individu_data']
+    return render_template('pekerjaan.html', keluarga_data=keluarga_data, individu_data=individu_data)
+
+@app.route('/final')
+def final_page():
+    # Check if family data exists in session
+    if 'keluarga_data' not in session:
+        return redirect(url_for('index'))
+    
+    keluarga_data = session['keluarga_data']
+    return render_template('final.html', keluarga_data=keluarga_data)
+
+@app.route('/submit-individu', methods=['POST'])
+def submit_individu():
+    try:
+        if 'keluarga_data' not in session:
+            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+        
+        keluarga_data = session['keluarga_data']
+        
+        # Collect individual data from form
+        nama = request.form.get('nama')
+        umur = request.form.get('umur')
+        hubungan = request.form.get('hubungan')
+        jenis_kelamin = request.form.get('jenis_kelamin')
+        status_perkawinan = request.form.get('status_perkawinan')
+        pendidikan = request.form.get('pendidikan')
+        kegiatan = request.form.get('kegiatan')
+        memiliki_pekerjaan = request.form.get('memiliki_pekerjaan')
+        status_pekerjaan_diinginkan = request.form.get('status_pekerjaan_diinginkan')
+        bidang_usaha_diminati = request.form.get('bidang_usaha')
+        
+        # Validate individual data
+        required_fields = [nama, umur, hubungan, jenis_kelamin, status_perkawinan, pendidikan, kegiatan, memiliki_pekerjaan]
+        if not all(required_fields):
+            return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
+        
+        try:
+            umur_int = int(umur)
+        except ValueError:
+            return jsonify({'success': False, 'message': 'Usia harus berupa angka'}), 400
+        
+        if umur_int < 15:
+            return jsonify({'success': False, 'message': 'Usia minimal 15 tahun'}), 400
+        
+        # Increment anggota_count
+        keluarga_data['anggota_count'] = keluarga_data.get('anggota_count', 0) + 1
+        
+        # Always store member data without job details (simplified approach)
+        member_data = {
+            'Anggota Ke': keluarga_data['anggota_count'],
+            'Nama Anggota': nama,
+            'Umur': umur_int,
+            'Hubungan dengan Kepala Keluarga': hubungan,
+            'Jenis Kelamin': jenis_kelamin,
+            'Status Perkawinan': status_perkawinan,
+            'Pendidikan Terakhir': pendidikan,
+            'Kegiatan Sehari-hari': kegiatan,
+            'Apakah Memiliki Pekerjaan': memiliki_pekerjaan or '',
+            'Status Pekerjaan yang Diinginkan': status_pekerjaan_diinginkan or '',
+            'Bidang Usaha yang Diminati': bidang_usaha_diminati or '',
+            # Empty job fields since we're skipping detailed job input
             'Status Pekerjaan Utama': '',
             'Pemasaran Usaha Utama': '',
             'Penjualan Marketplace Utama': '',
@@ -95,213 +188,32 @@ def submit():
             'Penjualan Marketplace Sampingan 2': '',
             'Status Pekerjaan Diinginkan Sampingan 2': '',
             'Bidang Usaha Sampingan 2': '',
-            'Memiliki Lebih dari Satu Pekerjaan': ''
+            'Memiliki Lebih dari Satu Pekerjaan': '',
         }
         
-        try:
-            if os.path.exists(EXCEL_FILE):
-                try:
-                    df = pd.read_excel(EXCEL_FILE)
-                    df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
-                except PermissionError:
-                    return jsonify({
-                        'success': False, 
-                        'message': 'File Excel sedang digunakan oleh program lain. Tutup file dan coba lagi.'
-                    }), 500
-            else:
-                df = pd.DataFrame([new_data])
-            
-            df.to_excel(EXCEL_FILE, index=False)
-            
-            if jumlah_anggota_15plus > 0:
-                session['keluarga_data'] = {
-                    'keluarga_id': keluarga_id,
-                    'rt': rt,
-                    'rw': rw,
-                    'dusun': dusun,
-                    'nama_kepala': nama_kepala,
-                    'alamat': alamat,
-                    'jumlah_anggota': jumlah_anggota,
-                    'jumlah_anggota_15plus': jumlah_anggota_15plus,
-                    'anggota_count': 1
-                }
-                
-                return jsonify({
-                    'success': True,
-                    'message': "Validasi berhasil, melanjutkan ke penyimpanan...",
-                    'redirect': True,
-                    'redirect_url': url_for('lanjutan')
-                })
-            
-            return jsonify({
-                'success': True, 
-                'message': 'Data berhasil disimpan',
-                'download_url': f'/download/{EXCEL_FILENAME}'
-            })
-            
-        except PermissionError as pe:
-            error_msg = f"Permission denied: {str(pe)}. Pastikan folder memiliki izin tulis dan file tidak sedang dibuka."
-            print(error_msg)
-            return jsonify({'success': False, 'message': error_msg}), 500
-            
-    except Exception as e:
-        error_msg = f"Error: {str(e)}"
-        print(error_msg)
-        return jsonify({'success': False, 'message': error_msg}), 500
-
-@app.route('/lanjutan')
-def lanjutan():
-    if 'keluarga_data' not in session:
-        return redirect(url_for('index'))
-    
-    keluarga_data = session['keluarga_data']
-    return render_template('lanjutan.html', keluarga_data=keluarga_data)
-
-@app.route('/pekerjaan')
-def pekerjaan():
-    if 'keluarga_data' not in session or 'individu_data' not in session:
-        return redirect(url_for('index'))
-    
-    keluarga_data = session['keluarga_data']
-    individu_data = session['individu_data']
-    return render_template('pekerjaan.html', keluarga_data=keluarga_data, individu_data=individu_data)
-
-@app.route('/submit-individu', methods=['POST'])
-def submit_individu():
-    try:
-        if 'keluarga_data' not in session:
-            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+        # Add to all_members_data
+        keluarga_data['all_members_data'].append(member_data)
         
-        keluarga_data = session['keluarga_data']
-        
-        nama = request.form.get('nama')
-        umur = request.form.get('umur')
-        hubungan = request.form.get('hubungan')
-        jenis_kelamin = request.form.get('jenis_kelamin')
-        status_perkawinan = request.form.get('status_perkawinan')
-        pendidikan = request.form.get('pendidikan')
-        kegiatan = request.form.get('kegiatan')
-        memiliki_pekerjaan = request.form.get('memiliki_pekerjaan')
-        status_pekerjaan_diinginkan = request.form.get('status_pekerjaan_diinginkan')
-        bidang_usaha_diminati = request.form.get('bidang_usaha')
-        
-        required_fields = [nama, umur, hubungan, jenis_kelamin, status_perkawinan, pendidikan, kegiatan, memiliki_pekerjaan]
-        if not all(required_fields):
-            return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
-        
-        try:
-            umur_int = int(umur)
-        except ValueError:
-            return jsonify({'success': False, 'message': 'Usia harus berupa angka'}), 400
-        
-        if umur_int < 15:
-            return jsonify({'success': False, 'message': 'Usia minimal 15 tahun'}), 400
-        
-        keluarga_data['anggota_count'] = keluarga_data.get('anggota_count', 0) + 1
+        # Decrease remaining members count
+        keluarga_data['jumlah_anggota_15plus'] -= 1
         session['keluarga_data'] = keluarga_data
-        
-        needs_pekerjaan_page = (
-            memiliki_pekerjaan == 'Ya'
-        )
-        
-        if needs_pekerjaan_page:
-            session['individu_data'] = {
-                'Nama Anggota': nama,
-                'Umur': umur_int,
-                'Hubungan dengan Kepala Keluarga': hubungan,
-                'Jenis Kelamin': jenis_kelamin,
-                'Status Perkawinan': status_perkawinan,
-                'Pendidikan Terakhir': pendidikan,
-                'Kegiatan Sehari-hari': kegiatan,
-                'Apakah Memiliki Pekerjaan': memiliki_pekerjaan or '',
-                'Status Pekerjaan yang Diinginkan': status_pekerjaan_diinginkan or '',
-                'Bidang Usaha yang Diminati': bidang_usaha_diminati or '',
-                'Anggota Ke': keluarga_data['anggota_count'],
-                'Timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            
+
+        # Check if there are more members to process
+        if keluarga_data['jumlah_anggota_15plus'] > 0:
             return jsonify({
                 'success': True,
-                'message': 'Data individu berhasil disimpan di sesi. Silakan lanjutkan input pekerjaan.',
-                'redirect_to_pekerjaan': True,
-                'redirect_url': url_for('pekerjaan')
+                'message': 'Data berhasil disimpan. Lanjutkan ke anggota berikutnya.',
+                'remaining': keluarga_data['jumlah_anggota_15plus'],
+                'continue_next_member': True
             })
         else:
-            row_data = {
-                'Timestamp': datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
-                'ID Keluarga': keluarga_data['keluarga_id'],
-                'RT': keluarga_data['rt'],
-                'RW': keluarga_data['rw'],
-                'Dusun': keluarga_data['dusun'],
-                'Nama Kepala Keluarga': keluarga_data['nama_kepala'],
-                'Alamat': keluarga_data['alamat'],
-                'Jumlah Anggota Keluarga': keluarga_data['jumlah_anggota'],
-                'Jumlah Anggota Usia 15+': keluarga_data['jumlah_anggota_15plus'],
-                'Anggota Ke': keluarga_data['anggota_count'],
-                'Nama Anggota': nama,
-                'Umur': umur_int,
-                'Hubungan dengan Kepala Keluarga': hubungan,
-                'Jenis Kelamin': jenis_kelamin,
-                'Status Perkawinan': status_perkawinan,
-                'Pendidikan Terakhir': pendidikan,
-                'Kegiatan Sehari-hari': kegiatan,
-                'Apakah Memiliki Pekerjaan': memiliki_pekerjaan or '',
-                'Status Pekerjaan yang Diinginkan': status_pekerjaan_diinginkan or '',
-                'Bidang Usaha yang Diminati': bidang_usaha_diminati or '',
-                'Status Pekerjaan Utama': '',
-                'Pemasaran Usaha Utama': '',
-                'Penjualan Marketplace Utama': '',
-                'Status Pekerjaan Diinginkan Utama': '',
-                'Bidang Usaha Utama': '',
-                'Status Pekerjaan Sampingan 1': '',
-                'Pemasaran Usaha Sampingan 1': '',
-                'Penjualan Marketplace Sampingan 1': '',
-                'Status Pekerjaan Diinginkan Sampingan 1': '',
-                'Bidang Usaha Sampingan 1': '',
-                'Status Pekerjaan Sampingan 2': '',
-                'Pemasaran Usaha Sampingan 2': '',
-                'Penjualan Marketplace Sampingan 2': '',
-                'Status Pekerjaan Diinginkan Sampingan 2': '',
-                'Bidang Usaha Sampingan 2': '',
-                'Memiliki Lebih dari Satu Pekerjaan': ''
-            }
-
-            try:
-                if os.path.exists(EXCEL_FILE):
-                    try:
-                        df = pd.read_excel(EXCEL_FILE)
-                        df = pd.concat([df, pd.DataFrame([row_data])], ignore_index=True)
-                    except PermissionError:
-                        return jsonify({
-                            'success': False,
-                            'message': 'File Excel sedang digunakan oleh program lain. Tutup file dan coba lagi.'
-                        }), 500
-                else:
-                    df = pd.DataFrame([row_data])
-
-                df.to_excel(EXCEL_FILE, index=False)
-
-            except Exception as e:
-                return jsonify({'success': False, 'message': f'Error saving to Excel: {str(e)}'}), 500
-
-            keluarga_data['jumlah_anggota_15plus'] -= 1
-            session['keluarga_data'] = keluarga_data
-
-            if keluarga_data['jumlah_anggota_15plus'] > 0:
-                return jsonify({
-                    'success': True,
-                    'message': 'Data berhasil disimpan. Lanjutkan ke anggota berikutnya.',
-                    'remaining': keluarga_data['jumlah_anggota_15plus'],
-                    'continue_next_member': True
-                })
-            else:
-                session.pop('keluarga_data', None)
-                return jsonify({
-                    'success': True,
-                    'message': 'Semua data berhasil disimpan. Terima kasih.',
-                    'complete': True,
-                    'redirect_url': url_for('index')
-                })
+            # All members processed, go to final page
+            return jsonify({
+                'success': True,
+                'message': 'Semua data anggota berhasil disimpan. Lanjutkan ke halaman akhir.',
+                'redirect': True,
+                'redirect_url': url_for('final_page')
+            })
         
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
@@ -313,22 +225,14 @@ def submit_pekerjaan():
             return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
 
         if 'individu_data' not in session:
-            return jsonify({'success': False, 'message': 'Data individu tidak ditemukan, submit individu terlebih dahulu'}), 400
+            return jsonify({'success': False, 'message': 'Data individu tidak ditemukan'}), 400
 
         keluarga_data = session['keluarga_data']
         individu_data = session['individu_data']
         form_data = request.form.to_dict()
 
-        row_data = {
-            'Timestamp': datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
-            'ID Keluarga': keluarga_data['keluarga_id'],
-            'RT': keluarga_data['rt'],
-            'RW': keluarga_data['rw'],
-            'Dusun': keluarga_data['dusun'],
-            'Nama Kepala Keluarga': keluarga_data['nama_kepala'],
-            'Alamat': keluarga_data['alamat'],
-            'Jumlah Anggota Keluarga': keluarga_data['jumlah_anggota'],
-            'Jumlah Anggota Usia 15+': keluarga_data['jumlah_anggota_15plus'],
+        # Build member data with job information
+        member_data = {
             'Anggota Ke': individu_data['Anggota Ke'],
             'Nama Anggota': individu_data['Nama Anggota'],
             'Umur': individu_data['Umur'],
@@ -339,94 +243,334 @@ def submit_pekerjaan():
             'Kegiatan Sehari-hari': individu_data['Kegiatan Sehari-hari'],
             'Apakah Memiliki Pekerjaan': individu_data['Apakah Memiliki Pekerjaan'],
             'Status Pekerjaan yang Diinginkan': individu_data['Status Pekerjaan yang Diinginkan'],
-            'Bidang Usaha yang Diminati': individu_data['Bidang Usaha yang Diminati']
+            'Bidang Usaha yang Diminati': individu_data['Bidang Usaha yang Diminati'],
         }
 
-        row_data['Memiliki Lebih dari Satu Pekerjaan'] = form_data.get('lebih_dari_satu_pekerjaan', 'Tidak')
+        # Add multiple jobs info
+        member_data['Memiliki Lebih dari Satu Pekerjaan'] = form_data.get('lebih_dari_satu_pekerjaan', 'Tidak')
 
+        # Process main job (index 0)
         main_job_status = form_data.get('status_pekerjaan_0', '')
         if not main_job_status:
             return jsonify({'success': False, 'message': 'Status pekerjaan utama harus diisi'}), 400
         
-        row_data.update({
+        member_data.update({
             'Status Pekerjaan Utama': main_job_status,
             'Pemasaran Usaha Utama': form_data.get('pemasaran_usaha_0', ''),
             'Penjualan Marketplace Utama': form_data.get('penjualan_marketplace_0', ''),
             'Status Pekerjaan Diinginkan Utama': form_data.get('status_pekerjaan_diinginkan_0', ''),
-            'Bidang Usaha Utama': form_data.get('bidang_usaha_0', '')
+            'Bidang Usaha Utama': form_data.get('bidang_usaha_0', ''),
         })
 
-        for i in range(1, 3):
-            row_data.update({
+        # Process side jobs (up to 2 side jobs)
+        for i in range(1, 3):  # Side jobs 1 and 2
+            member_data.update({
                 f'Status Pekerjaan Sampingan {i}': form_data.get(f'status_pekerjaan_{i}', ''),
                 f'Pemasaran Usaha Sampingan {i}': form_data.get(f'pemasaran_usaha_{i}', ''),
                 f'Penjualan Marketplace Sampingan {i}': form_data.get(f'penjualan_marketplace_{i}', ''),
                 f'Status Pekerjaan Diinginkan Sampingan {i}': form_data.get(f'status_pekerjaan_diinginkan_{i}', ''),
-                f'Bidang Usaha Sampingan {i}': form_data.get(f'bidang_usaha_{i}', '')
+                f'Bidang Usaha Sampingan {i}': form_data.get(f'bidang_usaha_{i}', ''),
             })
 
+        # Add to all_members_data
+        keluarga_data['all_members_data'].append(member_data)
+        
+        # Decrease remaining members count
+        keluarga_data['jumlah_anggota_15plus'] -= 1
+        session['keluarga_data'] = keluarga_data
+
+        # Remove individual data from session
+        session.pop('individu_data', None)
+
+        # Check if there are more members to process
+        if keluarga_data['jumlah_anggota_15plus'] > 0:
+            return jsonify({
+                'success': True,
+                'message': 'Data pekerjaan berhasil disimpan. Lanjutkan ke anggota berikutnya.',
+                'redirect': True,
+                'redirect_url': url_for('lanjutan')
+            })
+        else:
+            # All members processed, go to final page
+            return jsonify({
+                'success': True,
+                'message': 'Semua data berhasil disimpan. Lanjutkan ke halaman akhir.',
+                'redirect': True,
+                'redirect_url': url_for('final_page')
+            })
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+@app.route('/submit-final', methods=['POST'])
+def submit_final():
+    try:
+        if 'keluarga_data' not in session:
+            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+
+        keluarga_data = session['keluarga_data']
+        
+        # Get surveyor and respondent information
+        nama_pencacah = request.form.get('nama_pencacah')
+        hp_pencacah = request.form.get('hp_pencacah')
+        tanggal_pencacah = request.form.get('tanggal_pencacah')
+        ttd_pencacah = request.files.get('ttd_pencacah')
+        
+        nama_pemberi_jawaban = request.form.get('nama_pemberi_jawaban')
+        hp_pemberi_jawaban = request.form.get('hp_pemberi_jawaban')
+        tanggal_pemberi_jawaban = request.form.get('tanggal_pemberi_jawaban')
+        ttd_pemberi_jawaban = request.files.get('ttd_pemberi_jawaban')
+        
+        catatan = request.form.get('catatan')
+        
+        # Validate required fields
+        if not all([nama_pencacah, hp_pencacah, nama_pemberi_jawaban, hp_pemberi_jawaban]):
+            return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
+
+        # Set current timestamp for both dates
+        current_timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        tanggal_pencacah = current_timestamp
+        tanggal_pemberi_jawaban = current_timestamp
+        
+        # Prepare all rows for Excel
+        all_rows = []
+        
+        # Add head of family row
+        head_row = {
+            'Timestamp': keluarga_data['timestamp'],
+            'ID Keluarga': keluarga_data['keluarga_id'],
+            'RT': keluarga_data['rt'],
+            'RW': keluarga_data['rw'],
+            'Dusun': keluarga_data['dusun'],
+            'Nama Kepala Keluarga': keluarga_data['nama_kepala'],
+            'Alamat': keluarga_data['alamat'],
+            'Jumlah Anggota Keluarga': keluarga_data['jumlah_anggota'],
+            'Jumlah Anggota Usia 15+': len(keluarga_data['all_members_data']),
+            'Anggota Ke': 1,
+            'Nama Anggota': keluarga_data['nama_kepala'],
+            'Umur': '',
+            'Hubungan dengan Kepala Keluarga': 'Kepala Keluarga',
+            'Jenis Kelamin': '',
+            'Status Perkawinan': '',
+            'Pendidikan Terakhir': '',
+            'Kegiatan Sehari-hari': '',
+            'Apakah Memiliki Pekerjaan': '',
+            'Status Pekerjaan yang Diinginkan': '',
+            'Bidang Usaha yang Diminati': '',
+            # Empty job fields for head
+            'Status Pekerjaan Utama': '',
+            'Pemasaran Usaha Utama': '',
+            'Penjualan Marketplace Utama': '',
+            'Status Pekerjaan Diinginkan Utama': '',
+            'Bidang Usaha Utama': '',
+            'Status Pekerjaan Sampingan 1': '',
+            'Pemasaran Usaha Sampingan 1': '',
+            'Penjualan Marketplace Sampingan 1': '',
+            'Status Pekerjaan Diinginkan Sampingan 1': '',
+            'Bidang Usaha Sampingan 1': '',
+            'Status Pekerjaan Sampingan 2': '',
+            'Pemasaran Usaha Sampingan 2': '',
+            'Penjualan Marketplace Sampingan 2': '',
+            'Status Pekerjaan Diinginkan Sampingan 2': '',
+            'Bidang Usaha Sampingan 2': '',
+            'Memiliki Lebih dari Satu Pekerjaan': '',
+            # Surveyor information
+            'Nama Pencacah': nama_pencacah,
+            'HP Pencacah': hp_pencacah,
+            'Tanggal Pencacah': tanggal_pencacah,
+            'TTD Pencacah': '',
+            'Nama Pemberi Jawaban': nama_pemberi_jawaban,
+            'HP Pemberi Jawaban': hp_pemberi_jawaban,
+            'Tanggal Pemberi Jawaban': tanggal_pemberi_jawaban,
+            'TTD Pemberi Jawaban': '',
+            'Catatan': catatan or ''
+        }
+        all_rows.append(head_row)
+        
+        # Add all member rows
+        for member_data in keluarga_data['all_members_data']:
+            member_row = {
+                'Timestamp': keluarga_data['timestamp'],
+                'ID Keluarga': keluarga_data['keluarga_id'],
+                'RT': keluarga_data['rt'],
+                'RW': keluarga_data['rw'],
+                'Dusun': keluarga_data['dusun'],
+                'Nama Kepala Keluarga': keluarga_data['nama_kepala'],
+                'Alamat': keluarga_data['alamat'],
+                'Jumlah Anggota Keluarga': keluarga_data['jumlah_anggota'],
+                'Jumlah Anggota Usia 15+': len(keluarga_data['all_members_data']),
+                **member_data,
+                # Surveyor information
+                'Nama Pencacah': nama_pencacah,
+                'HP Pencacah': hp_pencacah,
+                'Tanggal Pencacah': tanggal_pencacah,
+                'TTD Pencacah': '',
+                'Nama Pemberi Jawaban': nama_pemberi_jawaban,
+                'HP Pemberi Jawaban': hp_pemberi_jawaban,
+                'Tanggal Pemberi Jawaban': tanggal_pemberi_jawaban,
+                'TTD Pemberi Jawaban': '',
+                'Catatan': catatan or ''
+            }
+            all_rows.append(member_row)
+        
+        # Save to Excel
         try:
             if os.path.exists(EXCEL_FILE):
                 try:
                     df = pd.read_excel(EXCEL_FILE)
-                    df = pd.concat([df, pd.DataFrame([row_data])], ignore_index=True)
+                    new_df = pd.DataFrame(all_rows)
+                    df = pd.concat([df, new_df], ignore_index=True)
                 except PermissionError:
                     return jsonify({
                         'success': False,
                         'message': 'File Excel sedang digunakan oleh program lain. Tutup file dan coba lagi.'
                     }), 500
             else:
-                df = pd.DataFrame([row_data])
+                df = pd.DataFrame(all_rows)
 
             df.to_excel(EXCEL_FILE, index=False)
 
         except Exception as e:
             return jsonify({'success': False, 'message': f'Error saving to Excel: {str(e)}'}), 500
 
-        keluarga_data['jumlah_anggota_15plus'] -= 1
-        session['keluarga_data'] = keluarga_data
+        # Clear session
+        session.pop('keluarga_data', None)
         session.pop('individu_data', None)
 
-        job_count = 1
-        for i in range(1, 3):
-            if form_data.get(f'status_pekerjaan_{i}'):
-                job_count += 1
-
-        if job_count == 1:
-            message = 'Data pekerjaan utama berhasil disimpan.'
-        else:
-            message = f'Data pekerjaan utama dan {job_count - 1} pekerjaan sampingan berhasil disimpan.'
-
-        if keluarga_data['jumlah_anggota_15plus'] > 0:
-            return jsonify({
-                'success': True,
-                'message': f'{message} Lanjutkan ke anggota berikutnya.',
-                'redirect': True,
-                'redirect_url': url_for('lanjutan')
-            })
-        else:
-            session.pop('keluarga_data', None)
-            return jsonify({
-                'success': True,
-                'message': f'{message} Semua data berhasil disimpan. Terima kasih.',
-                'redirect': True,
-                'redirect_url': url_for('index')
-            })
+        return jsonify({
+            'success': True,
+            'message': 'Semua data berhasil disimpan. Terima kasih!',
+            'download_url': f'/download/{EXCEL_FILENAME}',
+            'redirect': True,
+            'redirect_url': url_for('index')
+        })
 
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+    
+@app.route('/edit-keluarga', methods=['GET', 'POST'])
+def edit_keluarga():
+    if request.method == 'POST':
+        # Handle the form submission for editing family data
+        try:
+            if 'keluarga_data' not in session:
+                return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+
+            keluarga_data = session['keluarga_data']
+
+            # Get updated data from the form
+            rt = request.form.get('rt')
+            rw = request.form.get('rw')
+            dusun = request.form.get('dusun')
+            nama_kepala = request.form.get('nama_kepala')
+            alamat = request.form.get('alamat')
+            jumlah_anggota = request.form.get('jumlah_anggota')
+            jumlah_anggota_15plus = request.form.get('jumlah_anggota_15plus')
+
+            # Update keluarga_data with new values
+            keluarga_data['rt'] = rt
+            keluarga_data['rw'] = rw
+            keluarga_data['dusun'] = dusun
+            keluarga_data['nama_kepala'] = nama_kepala
+            keluarga_data['alamat'] = alamat
+            keluarga_data['jumlah_anggota'] = int(jumlah_anggota)
+            keluarga_data['jumlah_anggota_15plus'] = int(jumlah_anggota_15plus)
+
+            session['keluarga_data'] = keluarga_data
+
+            return jsonify({'success': True, 'message': 'Data keluarga berhasil diperbarui.'}), 200
+
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+    # Render the edit form with existing family data
+    if 'keluarga_data' not in session:
+        return redirect(url_for('index'))
+
+    keluarga_data = session['keluarga_data']
+    return render_template('edit_keluarga.html', keluarga_data=keluarga_data)
+
+@app.route('/edit-individu/<int:index>', methods=['GET', 'POST'])
+def edit_individu(index):
+    if 'keluarga_data' not in session:
+        return redirect(url_for('index'))
+
+    keluarga_data = session['keluarga_data']
+    members = keluarga_data.get('all_members_data', [])
+
+    # Check valid index
+    if index < 0 or index >= len(members):
+        return "Data individu tidak ditemukan", 404
+
+    if request.method == 'POST':
+        try:
+            # Get form data
+            nama = request.form.get('nama')
+            umur = request.form.get('umur')
+            hubungan = request.form.get('hubungan')
+            jenis_kelamin = request.form.get('jenis_kelamin')
+            status_perkawinan = request.form.get('status_perkawinan')
+            pendidikan = request.form.get('pendidikan')
+            kegiatan = request.form.get('kegiatan')
+            memiliki_pekerjaan = request.form.get('memiliki_pekerjaan')
+            status_pekerjaan_diinginkan = request.form.get('status_pekerjaan_diinginkan')
+            bidang_usaha_diminati = request.form.get('bidang_usaha')
+
+            # Validate required fields
+            required_fields = [nama, umur, hubungan, jenis_kelamin, status_perkawinan, pendidikan, kegiatan, memiliki_pekerjaan]
+            if not all(required_fields):
+                return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
+
+            try:
+                umur_int = int(umur)
+            except ValueError:
+                return jsonify({'success': False, 'message': 'Usia harus berupa angka'}), 400
+
+            if umur_int < 15:
+                return jsonify({'success': False, 'message': 'Usia minimal 15 tahun'}), 400
+
+            # Update the member data in session
+            member_data = members[index]
+
+            member_data['Nama Anggota'] = nama
+            member_data['Umur'] = umur_int
+            member_data['Hubungan dengan Kepala Keluarga'] = hubungan
+            member_data['Jenis Kelamin'] = jenis_kelamin
+            member_data['Status Perkawinan'] = status_perkawinan
+            member_data['Pendidikan Terakhir'] = pendidikan
+            member_data['Kegiatan Sehari-hari'] = kegiatan
+            member_data['Apakah Memiliki Pekerjaan'] = memiliki_pekerjaan
+            member_data['Status Pekerjaan yang Diinginkan'] = status_pekerjaan_diinginkan or ''
+            member_data['Bidang Usaha yang Diminati'] = bidang_usaha_diminati or ''
+
+            # Save back to session
+            keluarga_data['all_members_data'][index] = member_data
+            session['keluarga_data'] = keluarga_data
+
+            return jsonify({'success': True, 'message': 'Data individu berhasil diperbarui.'})
+
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+    # GET request: show edit form
+    individu_data = members[index]
+    return render_template('edit_individu.html', individu_data=individu_data, index=index)
 
 @app.route('/download/<filename>')
 def download_file(filename):
+    """Route to download Excel file"""
     try:
+        # Make sure filename is the allowed one
         if filename != EXCEL_FILENAME:
             return "File tidak ditemukan", 404
         
         file_path = os.path.join(EXCEL_FOLDER, filename)
         
+        # Make sure file exists
         if not os.path.exists(file_path):
             return "File tidak ditemukan", 404
         
+        # Set download filename
         download_name = f"data_sensus_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         
         return send_from_directory(
@@ -441,6 +585,7 @@ def download_file(filename):
 
 @app.route('/check-file')
 def check_file():
+    """Check if Excel file exists"""
     exists = os.path.exists(EXCEL_FILE)
     return jsonify({'exists': exists})
 

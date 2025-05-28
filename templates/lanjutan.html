@@ -64,6 +64,30 @@
         </div>
 
         <div class="p-6">
+          <!-- Back Button -->
+          <div class="mb-4">
+            <a
+              href="/back-to-index"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition duration-200"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Kembali ke Data Keluarga
+            </a>
+          </div>
+
           <div class="info-card p-4 mb-6">
             <div class="flex items-start">
               <div class="flex-shrink-0">
@@ -125,7 +149,6 @@
             </div>
 
             <!-- 5.1 Hubungan Dengan Kepala Keluarga -->
-            <!-- HTML Code -->
             <div>
               <label
                 for="hubungan"
@@ -137,14 +160,12 @@
                   id="hubungan"
                   name="hubungan"
                   class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
-                  onchange="checkHubungan()"
                 >
                   <option value="" disabled selected>Pilih hubungan</option>
-                  <option value="Kepala Keluarga">1. Kepala Keluarga</option>
-                  <option value="Suami/Istri">2. Suami/Istri</option>
-                  <option value="Anak">3. Anak</option>
-                  <option value="Menantu">4. Menantu</option>
-                  <option value="Lainnya">5. Lainnya</option>
+                  <option value="Suami/Istri">1. Suami/Istri</option>
+                  <option value="Anak">2. Anak</option>
+                  <option value="Menantu">3. Menantu</option>
+                  <option value="Lainnya">4. Lainnya</option>
                 </select>
                 <div
                   class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500"
@@ -346,7 +367,6 @@
                   id="kegiatan"
                   name="kegiatan"
                   class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
-                  onchange="checkKegiatan()"
                 >
                   <option value="" disabled selected>
                     Pilih kegiatan sehari-hari
@@ -382,9 +402,8 @@
                 Wajib dipilih
               </p>
             </div>
-            &nbsp;
-            &nbsp;
 
+            <!-- 5.10 Memiliki Pekerjaan Tetapi Sedang Tidak Bekerja (hanya muncul jika 5.7, 5.8, 5.9 semua "Tidak") -->
             <div
               id="pertanyaan_5_10"
               class="bg-primary-50 p-4 rounded-lg border border-primary-200"
@@ -392,8 +411,8 @@
               <label
                 for="memiliki_pekerjaan"
                 class="block text-sm font-medium text-gray-700 mb-2"
-                > Apakah
-                <span class="nama-placeholder">NAMA</span> Bekerja</label
+              >
+                Apakah <span class="nama-placeholder">NAMA</span> Bekerja</label
               >
               <div class="relative">
                 <select
@@ -433,11 +452,15 @@
             </div>
 
             <!-- Status Pekerjaan yang Diinginkan (muncul jika 5.10 = "Tidak") -->
-            <div id="status_pekerjaan_container" class="bg-primary-50 p-4 rounded-lg border border-primary-200 hidden">
+            <div
+              id="status_pekerjaan_container"
+              class="bg-primary-50 p-4 rounded-lg border border-primary-200 hidden"
+            >
               <label
                 for="status_pekerjaan_diinginkan"
                 class="block text-sm font-medium text-gray-700 mb-2"
-                >Status Pekerjaan yang Diinginkan oleh <span class="nama-placeholder">NAMA</span></label
+                >Status Pekerjaan yang Diinginkan oleh
+                <span class="nama-placeholder">NAMA</span></label
               >
               <div class="relative">
                 <select
@@ -446,9 +469,13 @@
                   class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
                   onchange="toggleBidangUsaha()"
                 >
-                  <option value="" disabled selected>Pilih status pekerjaan yang diinginkan</option>
+                  <option value="" disabled selected>
+                    Pilih status pekerjaan yang diinginkan
+                  </option>
                   <option value="Berusaha Sendiri">Berusaha Sendiri</option>
-                  <option value="Buruh/Karyawan/Pegawai">Buruh/Karyawan/Pegawai</option>
+                  <option value="Buruh/Karyawan/Pegawai">
+                    Buruh/Karyawan/Pegawai
+                  </option>
                 </select>
                 <div
                   class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500"
@@ -484,57 +511,22 @@
               <label
                 for="bidang_usaha"
                 class="block text-sm font-medium text-gray-700 mb-2"
-                >Usaha di Bidang Apa yang Diminati oleh <span class="nama-placeholder">NAMA</span></label
+                >Usaha di Bidang Apa yang Diminati oleh
+                <span class="nama-placeholder">NAMA</span></label
               >
-              <div class="relative mt-2">
-                <select
-                  id="bidang_usaha"
-                  name="bidang_usaha"
-                  class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
-                  onchange="toggleOtherInput()"
-                >
-                  <option value="" disabled selected>Pilih bidang usaha</option>
-                  <option value="Pelatihan Barista">1. Pelatihan Barista</option>
-                  <option value="Pelatihan Pastry">2. Pelatihan Pastry</option>
-                  <option value="Pelatihan Perawatan AC">3. Pelatihan Perawatan AC</option>
-                  <option value="Pelatihan Menjahit">4. Pelatihan Menjahit</option>
-                  <option value="Lainnya">5. Lainnya</option>
-                </select>
-                <div
-                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500"
-                >
-                  <svg
-                    class="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <p id="bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
-                Wajib dipilih jika memilih "Berusaha Sendiri"
+              <input
+                type="text"
+                id="bidang_usaha"
+                name="bidang_usaha"
+                placeholder="Masukkan bidang usaha yang diminati"
+                class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300"
+              />
+              <p
+                id="bidang_usaha_error"
+                class="text-red-500 text-xs mt-1 hidden"
+              >
+                Wajib diisi jika memilih "Berusaha Sendiri"
               </p>
-
-              <!-- Input for "Lainnya" -->
-              <div id="other_bidang_usaha" class="mt-2 hidden">
-                <input
-                  type="text"
-                  id="other_bidang_usaha_input"
-                  name="other_bidang_usaha_input"
-                  placeholder="Masukkan bidang usaha yang diminati"
-                  class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300"
-                />
-                <p id="other_bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
-                  Wajib diisi jika memilih "Lainnya"
-                </p>
-              </div>
             </div>
 
             <div class="pt-4 space-y-3">
@@ -659,6 +651,93 @@
         </div>
       </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("Loading lanjutan.html...");
+
+        // Load saved data from localStorage
+        loadSavedData();
+
+        // Save data on every input change
+        const form = document.getElementById("dataForm");
+        const inputs = form.querySelectorAll("input, select, textarea");
+
+        inputs.forEach((input) => {
+          input.addEventListener("change", saveFormData);
+          input.addEventListener("input", saveFormData);
+        });
+
+        function saveFormData() {
+          const formData = {};
+          const form = document.getElementById("dataForm");
+          const inputs = form.querySelectorAll("input, select, textarea");
+
+          inputs.forEach((input) => {
+            formData[input.name] = input.value;
+          });
+
+          localStorage.setItem("lanjutan_form_data", JSON.stringify(formData));
+          console.log("Data saved to localStorage:", formData);
+        }
+
+        function loadSavedData() {
+          const savedData = localStorage.getItem("lanjutan_form_data");
+          if (savedData) {
+            try {
+              const formData = JSON.parse(savedData);
+              console.log("Loading saved data:", formData);
+
+              // Fill form with saved data
+              Object.keys(formData).forEach((key) => {
+                const element = document.getElementById(key);
+                if (element && formData[key]) {
+                  element.value = formData[key];
+
+                  // Trigger change events for conditional fields
+                  if (element.tagName === "SELECT") {
+                    element.dispatchEvent(new Event("change"));
+                  }
+                }
+              });
+
+              // Update nama placeholders
+              if (formData.nama) {
+                updateNamaPlaceholders(formData.nama);
+              }
+
+              // Show conditional fields based on saved data
+              if (formData.memiliki_pekerjaan) {
+                checkMemilikiPekerjaan();
+              }
+              if (formData.status_pekerjaan_diinginkan) {
+                toggleBidangUsaha();
+              }
+            } catch (error) {
+              console.error("Error loading saved data:", error);
+            }
+          }
+        }
+
+        // Update nama placeholders function
+        function updateNamaPlaceholders(nama) {
+          const placeholders = document.querySelectorAll(".nama-placeholder");
+          placeholders.forEach((placeholder) => {
+            placeholder.textContent = nama || "NAMA";
+          });
+        }
+
+        // Listen for nama input changes
+        document.getElementById("nama").addEventListener("input", function () {
+          updateNamaPlaceholders(this.value);
+        });
+      });
+
+      // Function to clear saved data (called when form is successfully submitted)
+      function clearSavedData() {
+        localStorage.removeItem("lanjutan_form_data");
+        console.log("Saved data cleared");
+      }
+    </script>
     <script src="{{ url_for('static', filename='js/lanjutan.js') }}"></script>
   </body>
 </html>

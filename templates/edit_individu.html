@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Data Individu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.25rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 2rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Data Individu - Anggota Ke {{ index + 1 }}</h1>
+
+    <form id="editIndividuForm">
+        <label for="nama">Nama:</label>
+        <input type="text" id="nama" name="nama" value="{{ individu_data['Nama Anggota'] }}" required />
+
+        <label for="umur">Umur:</label>
+        <input type="number" id="umur" name="umur" value="{{ individu_data['Umur'] }}" min="15" required />
+
+        <label for="hubungan">Hubungan dengan Kepala Keluarga:</label>
+        <input type="text" id="hubungan" name="hubungan" value="{{ individu_data['Hubungan dengan Kepala Keluarga'] }}" required />
+
+        <label for="jenis_kelamin">Jenis Kelamin:</label>
+        <select id="jenis_kelamin" name="jenis_kelamin" required>
+            <option value="">--Pilih--</option>
+            <option value="Laki-laki" {% if individu_data['Jenis Kelamin'] == 'Laki-laki' %}selected{% endif %}>Laki-laki</option>
+            <option value="Perempuan" {% if individu_data['Jenis Kelamin'] == 'Perempuan' %}selected{% endif %}>Perempuan</option>
+        </select>
+
+        <label for="status_perkawinan">Status Perkawinan:</label>
+        <input type="text" id="status_perkawinan" name="status_perkawinan" value="{{ individu_data['Status Perkawinan'] }}" required />
+
+        <label for="pendidikan">Pendidikan Terakhir:</label>
+        <input type="text" id="pendidikan" name="pendidikan" value="{{ individu_data['Pendidikan Terakhir'] }}" required />
+
+        <label for="kegiatan">Kegiatan Sehari-hari:</label>
+        <input type="text" id="kegiatan" name="kegiatan" value="{{ individu_data['Kegiatan Sehari-hari'] }}" required />
+
+        <label for="memiliki_pekerjaan">Apakah Memiliki Pekerjaan:</label>
+        <select id="memiliki_pekerjaan" name="memiliki_pekerjaan" required>
+            <option value="">--Pilih--</option>
+            <option value="Ya" {% if individu_data['Apakah Memiliki Pekerjaan'] == 'Ya' %}selected{% endif %}>Ya</option>
+            <option value="Tidak" {% if individu_data['Apakah Memiliki Pekerjaan'] == 'Tidak' %}selected{% endif %}>Tidak</option>
+        </select>
+
+        <label for="status_pekerjaan_diinginkan">Status Pekerjaan yang Diinginkan:</label>
+        <input type="text" id="status_pekerjaan_diinginkan" name="status_pekerjaan_diinginkan" value="{{ individu_data['Status Pekerjaan yang Diinginkan'] }}" />
+
+        <label for="bidang_usaha">Bidang Usaha yang Diminati:</label>
+        <input type="text" id="bidang_usaha" name="bidang_usaha" value="{{ individu_data['Bidang Usaha yang Diminati'] }}" />
+
+        <button type="submit">Simpan Perubahan</button>
+    </form>
+
+    <script>
+        document.getElementById('editIndividuForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('{{ url_for("edit_individu", index=index) }}', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            alert(result.message);
+            if(result.success) {
+                window.location.href = '{{ url_for("final_page") }}';
+            }
+        });
+    </script>
+</body>
+</html>

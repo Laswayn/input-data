@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Data Keluarga</title>
+  </head>
+  <body>
+    <h1>Edit Data Keluarga</h1>
+    <form id="editKeluargaForm">
+      <label for="rt">RT:</label>
+      <input
+        type="text"
+        id="rt"
+        name="rt"
+        value="{{ keluarga_data.rt }}"
+        required
+      /><br />
+
+      <label for="rw">RW:</label>
+      <input
+        type="text"
+        id="rw"
+        name="rw"
+        value="{{ keluarga_data.rw }}"
+        required
+      /><br />
+
+      <label for="dusun">Dusun:</label>
+      <input
+        type="text"
+        id="dusun"
+        name="dusun"
+        value="{{ keluarga_data.dusun }}"
+        required
+      /><br />
+
+      <label for="nama_kepala">Nama Kepala Keluarga:</label>
+      <input
+        type="text"
+        id="nama_kepala"
+        name="nama_kepala"
+        value="{{ keluarga_data.nama_kepala }}"
+        required
+      /><br />
+
+      <label for="alamat">Alamat:</label>
+      <input
+        type="text"
+        id="alamat"
+        name="alamat"
+        value="{{ keluarga_data.alamat }}"
+        required
+      /><br />
+
+      <label for="jumlah_anggota">Jumlah Anggota:</label>
+      <input
+        type="number"
+        id="jumlah_anggota"
+        name="jumlah_anggota"
+        value="{{ keluarga_data.jumlah_anggota }}"
+        required
+      /><br />
+
+      <label for="jumlah_anggota_15plus">Jumlah Anggota Usia 15+:</label>
+      <input
+        type="number"
+        id="jumlah_anggota_15plus"
+        name="jumlah_anggota_15plus"
+        value="{{ keluarga_data.jumlah_anggota_15plus }}"
+        required
+      /><br />
+
+      <button type="submit">Simpan Perubahan</button>
+    </form>
+
+    <script>
+      document.getElementById("editKeluargaForm").onsubmit = async function (
+        event
+      ) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch("/edit-keluarga", {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json();
+        alert(result.message);
+        if (result.success) {
+          window.location.href = "/final"; // Redirect to final page or another page
+        }
+      };
+    </script>
+  </body>
+</html>
