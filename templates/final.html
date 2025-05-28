@@ -162,18 +162,15 @@
                 <div class="ml-2 mb-2">
                   <div class="font-medium text-gray-700">Sampingan 1:</div>
                   <div class="text-gray-600 ml-2">
+                    {% if member['Bidang Pekerjaan Sampingan 1'] %}
+                    <div>Bidang: {{ member['Bidang Pekerjaan Sampingan 1'] }}</div>
+                    {% endif %}
                     <div>Status: {{ member['Status Pekerjaan Sampingan 1'] }}</div>
                     {% if member['Pemasaran Usaha Sampingan 1'] %}
                     <div>Pemasaran: {{ member['Pemasaran Usaha Sampingan 1'] }}</div>
                     {% endif %}
                     {% if member['Penjualan Marketplace Sampingan 1'] %}
                     <div>Marketplace: {{ member['Penjualan Marketplace Sampingan 1'] }}</div>
-                    {% endif %}
-                    {% if member['Status Pekerjaan Diinginkan Sampingan 1'] %}
-                    <div>Status Diinginkan: {{ member['Status Pekerjaan Diinginkan Sampingan 1'] }}</div>
-                    {% endif %}
-                    {% if member['Bidang Usaha Sampingan 1'] %}
-                    <div>Bidang Usaha: {{ member['Bidang Usaha Sampingan 1'] }}</div>
                     {% endif %}
                   </div>
                 </div>
@@ -183,18 +180,15 @@
                 <div class="ml-2">
                   <div class="font-medium text-gray-700">Sampingan 2:</div>
                   <div class="text-gray-600 ml-2">
+                    {% if member['Bidang Pekerjaan Sampingan 2'] %}
+                    <div>Bidang: {{ member['Bidang Pekerjaan Sampingan 2'] }}</div>
+                    {% endif %}
                     <div>Status: {{ member['Status Pekerjaan Sampingan 2'] }}</div>
                     {% if member['Pemasaran Usaha Sampingan 2'] %}
                     <div>Pemasaran: {{ member['Pemasaran Usaha Sampingan 2'] }}</div>
                     {% endif %}
                     {% if member['Penjualan Marketplace Sampingan 2'] %}
                     <div>Marketplace: {{ member['Penjualan Marketplace Sampingan 2'] }}</div>
-                    {% endif %}
-                    {% if member['Status Pekerjaan Diinginkan Sampingan 2'] %}
-                    <div>Status Diinginkan: {{ member['Status Pekerjaan Diinginkan Sampingan 2'] }}</div>
-                    {% endif %}
-                    {% if member['Bidang Usaha Sampingan 2'] %}
-                    <div>Bidang Usaha: {{ member['Bidang Usaha Sampingan 2'] }}</div>
                     {% endif %}
                   </div>
                 </div>

@@ -15,26 +15,6 @@ function toggleFields(index) {
     if (document.getElementById(`penjualan_marketplace_${index}`)) {
       document.getElementById(`penjualan_marketplace_${index}`).value = ""
     }
-    if (document.getElementById(`status_pekerjaan_diinginkan_${index}`)) {
-      document.getElementById(`status_pekerjaan_diinginkan_${index}`).value = ""
-    }
-    if (document.getElementById(`bidang_usaha_${index}`)) {
-      document.getElementById(`bidang_usaha_${index}`).value = ""
-    }
-  }
-}
-
-function toggleBidangUsaha(index) {
-  const statusPekerjaanDiinginkan = document.getElementById(`status_pekerjaan_diinginkan_${index}`).value
-  const bidangUsahaField = document.getElementById(`bidang_usaha_container_${index}`)
-
-  if (statusPekerjaanDiinginkan === "Buruh/Karyawan/Pegawai") {
-    bidangUsahaField.style.display = "none"
-    if (document.getElementById(`bidang_usaha_${index}`)) {
-      document.getElementById(`bidang_usaha_${index}`).value = ""
-    }
-  } else {
-    bidangUsahaField.style.display = "block"
   }
 }
 
@@ -66,67 +46,81 @@ function addSideJobFields() {
     const newSideJobFields = document.createElement("div")
     newSideJobFields.className = "side-job-fields p-4 border-2 border-green-300 rounded-lg bg-green-50"
     newSideJobFields.innerHTML = `
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-semibold text-green-800 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                    </svg>
-                    Pekerjaan Sampingan ${i}
-                </h2>
-                <button type="button" onclick="removeSideJob(this)" class="text-red-600 hover:text-red-800 font-medium p-1 rounded hover:bg-red-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-green-800 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                </svg>
+                Pekerjaan Sampingan ${i}
+            </h2>
+            <button type="button" onclick="removeSideJob(this)" class="text-red-600 hover:text-red-800 font-medium p-1 rounded hover:bg-red-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label for="bidang_pekerjaan_${jobIndex}" class="block text-sm font-medium text-gray-700">Bidang Pekerjaan</label>
+                <select id="bidang_pekerjaan_${jobIndex}" name="bidang_pekerjaan_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                    <option value="" disabled selected>Pilih Bidang Pekerjaan</option>
+                    <option value="Pertanian, Kehutanan dan Perikanan">A - Pertanian, Kehutanan dan Perikanan</option>
+                    <option value="Pertambangan dan Penggalian">B - Pertambangan dan Penggalian</option>
+                    <option value="Industri Pengolahan">C - Industri Pengolahan</option>
+                    <option value="Pengadaan Listrik, Gas, Uap dan AC">D - Pengadaan Listrik, Gas, Uap dan AC</option>
+                    <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang">E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
+                    <option value="Konstruksi">F - Konstruksi</option>
+                    <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor">G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
+                    <option value="Transportasi dan Pergudangan">H - Transportasi dan Pergudangan</option>
+                    <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum">I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
+                    <option value="Informasi dan Komunikasi">J - Informasi dan Komunikasi</option>
+                    <option value="Jasa Keuangan dan Asuransi">K - Jasa Keuangan dan Asuransi</option>
+                    <option value="Real Estat">L - Real Estat</option>
+                    <option value="Jasa Profesional, Ilmiah dan Teknis">M - Jasa Profesional, Ilmiah dan Teknis</option>
+                    <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya">N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
+                    <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial">O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
+                    <option value="Jasa Pendidikan">P - Jasa Pendidikan</option>
+                    <option value="Jasa Kesehatan dan Kegiatan Sosial">Q - Jasa Kesehatan dan Kegiatan Sosial</option>
+                    <option value="Kesenian, Hiburan dan Rekreasi">R - Kesenian, Hiburan dan Rekreasi</option>
+                    <option value="Jasa lainnya">S - Jasa lainnya</option>
+                    <option value="Jasa Perorangan yang Melayani Rumah Tangga">T - Jasa Perorangan yang Melayani Rumah Tangga</option>
+                    <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional">U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
+                </select>
             </div>
-            <div class="space-y-4">
-                <div>
-                    <label for="status_pekerjaan_${jobIndex}" class="block text-sm font-medium text-gray-700">Status Pekerjaan</label>
-                    <select id="status_pekerjaan_${jobIndex}" name="status_pekerjaan_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" onchange="toggleFields(${jobIndex})">
-                        <option value="">Pilih Status Pekerjaan</option>
-                        <option value="Berusaha Sendiri">Berusaha Sendiri</option>
-                        <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas">Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
-                        <option value="Pekerja Keluarga">Pekerja Keluarga</option>
-                    </select>
-                </div>
+            
+            <div>
+                <label for="status_pekerjaan_${jobIndex}" class="block text-sm font-medium text-gray-700">Status Pekerjaan</label>
+                <select id="status_pekerjaan_${jobIndex}" name="status_pekerjaan_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" onchange="toggleFields(${jobIndex})">
+                    <option value="">Pilih Status Pekerjaan</option>
+                    <option value="Berusaha Sendiri">Berusaha Sendiri</option>
+                    <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas">Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
+                    <option value="Pekerja Keluarga">Pekerja Keluarga</option>
+                </select>
+            </div>
 
-                <div id="additionalFields_${jobIndex}" style="display: none;">
-                    <div class="space-y-4 bg-white p-4 rounded border">
-                        <div>
-                            <label for="pemasaran_usaha_${jobIndex}" class="block text-sm font-medium text-gray-700">Pemasaran Usaha</label>
-                            <select id="pemasaran_usaha_${jobIndex}" name="pemasaran_usaha_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
-                                <option value="">Pilih Pemasaran Usaha</option>
-                                <option value="Online">Online</option>
-                                <option value="Offline">Offline</option>
-                            </select>
-                        </div>
+            <div id="additionalFields_${jobIndex}" style="display: none;">
+                <div class="space-y-4 bg-white p-4 rounded border">
+                    <div>
+                        <label for="pemasaran_usaha_${jobIndex}" class="block text-sm font-medium text-gray-700">Pemasaran Usaha</label>
+                        <select id="pemasaran_usaha_${jobIndex}" name="pemasaran_usaha_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                            <option value="">Pilih Pemasaran Usaha</option>
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                        </select>
+                    </div>
 
-                        <div>
-                            <label for="penjualan_marketplace_${jobIndex}" class="block text-sm font-medium text-gray-700">Penjualan Melalui Marketplace</label>
-                            <select id="penjualan_marketplace_${jobIndex}" name="penjualan_marketplace_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
-                                <option value="">Pilih Jawaban</option>
-                                <option value="Ya">Ya</option>
-                                <option value="Tidak">Tidak</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="status_pekerjaan_diinginkan_${jobIndex}" class="block text-sm font-medium text-gray-700">Status Pekerjaan yang Diinginkan</label>
-                            <select id="status_pekerjaan_diinginkan_${jobIndex}" name="status_pekerjaan_diinginkan_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" onchange="toggleBidangUsaha(${jobIndex})">
-                                <option value="">Pilih Status Pekerjaan yang Diinginkan</option>
-                                <option value="Berusaha Sendiri">Berusaha Sendiri</option>
-                                <option value="Buruh/Karyawan/Pegawai">Buruh/Karyawan/Pegawai</option>
-                            </select>
-                        </div>
-
-                        <div id="bidang_usaha_container_${jobIndex}">
-                            <label for="bidang_usaha_${jobIndex}" class="block text-sm font-medium text-gray-700">Usaha di Bidang Apa yang Anda Minati</label>
-                            <input type="text" id="bidang_usaha_${jobIndex}" name="bidang_usaha_${jobIndex}" placeholder="Masukkan bidang usaha" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" />
-                        </div>
+                    <div>
+                        <label for="penjualan_marketplace_${jobIndex}" class="block text-sm font-medium text-gray-700">Penjualan Melalui Marketplace</label>
+                        <select id="penjualan_marketplace_${jobIndex}" name="penjualan_marketplace_${jobIndex}" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
+                            <option value="">Pilih Jawaban</option>
+                            <option value="Ya">Ya</option>
+                            <option value="Tidak">Tidak</option>
+                        </select>
                     </div>
                 </div>
             </div>
-        `
+        </div>
+    `
 
     sideJobFieldsContainer.appendChild(newSideJobFields)
   }
@@ -134,8 +128,6 @@ function addSideJobFields() {
 
 function removeSideJob(button) {
   const sideJobDiv = button.closest(".side-job-fields")
-  const jobNumber = sideJobDiv.querySelector("h2").textContent.match(/\d+/)[0]
-
   sideJobDiv.remove()
 
   // Update numbering of remaining side jobs
@@ -170,12 +162,23 @@ function removeSideJob(button) {
       }
     })
 
-    // Update onchange attributes
+    // Update onchange attributes for all selects
     const selectsWithOnchange = jobDiv.querySelectorAll("select[onchange]")
     selectsWithOnchange.forEach((select) => {
       const onchange = select.getAttribute("onchange")
-      const newOnchange = onchange.replace(/$$\d+$$/, `(${newNumber})`)
-      select.setAttribute("onchange", newOnchange)
+      if (onchange && onchange.includes("toggleFields")) {
+        select.setAttribute("onchange", `toggleFields(${newNumber})`)
+      }
+    })
+
+    // Update div IDs
+    const divsWithIds = jobDiv.querySelectorAll("div[id]")
+    divsWithIds.forEach((div) => {
+      const oldId = div.id
+      if (oldId) {
+        const newId = oldId.replace(/_\d+$/, `_${newNumber}`)
+        div.id = newId
+      }
     })
   })
 }
@@ -196,32 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!mainJobStatus) {
       showError("Status pekerjaan utama harus diisi")
       return
-    }
-
-    // Validate main job additional fields if "Berusaha Sendiri"
-    if (mainJobStatus === "Berusaha Sendiri") {
-      const statusDiinginkan = document.getElementById("status_pekerjaan_diinginkan_0").value
-      if (!statusDiinginkan) {
-        showError("Status pekerjaan yang diinginkan harus diisi untuk pekerjaan utama")
-        return
-      }
-    }
-
-    // Validate side jobs if they exist
-    const sideJobs = document.querySelectorAll(".side-job-fields")
-    for (let i = 0; i < sideJobs.length; i++) {
-      const sideJobIndex = i + 1
-      const sideJobStatus = document.getElementById(`status_pekerjaan_${sideJobIndex}`)
-
-      if (sideJobStatus && sideJobStatus.value) {
-        if (sideJobStatus.value === "Berusaha Sendiri") {
-          const statusDiinginkan = document.getElementById(`status_pekerjaan_diinginkan_${sideJobIndex}`)
-          if (!statusDiinginkan || !statusDiinginkan.value) {
-            showError(`Status pekerjaan yang diinginkan harus diisi untuk pekerjaan sampingan ${i + 1}`)
-            return
-          }
-        }
-      }
     }
 
     const formData = new FormData(form)
@@ -301,15 +278,3 @@ document.addEventListener("DOMContentLoaded", () => {
     errorAlert?.classList.add("hidden")
   })
 })
-
-function toggleOtherInput() {
-    const bidangUsahaSelect = document.getElementById('bidang_usaha_0');
-    const otherBidangUsahaDiv = document.getElementById('other_bidang_usaha');
-
-    if (bidangUsahaSelect.value === "Lainnya") {
-        otherBidangUsahaDiv.classList.remove('hidden'); // Show the input field
-    } else {
-        otherBidangUsahaDiv.classList.add('hidden'); // Hide the input field
-        document.getElementById('other_bidang_usaha_input').value = ''; // Clear the input field
-    }
-}

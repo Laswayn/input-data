@@ -193,11 +193,13 @@ def submit_individu():
                 'Penjualan Marketplace Utama': '',
                 'Status Pekerjaan Diinginkan Utama': '',
                 'Bidang Usaha Utama': '',
+                'Bidang Pekerjaan Sampingan 1': '',
                 'Status Pekerjaan Sampingan 1': '',
                 'Pemasaran Usaha Sampingan 1': '',
                 'Penjualan Marketplace Sampingan 1': '',
                 'Status Pekerjaan Diinginkan Sampingan 1': '',
                 'Bidang Usaha Sampingan 1': '',
+                'Bidang Pekerjaan Sampingan 2': '',
                 'Status Pekerjaan Sampingan 2': '',
                 'Pemasaran Usaha Sampingan 2': '',
                 'Penjualan Marketplace Sampingan 2': '',
@@ -276,18 +278,15 @@ def submit_pekerjaan():
             'Status Pekerjaan Utama': main_job_status,
             'Pemasaran Usaha Utama': form_data.get('pemasaran_usaha_0', ''),
             'Penjualan Marketplace Utama': form_data.get('penjualan_marketplace_0', ''),
-            'Status Pekerjaan Diinginkan Utama': form_data.get('status_pekerjaan_diinginkan_0', ''),
-            'Bidang Usaha Utama': form_data.get('bidang_usaha_0', ''),
         })
 
         # Process side jobs (up to 2 side jobs)
         for i in range(1, 3):  # Side jobs 1 and 2
             member_data.update({
+                f'Bidang Pekerjaan Sampingan {i}': form_data.get(f'bidang_pekerjaan_{i}', ''),
                 f'Status Pekerjaan Sampingan {i}': form_data.get(f'status_pekerjaan_{i}', ''),
                 f'Pemasaran Usaha Sampingan {i}': form_data.get(f'pemasaran_usaha_{i}', ''),
                 f'Penjualan Marketplace Sampingan {i}': form_data.get(f'penjualan_marketplace_{i}', ''),
-                f'Status Pekerjaan Diinginkan Sampingan {i}': form_data.get(f'status_pekerjaan_diinginkan_{i}', ''),
-                f'Bidang Usaha Sampingan {i}': form_data.get(f'bidang_usaha_{i}', ''),
             })
 
         # Add to all_members_data
@@ -382,11 +381,13 @@ def submit_final():
             'Penjualan Marketplace Utama': '',
             'Status Pekerjaan Diinginkan Utama': '',
             'Bidang Usaha Utama': '',
+            'Bidang Pekerjaan Sampingan 1': '',
             'Status Pekerjaan Sampingan 1': '',
             'Pemasaran Usaha Sampingan 1': '',
             'Penjualan Marketplace Sampingan 1': '',
             'Status Pekerjaan Diinginkan Sampingan 1': '',
             'Bidang Usaha Sampingan 1': '',
+            'Bidang Pekerjaan Sampingan 2': '',
             'Status Pekerjaan Sampingan 2': '',
             'Pemasaran Usaha Sampingan 2': '',
             'Penjualan Marketplace Sampingan 2': '',
