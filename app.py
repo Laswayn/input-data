@@ -18,9 +18,35 @@ os.makedirs(SIGNATURES_FOLDER, exist_ok=True)
 EXCEL_FILENAME = 'data_sensus.xlsx'
 EXCEL_FILE = os.path.join(EXCEL_FOLDER, EXCEL_FILENAME)
 
+@app.route('/debug-session')
+def debug_session():
+    """Debug route to check session data"""
+    if 'keluarga_data' in session:
+        keluarga_data = session['keluarga_data']
+        return jsonify({
+            'session_exists': True,
+            'jumlah_anggota_15plus': keluarga_data.get('jumlah_anggota_15plus', 'Not found'),
+            'original_jumlah_anggota_15plus': keluarga_data.get('original_jumlah_anggota_15plus', 'Not found'),
+            'anggota_count': keluarga_data.get('anggota_count', 'Not found'),
+            'total_members_processed': len(keluarga_data.get('all_members_data', [])),
+            'all_members_data': keluarga_data.get('all_members_data', [])
+        })
+    else:
+        return jsonify({'session_exists': False})
+
 @app.route('/')
+def home():
+    return redirect(url_for('dashboard'))
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+# Halaman utama aplikasi
+@app.route('/index')
 def index():
     return render_template('index.html')
+
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -68,10 +94,13 @@ def submit():
             'alamat': alamat,
             'jumlah_anggota': jumlah_anggota,
             'jumlah_anggota_15plus': jumlah_anggota_15plus,
+            'original_jumlah_anggota_15plus': jumlah_anggota_15plus,  # Store original count
             'anggota_count': 0,
             'timestamp': timestamp,
             'all_members_data': []  # Store all member data temporarily
         }
+        
+        print(f"DEBUG SUBMIT: Initial jumlah_anggota_15plus: {jumlah_anggota_15plus}")
         
         # If there are members aged 15+, redirect to member input
         if jumlah_anggota_15plus > 0:
@@ -102,6 +131,7 @@ def lanjutan():
         return redirect(url_for('index'))
     
     keluarga_data = session['keluarga_data']
+    print(f"DEBUG LANJUTAN: Current remaining: {keluarga_data.get('jumlah_anggota_15plus', 'Not found')}")
     return render_template('lanjutan.html', keluarga_data=keluarga_data)
 
 @app.route('/pekerjaan')
@@ -121,6 +151,7 @@ def final_page():
         return redirect(url_for('index'))
     
     keluarga_data = session['keluarga_data']
+    print(f"DEBUG FINAL: Accessing final page with {len(keluarga_data.get('all_members_data', []))} members")
     return render_template('final.html', keluarga_data=keluarga_data)
 
 @app.route('/submit-individu', methods=['POST'])
@@ -130,6 +161,9 @@ def submit_individu():
             return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
         
         keluarga_data = session['keluarga_data']
+        
+        print(f"DEBUG SUBMIT_INDIVIDU START: Remaining before processing: {keluarga_data.get('jumlah_anggota_15plus', 'Not found')}")
+        print(f"DEBUG SUBMIT_INDIVIDU START: Members processed so far: {len(keluarga_data.get('all_members_data', []))}")
         
         # Collect individual data from form
         nama = request.form.get('nama')
@@ -215,6 +249,9 @@ def submit_individu():
             keluarga_data['jumlah_anggota_15plus'] -= 1
             session['keluarga_data'] = keluarga_data
 
+            print(f"DEBUG SUBMIT_INDIVIDU END: Remaining after processing: {keluarga_data['jumlah_anggota_15plus']}")
+            print(f"DEBUG SUBMIT_INDIVIDU END: Total members processed: {len(keluarga_data['all_members_data'])}")
+
             # Check if there are more members to process
             if keluarga_data['jumlah_anggota_15plus'] > 0:
                 return jsonify({
@@ -225,6 +262,7 @@ def submit_individu():
                 })
             else:
                 # All members processed, go to final page
+                print("DEBUG SUBMIT_INDIVIDU: All members processed, redirecting to final page")
                 return jsonify({
                     'success': True,
                     'message': 'Semua data anggota berhasil disimpan. Lanjutkan ke halaman akhir.',
@@ -233,6 +271,7 @@ def submit_individu():
                 })
         
     except Exception as e:
+        print(f"ERROR in submit_individu: {str(e)}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
 @app.route('/submit-pekerjaan', methods=['POST'])
@@ -247,6 +286,9 @@ def submit_pekerjaan():
         keluarga_data = session['keluarga_data']
         individu_data = session['individu_data']
         form_data = request.form.to_dict()
+
+        print(f"DEBUG SUBMIT_PEKERJAAN START: Remaining before processing: {keluarga_data.get('jumlah_anggota_15plus', 'Not found')}")
+        print(f"DEBUG SUBMIT_PEKERJAAN START: Members processed so far: {len(keluarga_data.get('all_members_data', []))}")
 
         # Build member data with job information
         member_data = {
@@ -299,6 +341,9 @@ def submit_pekerjaan():
         # Remove individual data from session
         session.pop('individu_data', None)
 
+        print(f"DEBUG SUBMIT_PEKERJAAN END: Remaining after processing: {keluarga_data['jumlah_anggota_15plus']}")
+        print(f"DEBUG SUBMIT_PEKERJAAN END: Total members processed: {len(keluarga_data['all_members_data'])}")
+
         # Check if there are more members to process
         if keluarga_data['jumlah_anggota_15plus'] > 0:
             return jsonify({
@@ -309,6 +354,7 @@ def submit_pekerjaan():
             })
         else:
             # All members processed, go to final page
+            print("DEBUG SUBMIT_PEKERJAAN: All members processed, redirecting to final page")
             return jsonify({
                 'success': True,
                 'message': 'Semua data berhasil disimpan. Lanjutkan ke halaman akhir.',
@@ -317,6 +363,7 @@ def submit_pekerjaan():
             })
 
     except Exception as e:
+        print(f"ERROR in submit_pekerjaan: {str(e)}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
 @app.route('/submit-final', methods=['POST'])

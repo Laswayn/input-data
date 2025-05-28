@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="{{ url_for('static', filename='css/dashboard.css') }}"
+  />
+  <body>
+    <div class="container">
+      <div class="text-section">
+        <h1>Selamat Datang di Pendataan Sidokepung</h1>
+        <p>
+          Klik tombol di bawah untuk masuk ke sistem pendataan dan mulai
+          prosesnya.
+        </p>
+        <a href="{{ url_for('index') }}" class="btn">Mulai Sekarang</a>
+      </div>
+      <div class="image-section">
+        <img
+          src="/static/img/BPS.jpg"
+        />
+      </div>
+    </div>
+  </body>
+</html>
