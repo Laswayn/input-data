@@ -133,7 +133,7 @@ def back_to_index():
     # Clear all form-related session data
     session.pop('keluarga_data', None)
     session.pop('individu_data', None)
-    return redirect(url_for('index'))
+    return redirect(url_for('index') + '?clear=true')
 
 @app.route('/submit', methods=['POST'])
 @login_required
@@ -173,7 +173,7 @@ def submit():
         if jumlah_anggota_15plus > jumlah_anggota:
             return jsonify({'success': False, 'message': 'Jumlah anggota usia 15+ tidak boleh lebih dari jumlah anggota keluarga'}), 400
 
-        timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        timestamp = datetime.now().strftime("%d-%m-%YYYY %H:%M:%S")
         keluarga_id = f"KEL-{rt}{rw}-{datetime.now().strftime('%d%m%Y%H%M%S')}"
         
         # Save basic family data to session
@@ -490,7 +490,7 @@ def submit_final():
             return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
 
         # Set current timestamp for both dates
-        current_timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        current_timestamp = datetime.now().strftime("%d-%m-%YYYY %H:%M:%S")
         tanggal_pencacah = current_timestamp
         tanggal_pemberi_jawaban = current_timestamp
         
@@ -607,7 +607,7 @@ def submit_final():
             'message': 'Semua data berhasil disimpan. Terima kasih!',
             'download_url': f'/download/{EXCEL_FILENAME}',
             'redirect': True,
-            'redirect_url': url_for('index')
+            'redirect_url': url_for('index') + '?clear=true'
         })
 
     except Exception as e:
@@ -794,6 +794,30 @@ def check_file():
     """Check if Excel file exists"""
     exists = os.path.exists(EXCEL_FILE)
     return jsonify({'exists': exists})
+
+@app.route('/get-form-data')
+@login_required
+def get_form_data():
+    """Get saved form data from session"""
+    # Only return form data if we're in the middle of editing
+    # Don't return data for new entries
+    if 'keluarga_data' in session and session['keluarga_data'].get('anggota_count', 0) > 0:
+        # We're in the middle of processing a family, return the basic family data
+        keluarga_data = session['keluarga_data']
+        return jsonify({
+            'form_data': {
+                'rt': keluarga_data.get('rt', ''),
+                'rw': keluarga_data.get('rw', ''),
+                'dusun': keluarga_data.get('dusun', ''),
+                'nama_kepala': keluarga_data.get('nama_kepala', ''),
+                'alamat': keluarga_data.get('alamat', ''),
+                'jumlah_anggota': keluarga_data.get('jumlah_anggota', ''),
+                'jumlah_anggota_15plus': keluarga_data.get('original_jumlah_anggota_15plus', '')
+            }
+        })
+    else:
+        # Return empty data for new entries
+        return jsonify({'form_data': None})
 
 if __name__ == '__main__':
     app.run(debug=True)

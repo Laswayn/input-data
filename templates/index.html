@@ -371,25 +371,54 @@
       </div>
     </div>
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Load saved form data
-        fetch("/get-form-data")
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.form_data) {
-              const formData = data.form_data;
-              // Fill form with saved data
-              Object.keys(formData).forEach((key) => {
-                const element = document.getElementById(key);
-                if (element) {
-                  element.value = formData[key];
-                }
-              });
+  document.addEventListener("DOMContentLoaded", () => {
+    // Check if we're coming from a redirect that should clear data
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('clear') === 'true') {
+      // Clear any existing form data
+      const form = document.getElementById("dataForm");
+      if (form) {
+        form.reset();
+      }
+      // Remove the parameter from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      console.log("Form cleared due to clear parameter");
+      return; // Don't load saved data
+    }
+
+    // Load saved form data only if not clearing
+    fetch("/get-form-data")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.form_data) {
+          const formData = data.form_data;
+          // Fill form with saved data only if we have valid data
+          Object.keys(formData).forEach((key) => {
+            const element = document.getElementById(key);
+            if (element && formData[key]) {
+              element.value = formData[key];
             }
-          })
-          .catch((error) => console.error("Error loading form data:", error));
+          });
+          console.log("Form data loaded from session");
+        } else {
+          // Ensure form is clear for new entries
+          const form = document.getElementById("dataForm");
+          if (form) {
+            form.reset();
+          }
+          console.log("No saved data found, form cleared for new entry");
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading form data:", error);
+        // Clear form on error
+        const form = document.getElementById("dataForm");
+        if (form) {
+          form.reset();
+        }
       });
-    </script>
+  });
+</script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   </body>
 </html>

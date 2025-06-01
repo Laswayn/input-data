@@ -131,7 +131,7 @@
                                 <select id="hubungan" name="hubungan" 
                                         class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white" 
                                         required onchange="checkHubungan()">
-                                    <option value="">Pilih hubungan</option>
+                                    <option value=""disabled selected>Pilih hubungan</option>
                                     <option value="Kepala Keluarga" {% if individu_data['Hubungan dengan Kepala Keluarga'] == 'Kepala Keluarga' %}selected{% endif %}>1. Kepala Keluarga</option>
                                     <option value="Suami/Istri" {% if individu_data['Hubungan dengan Kepala Keluarga'] == 'Suami/Istri' %}selected{% endif %}>2. Suami/Istri</option>
                                     <option value="Anak" {% if individu_data['Hubungan dengan Kepala Keluarga'] == 'Anak' %}selected{% endif %}>3. Anak</option>
@@ -146,7 +146,7 @@
                                 <select id="jenis_kelamin" name="jenis_kelamin" 
                                         class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white" 
                                         required>
-                                    <option value="">Pilih jenis kelamin</option>
+                                    <option value=""disabled selected>Pilih jenis kelamin</option>
                                     <option value="Laki-Laki" {% if individu_data['Jenis Kelamin'] == 'Laki-Laki' %}selected{% endif %}>1. Laki-Laki</option>
                                     <option value="Perempuan" {% if individu_data['Jenis Kelamin'] == 'Perempuan' %}selected{% endif %}>2. Perempuan</option>
                                 </select>
@@ -158,7 +158,7 @@
                                 <select id="status_perkawinan" name="status_perkawinan" 
                                         class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white" 
                                         required>
-                                    <option value="">Pilih status perkawinan</option>
+                                    <option value=""disabled selected>Pilih status perkawinan</option>
                                     <option value="Belum Kawin" {% if individu_data['Status Perkawinan'] == 'Belum Kawin' %}selected{% endif %}>1. Belum Kawin</option>
                                     <option value="Kawin" {% if individu_data['Status Perkawinan'] == 'Kawin' %}selected{% endif %}>2. Kawin</option>
                                     <option value="Cerai Hidup" {% if individu_data['Status Perkawinan'] == 'Cerai Hidup' %}selected{% endif %}>3. Cerai Hidup</option>
@@ -172,7 +172,7 @@
                                 <select id="pendidikan" name="pendidikan" 
                                         class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white" 
                                         required>
-                                    <option value="">Pilih pendidikan terakhir</option>
+                                    <option value=""disabled selected>Pilih pendidikan terakhir</option>
                                     <option value="Tidak/Belum Tamat SD" {% if individu_data['Pendidikan Terakhir'] == 'Tidak/Belum Tamat SD' %}selected{% endif %}>1. Tidak/Belum Tamat SD</option>
                                     <option value="SD/MI/SDLB/PAKET A" {% if individu_data['Pendidikan Terakhir'] == 'SD/MI/SDLB/PAKET A' %}selected{% endif %}>2. SD/MI/SDLB/PAKET A</option>
                                     <option value="SMP/MTS/SMPLB/PAKET B" {% if individu_data['Pendidikan Terakhir'] == 'SMP/MTS/SMPLB/PAKET B' %}selected{% endif %}>3. SMP/MTS/SMPLB/PAKET B</option>
@@ -187,7 +187,7 @@
                                 <select id="kegiatan" name="kegiatan" 
                                         class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white" 
                                         required onchange="checkKegiatan()">
-                                    <option value="">Pilih kegiatan sehari-hari</option>
+                                    <option value=""disabled selected>Pilih kegiatan sehari-hari</option>
                                     <option value="Bekerja" {% if individu_data['Kegiatan Sehari-hari'] == 'Bekerja' %}selected{% endif %}>1. Bekerja</option>
                                     <option value="Sekolah" {% if individu_data['Kegiatan Sehari-hari'] == 'Sekolah' %}selected{% endif %}>2. Sekolah</option>
                                     <option value="Mengurus Rumah Tangga" {% if individu_data['Kegiatan Sehari-hari'] == 'Mengurus Rumah Tangga' %}selected{% endif %}>3. Mengurus Rumah Tangga</option>
@@ -201,7 +201,7 @@
                                 <select id="memiliki_pekerjaan" name="memiliki_pekerjaan" 
                                         class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white" 
                                         required onchange="checkMemilikiPekerjaan()">
-                                    <option value="">Pilih jawaban</option>
+                                    <option value=""disabled selected>Pilih jawaban</option>
                                     <option value="Ya" {% if individu_data['Apakah Memiliki Pekerjaan'] == 'Ya' %}selected{% endif %}>Ya</option>
                                     <option value="Tidak" {% if individu_data['Apakah Memiliki Pekerjaan'] == 'Tidak' %}selected{% endif %}>Tidak</option>
                                 </select>
@@ -217,7 +217,7 @@
                                     <select id="status_pekerjaan_diinginkan" name="status_pekerjaan_diinginkan" 
                                             class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
                                             onchange="toggleBidangUsaha()">
-                                        <option value="">Pilih status pekerjaan yang diinginkan</option>
+                                        <option value=""disabled selected>Pilih status pekerjaan yang diinginkan</option>
                                         <option value="Berusaha Sendiri" {% if individu_data['Status Pekerjaan yang Diinginkan'] == 'Berusaha Sendiri' %}selected{% endif %}>Berusaha Sendiri</option>
                                         <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {% if individu_data['Status Pekerjaan yang Diinginkan'] == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' %}selected{% endif %}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
                                     </select>
@@ -232,7 +232,7 @@
                                 <select id="bidang_usaha" name="bidang_usaha" 
                                         class="select-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 appearance-none bg-white"
                                         onchange="toggleOtherInput()">
-                                    <option value="">Pilih bidang pelatihan</option>
+                                    <option value=""disabled selected>Pilih bidang pelatihan</option>
                                     <option value="Pelatihan Barista" {% if individu_data['Bidang Usaha yang Diminati'] == 'Pelatihan Barista' %}selected{% endif %}>1. Pelatihan Barista</option>
                                     <option value="Pelatihan Pastry" {% if individu_data['Bidang Usaha yang Diminati'] == 'Pelatihan Pastry' %}selected{% endif %}>2. Pelatihan Pastry</option>
                                     <option value="Pelatihan Perawatan AC" {% if individu_data['Bidang Usaha yang Diminati'] == 'Pelatihan Perawatan AC' %}selected{% endif %}>3. Pelatihan Perawatan AC</option>
@@ -266,7 +266,7 @@
                             <div class="mb-4">
                                 <label for="bidang_pekerjaan" class="block text-sm font-medium text-gray-700 mb-2">Bidang Pekerjaan</label>
                                 <select id="bidang_pekerjaan" name="bidang_pekerjaan" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
-                                    <option value="">Pilih Bidang Pekerjaan</option>
+                                    <option value=""disabled selected>Pilih Bidang Pekerjaan</option>
                                     <option value="Pertanian, Kehutanan dan Perikanan" {% if individu_data.get('Bidang Pekerjaan') == 'Pertanian, Kehutanan dan Perikanan' %}selected{% endif %}>A - Pertanian, Kehutanan dan Perikanan</option>
                                     <option value="Pertambangan dan Penggalian" {% if individu_data.get('Bidang Pekerjaan') == 'Pertambangan dan Penggalian' %}selected{% endif %}>B - Pertambangan dan Penggalian</option>
                                     <option value="Industri Pengolahan" {% if individu_data.get('Bidang Pekerjaan') == 'Industri Pengolahan' %}selected{% endif %}>C - Industri Pengolahan</option>
@@ -303,7 +303,7 @@
                                     <div>
                                         <label for="status_pekerjaan_0" class="block text-sm font-medium text-gray-700">Status Pekerjaan</label>
                                         <select id="status_pekerjaan_0" name="status_pekerjaan_0" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" onchange="toggleFields(0)">
-                                            <option value="">Pilih Status Pekerjaan</option>
+                                            <option value=""disabled selected>Pilih Status Pekerjaan</option>
                                             <option value="Berusaha Sendiri" {% if individu_data.get('Status Pekerjaan Utama') == 'Berusaha Sendiri' %}selected{% endif %}>Berusaha Sendiri</option>
                                             <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {% if individu_data.get('Status Pekerjaan Utama') == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' %}selected{% endif %}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
                                             <option value="Pekerja Keluarga" {% if individu_data.get('Status Pekerjaan Utama') == 'Pekerja Keluarga' %}selected{% endif %}>Pekerja Keluarga</option>
@@ -315,7 +315,7 @@
                                             <div>
                                                 <label for="pemasaran_usaha_0" class="block text-sm font-medium text-gray-700">Pemasaran Usaha</label>
                                                 <select id="pemasaran_usaha_0" name="pemasaran_usaha_0" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
-                                                    <option value="">Pilih Pemasaran Usaha</option>
+                                                    <option value=""disabled selected>Pilih Pemasaran Usaha</option>
                                                     <option value="Online" {% if individu_data.get('Pemasaran Usaha Utama') == 'Online' %}selected{% endif %}>Online</option>
                                                     <option value="Offline" {% if individu_data.get('Pemasaran Usaha Utama') == 'Offline' %}selected{% endif %}>Offline</option>
                                                 </select>
@@ -324,7 +324,7 @@
                                             <div>
                                                 <label for="penjualan_marketplace_0" class="block text-sm font-medium text-gray-700">Penjualan Melalui Marketplace</label>
                                                 <select id="penjualan_marketplace_0" name="penjualan_marketplace_0" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300">
-                                                    <option value="">Pilih Jawaban</option>
+                                                    <option value=""disabled selected>Pilih Jawaban</option>
                                                     <option value="Ya" {% if individu_data.get('Penjualan Marketplace Utama') == 'Ya' %}selected{% endif %}>Ya</option>
                                                     <option value="Tidak" {% if individu_data.get('Penjualan Marketplace Utama') == 'Tidak' %}selected{% endif %}>Tidak</option>
                                                 </select>
@@ -343,7 +343,7 @@
                                     Apakah Memiliki Lebih dari Satu Pekerjaan?
                                 </label>
                                 <select id="lebih_dari_satu_pekerjaan" name="lebih_dari_satu_pekerjaan" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" onchange="handleMultipleJobsChange()">
-                                    <option value="">Pilih satu</option>
+                                    <option value=""disabled selected>Pilih satu</option>
                                     <option value="Tidak" {% if individu_data.get('Memiliki Lebih dari Satu Pekerjaan') == 'Tidak' %}selected{% endif %}>Tidak</option>
                                     <option value="Ya" {% if individu_data.get('Memiliki Lebih dari Satu Pekerjaan') == 'Ya' %}selected{% endif %}>Ya</option>
                                 </select>
