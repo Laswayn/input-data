@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, session
 import pandas as pd
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import secrets
 import json
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -17,6 +18,82 @@ os.makedirs(SIGNATURES_FOLDER, exist_ok=True)
 
 EXCEL_FILENAME = 'data_sensus.xlsx'
 EXCEL_FILE = os.path.join(EXCEL_FOLDER, EXCEL_FILENAME)
+
+# Login credentials
+ADMIN_USERNAME = 'admin'
+ADMIN_PASSWORD = 'pahlawan140'
+
+# Session timeout (1 hour in seconds)
+SESSION_TIMEOUT = 3600  # 1 hour
+
+def login_required(f):
+    """Decorator to require login for protected routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login'))
+        
+        # Check session timeout
+        if 'last_activity' in session:
+            last_activity = datetime.fromisoformat(session['last_activity'])
+            if datetime.now() - last_activity > timedelta(seconds=SESSION_TIMEOUT):
+                session.clear()
+                return redirect(url_for('login', message='Session expired'))
+        
+        # Update last activity
+        session['last_activity'] = datetime.now().isoformat()
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            session['username'] = username
+            session['last_activity'] = datetime.now().isoformat()
+            return jsonify({
+                'success': True,
+                'message': 'Login berhasil',
+                'redirect_url': url_for('dashboard')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Username atau password salah!'
+            }), 401
+    
+    # If already logged in, redirect to dashboard
+    if 'logged_in' in session:
+        return redirect(url_for('dashboard'))
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/check-session')
+def check_session():
+    """API endpoint to check session status"""
+    if 'logged_in' not in session:
+        return jsonify({'logged_in': False})
+    
+    # Check session timeout
+    if 'last_activity' in session:
+        last_activity = datetime.fromisoformat(session['last_activity'])
+        if datetime.now() - last_activity > timedelta(seconds=SESSION_TIMEOUT):
+            session.clear()
+            return jsonify({'logged_in': False, 'expired': True})
+    
+    # Update last activity
+    session['last_activity'] = datetime.now().isoformat()
+    return jsonify({'logged_in': True})
 
 @app.route('/debug-session')
 def debug_session():
@@ -36,19 +113,21 @@ def debug_session():
 
 @app.route('/')
 def home():
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
     return render_template('dashboard.html')
 
 # Halaman utama aplikasi
 @app.route('/index')
+@login_required
 def index():
     return render_template('index.html')
 
-
 @app.route('/submit', methods=['POST'])
+@login_required
 def submit():
     try:
         # Get form data
@@ -125,6 +204,7 @@ def submit():
         return jsonify({'success': False, 'message': error_msg}), 500
 
 @app.route('/lanjutan')
+@login_required
 def lanjutan():
     # Check if family data exists in session
     if 'keluarga_data' not in session:
@@ -135,6 +215,7 @@ def lanjutan():
     return render_template('lanjutan.html', keluarga_data=keluarga_data)
 
 @app.route('/pekerjaan')
+@login_required
 def pekerjaan():
     # Check if family and individual data exist in session
     if 'keluarga_data' not in session or 'individu_data' not in session:
@@ -145,6 +226,7 @@ def pekerjaan():
     return render_template('pekerjaan.html', keluarga_data=keluarga_data, individu_data=individu_data)
 
 @app.route('/final')
+@login_required
 def final_page():
     # Check if family data exists in session
     if 'keluarga_data' not in session:
@@ -155,6 +237,7 @@ def final_page():
     return render_template('final.html', keluarga_data=keluarga_data)
 
 @app.route('/submit-individu', methods=['POST'])
+@login_required
 def submit_individu():
     try:
         if 'keluarga_data' not in session:
@@ -275,6 +358,7 @@ def submit_individu():
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
 @app.route('/submit-pekerjaan', methods=['POST'])
+@login_required
 def submit_pekerjaan():
     try:
         if 'keluarga_data' not in session:
@@ -367,6 +451,7 @@ def submit_pekerjaan():
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
 @app.route('/submit-final', methods=['POST'])
+@login_required
 def submit_final():
     try:
         if 'keluarga_data' not in session:
@@ -516,6 +601,7 @@ def submit_final():
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
     
 @app.route('/edit-keluarga', methods=['GET', 'POST'])
+@login_required
 def edit_keluarga():
     if request.method == 'POST':
         # Handle the form submission for editing family data
@@ -558,6 +644,7 @@ def edit_keluarga():
     return render_template('edit_keluarga.html', keluarga_data=keluarga_data)
 
 @app.route('/edit-individu/<int:index>', methods=['GET', 'POST'])
+@login_required
 def edit_individu(index):
     if 'keluarga_data' not in session:
         return redirect(url_for('index'))
@@ -624,6 +711,7 @@ def edit_individu(index):
     return render_template('edit_individu.html', individu_data=individu_data, index=index)
 
 @app.route('/download/<filename>')
+@login_required
 def download_file(filename):
     """Route to download Excel file"""
     try:
@@ -651,6 +739,7 @@ def download_file(filename):
         return f"Error: {str(e)}", 500
 
 @app.route('/check-file')
+@login_required
 def check_file():
     """Check if Excel file exists"""
     exists = os.path.exists(EXCEL_FILE)

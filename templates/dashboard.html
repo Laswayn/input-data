@@ -3,18 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Dashboard - Pendataan Sidokepung</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
   </head>
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="{{ url_for('static', filename='css/dashboard.css') }}"
-  />
   <body>
+    <!-- Logout Button -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 1000;">
+      <button 
+        onclick="logout()" 
+        style="
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        "
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(239, 68, 68, 0.4)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.3)'"
+      >
+        <svg style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+        </svg>
+        Logout
+      </button>
+    </div>
+
     <div class="container">
       <div class="text-section">
         <h1>Selamat Datang di Pendataan Sidokepung</h1>
@@ -25,10 +51,179 @@
         <a href="{{ url_for('index') }}" class="btn">Mulai Sekarang</a>
       </div>
       <div class="image-section">
-        <img
-          src="/static/img/BPS.jpg"
-        />
+        <img src="/static/img/BPS.jpg" alt="Logo BPS" />
       </div>
     </div>
+
+    <!-- Session timeout warning modal -->
+    <div id="timeoutWarning" style="
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    ">
+      <div style="
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        max-width: 400px;
+        margin: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      ">
+        <div style="color: #f59e0b; font-size: 48px; margin-bottom: 20px;">⚠️</div>
+        <h3 style="margin: 0 0 15px 0; color: #374151;">Sesi Akan Berakhir</h3>
+        <p style="margin: 0 0 25px 0; color: #6b7280;">
+          Sesi Anda akan berakhir dalam <span id="countdown">5:00</span> menit karena tidak ada aktivitas.
+        </p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button onclick="extendSession()" style="
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+          ">
+            Perpanjang Sesi
+          </button>
+          <button onclick="logout()" style="
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+          ">
+            Logout Sekarang
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let sessionTimeout;
+      let warningTimeout;
+      let countdownInterval;
+      let warningShown = false;
+
+      // Session timeout duration (1 hour = 3600 seconds)
+      const SESSION_DURATION = 3600 * 1000; // 1 hour in milliseconds
+      const WARNING_TIME = 5 * 60 * 1000; // Show warning 5 minutes before timeout
+
+      function resetSessionTimer() {
+        clearTimeout(sessionTimeout);
+        clearTimeout(warningTimeout);
+        clearInterval(countdownInterval);
+        hideTimeoutWarning();
+        
+        // Set warning to show 5 minutes before session expires
+        warningTimeout = setTimeout(showTimeoutWarning, SESSION_DURATION - WARNING_TIME);
+        
+        // Set session to expire after full duration
+        sessionTimeout = setTimeout(logout, SESSION_DURATION);
+        
+        console.log('Session timer reset');
+      }
+
+      function showTimeoutWarning() {
+        if (warningShown) return;
+        
+        warningShown = true;
+        document.getElementById('timeoutWarning').style.display = 'flex';
+        
+        let timeLeft = WARNING_TIME / 1000; // 5 minutes in seconds
+        
+        countdownInterval = setInterval(() => {
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          document.getElementById('countdown').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+          
+          timeLeft--;
+          
+          if (timeLeft < 0) {
+            clearInterval(countdownInterval);
+            logout();
+          }
+        }, 1000);
+      }
+
+      function hideTimeoutWarning() {
+        warningShown = false;
+        document.getElementById('timeoutWarning').style.display = 'none';
+        clearInterval(countdownInterval);
+      }
+
+      function extendSession() {
+        // Make a request to check/extend session
+        fetch('/check-session')
+          .then(response => response.json())
+          .then(data => {
+            if (data.logged_in) {
+              resetSessionTimer();
+              console.log('Session extended');
+            } else {
+              logout();
+            }
+          })
+          .catch(error => {
+            console.error('Error extending session:', error);
+            logout();
+          });
+      }
+
+      function logout() {
+        clearTimeout(sessionTimeout);
+        clearTimeout(warningTimeout);
+        clearInterval(countdownInterval);
+        window.location.href = '/logout';
+      }
+
+      // Track user activity
+      const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+      
+      function trackActivity() {
+        resetSessionTimer();
+      }
+
+      // Add event listeners for user activity
+      activityEvents.forEach(event => {
+        document.addEventListener(event, trackActivity, true);
+      });
+
+      // Check session status periodically
+      function checkSessionStatus() {
+        fetch('/check-session')
+          .then(response => response.json())
+          .then(data => {
+            if (!data.logged_in) {
+              if (data.expired) {
+                alert('Sesi Anda telah berakhir karena tidak ada aktivitas selama 1 jam.');
+              }
+              window.location.href = '/login';
+            }
+          })
+          .catch(error => {
+            console.error('Error checking session:', error);
+          });
+      }
+
+      // Check session every 5 minutes
+      setInterval(checkSessionStatus, 5 * 60 * 1000);
+
+      // Initialize session timer when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        resetSessionTimer();
+      });
+    </script>
   </body>
 </html>
