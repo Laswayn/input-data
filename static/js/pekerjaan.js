@@ -229,6 +229,9 @@ document.addEventListener("DOMContentLoaded", () => {
           showSuccess(data.message)
 
           if (data.redirect) {
+            // Clear any saved data before redirecting
+            clearSavedData()
+
             setTimeout(() => {
               window.location.href = data.redirect_url
             }, 2000)
@@ -278,3 +281,67 @@ document.addEventListener("DOMContentLoaded", () => {
     errorAlert?.classList.add("hidden")
   })
 })
+
+// Auto-save form data
+const form = document.getElementById("pekerjaanForm")
+if (form) {
+  const inputs = form.querySelectorAll("input, select, textarea")
+
+  inputs.forEach((input) => {
+    input.addEventListener("change", saveFormData)
+    input.addEventListener("input", saveFormData)
+  })
+}
+
+function saveFormData() {
+  const formData = {}
+  const form = document.getElementById("pekerjaanForm")
+  if (form) {
+    const inputs = form.querySelectorAll("input, select, textarea")
+
+    inputs.forEach((input) => {
+      if (input.name) {
+        formData[input.name] = input.value
+      }
+    })
+
+    localStorage.setItem("pekerjaan_form_data", JSON.stringify(formData))
+    console.log("Pekerjaan form data saved to localStorage")
+  }
+}
+
+// Load saved data on page load
+document.addEventListener("DOMContentLoaded", () => {
+  loadSavedData()
+})
+
+function loadSavedData() {
+  const savedData = localStorage.getItem("pekerjaan_form_data")
+  if (savedData) {
+    try {
+      const formData = JSON.parse(savedData)
+      console.log("Loading saved pekerjaan data:", formData)
+
+      Object.keys(formData).forEach((key) => {
+        const element = document.getElementById(key)
+        if (element && formData[key]) {
+          element.value = formData[key]
+
+          // Trigger change events for conditional fields
+          if (element.tagName === "SELECT") {
+            element.dispatchEvent(new Event("change"))
+          }
+        }
+      })
+    } catch (error) {
+      console.error("Error loading saved pekerjaan data:", error)
+    }
+  }
+}
+
+// Function to clear any saved form data
+function clearSavedData() {
+  localStorage.removeItem("lanjutan_form_data")
+  localStorage.removeItem("pekerjaan_form_data")
+  console.log("All saved form data cleared")
+}

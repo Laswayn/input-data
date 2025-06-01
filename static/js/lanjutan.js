@@ -141,15 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.continue_next_member) {
               // Clear saved data and reset form for next member
               clearSavedData()
-              dataForm.reset()
-              updateNamaPlaceholders("")
-
-              // Hide conditional sections
-              document.getElementById("status_pekerjaan_container").classList.add("hidden")
-              document.getElementById("bidang_usaha_container").classList.add("hidden")
-
-              // Scroll to top
-              window.scrollTo({ top: 0, behavior: "smooth" })
+              resetFormCompletely()
 
               // Hide success message after 3 seconds
               setTimeout(() => {
@@ -271,6 +263,53 @@ function toggleBidangUsaha() {
 function clearSavedData() {
   localStorage.removeItem("lanjutan_form_data")
   console.log("Saved data cleared")
+}
+
+function resetFormCompletely() {
+  // Reset form
+  const dataForm = document.getElementById("dataForm")
+  dataForm.reset()
+
+  // Reset nama placeholders
+  const updateNamaPlaceholders = (nama) => {
+    const placeholders = document.querySelectorAll(".nama-placeholder")
+    placeholders.forEach((placeholder) => {
+      placeholder.textContent = nama || "NAMA"
+    })
+  }
+  updateNamaPlaceholders("")
+
+  // Hide all conditional sections
+  document.getElementById("status_pekerjaan_container").classList.add("hidden")
+  document.getElementById("bidang_usaha_container").classList.add("hidden")
+  document.getElementById("other_bidang_usaha").classList.add("hidden")
+
+  // Reset all select values to default
+  const selects = dataForm.querySelectorAll("select")
+  selects.forEach((select) => {
+    select.selectedIndex = 0
+  })
+
+  // Reset all error messages
+  document.querySelectorAll(".text-red-500").forEach((el) => el.classList.add("hidden"))
+
+  // Reset any disabled options
+  const statusPerkawinanSelect = document.getElementById("status_perkawinan")
+  const belumKawinOption = statusPerkawinanSelect.querySelector('option[value="Belum Kawin"]')
+  if (belumKawinOption) {
+    belumKawinOption.disabled = false
+  }
+
+  const memilikiPekerjaanSelect = document.getElementById("memiliki_pekerjaan")
+  const tidakOption = memilikiPekerjaanSelect.querySelector('option[value="Tidak"]')
+  if (tidakOption) {
+    tidakOption.disabled = false
+  }
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: "smooth" })
+
+  console.log("Form completely reset for next member")
 }
 
 function checkHubungan() {
