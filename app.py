@@ -126,10 +126,23 @@ def dashboard():
 def index():
     return render_template('index.html')
 
+@app.route('/back-to-index')
+@login_required
+def back_to_index():
+    """Route to go back to index and clear session data"""
+    # Clear all form-related session data
+    session.pop('keluarga_data', None)
+    session.pop('individu_data', None)
+    return redirect(url_for('index'))
+
 @app.route('/submit', methods=['POST'])
 @login_required
 def submit():
     try:
+        # Clear any existing session data when starting new family
+        session.pop('keluarga_data', None)
+        session.pop('individu_data', None)
+        
         # Get form data
         rt = request.form.get('rt')
         rw = request.form.get('rw')
@@ -670,6 +683,13 @@ def edit_individu(index):
             status_pekerjaan_diinginkan = request.form.get('status_pekerjaan_diinginkan')
             bidang_usaha_diminati = request.form.get('bidang_usaha')
 
+            # Get job-related data
+            bidang_pekerjaan = request.form.get('bidang_pekerjaan')
+            status_pekerjaan_utama = request.form.get('status_pekerjaan_0')
+            pemasaran_usaha_utama = request.form.get('pemasaran_usaha_0')
+            penjualan_marketplace_utama = request.form.get('penjualan_marketplace_0')
+            lebih_dari_satu_pekerjaan = request.form.get('lebih_dari_satu_pekerjaan')
+
             # Validate required fields
             required_fields = [nama, umur, hubungan, jenis_kelamin, status_perkawinan, pendidikan, kegiatan, memiliki_pekerjaan]
             if not all(required_fields):
@@ -686,6 +706,7 @@ def edit_individu(index):
             # Update the member data in session
             member_data = members[index]
 
+            # Update basic individual data
             member_data['Nama Anggota'] = nama
             member_data['Umur'] = umur_int
             member_data['Hubungan dengan Kepala Keluarga'] = hubungan
@@ -697,11 +718,40 @@ def edit_individu(index):
             member_data['Status Pekerjaan yang Diinginkan'] = status_pekerjaan_diinginkan or ''
             member_data['Bidang Usaha yang Diminati'] = bidang_usaha_diminati or ''
 
+            # Update job data if person has a job
+            if memiliki_pekerjaan == 'Ya':
+                member_data['Bidang Pekerjaan'] = bidang_pekerjaan or ''
+                member_data['Status Pekerjaan Utama'] = status_pekerjaan_utama or ''
+                member_data['Pemasaran Usaha Utama'] = pemasaran_usaha_utama or ''
+                member_data['Penjualan Marketplace Utama'] = penjualan_marketplace_utama or ''
+                member_data['Memiliki Lebih dari Satu Pekerjaan'] = lebih_dari_satu_pekerjaan or 'Tidak'
+
+                # Process side jobs (up to 2 side jobs)
+                for i in range(1, 3):  # Side jobs 1 and 2
+                    member_data[f'Bidang Pekerjaan Sampingan {i}'] = request.form.get(f'bidang_pekerjaan_{i}', '')
+                    member_data[f'Status Pekerjaan Sampingan {i}'] = request.form.get(f'status_pekerjaan_{i}', '')
+                    member_data[f'Pemasaran Usaha Sampingan {i}'] = request.form.get(f'pemasaran_usaha_{i}', '')
+                    member_data[f'Penjualan Marketplace Sampingan {i}'] = request.form.get(f'penjualan_marketplace_{i}', '')
+            else:
+                # Clear job data if person doesn't have a job
+                member_data['Bidang Pekerjaan'] = ''
+                member_data['Status Pekerjaan Utama'] = ''
+                member_data['Pemasaran Usaha Utama'] = ''
+                member_data['Penjualan Marketplace Utama'] = ''
+                member_data['Memiliki Lebih dari Satu Pekerjaan'] = ''
+                
+                # Clear side job data
+                for i in range(1, 3):
+                    member_data[f'Bidang Pekerjaan Sampingan {i}'] = ''
+                    member_data[f'Status Pekerjaan Sampingan {i}'] = ''
+                    member_data[f'Pemasaran Usaha Sampingan {i}'] = ''
+                    member_data[f'Penjualan Marketplace Sampingan {i}'] = ''
+
             # Save back to session
             keluarga_data['all_members_data'][index] = member_data
             session['keluarga_data'] = keluarga_data
 
-            return jsonify({'success': True, 'message': 'Data individu berhasil diperbarui.'})
+            return jsonify({'success': True, 'message': 'Data individu dan pekerjaan berhasil diperbarui.'})
 
         except Exception as e:
             return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500

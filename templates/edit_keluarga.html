@@ -1,95 +1,329 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
+<html lang="id">
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Data Keluarga</title>
-  </head>
-  <body>
-    <h1>Edit Data Keluarga</h1>
-    <form id="editKeluargaForm">
-      <label for="rt">RT:</label>
-      <input
-        type="text"
-        id="rt"
-        name="rt"
-        value="{{ keluarga_data.rt }}"
-        required
-      /><br />
+    <title>Edit Data Keluarga - Pendataan Sidokepung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: "#f0f9ff",
+                            100: "#e0f2fe",
+                            200: "#bae6fd",
+                            300: "#7dd3fc",
+                            400: "#38bdf8",
+                            500: "#0ea5e9",
+                            600: "#0284c7",
+                            700: "#0369a1",
+                            800: "#075985",
+                            900: "#0c4a6e",
+                            950: "#082f49",
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .form-input {
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+        
+        .back-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-primary-50 min-h-screen py-8 px-4">
+    <div class="container mx-auto max-w-2xl">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-6">
+                <h1 class="text-2xl font-bold text-center">Edit Data Keluarga</h1>
+                <p class="text-center text-primary-100 mt-1 text-sm">
+                    Perbarui informasi keluarga
+                </p>
+            </div>
 
-      <label for="rw">RW:</label>
-      <input
-        type="text"
-        id="rw"
-        name="rw"
-        value="{{ keluarga_data.rw }}"
-        required
-      /><br />
+            <div class="p-6">
+                <!-- Back Button -->
+                <div class="mb-6">
+                    <a href="{{ url_for('final_page') }}" 
+                       class="back-btn inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Kembali ke Halaman Akhir
+                    </a>
+                </div>
 
-      <label for="dusun">Dusun:</label>
-      <input
-        type="text"
-        id="dusun"
-        name="dusun"
-        value="{{ keluarga_data.dusun }}"
-        required
-      /><br />
+                <form id="editKeluargaForm" class="space-y-6">
+                    <!-- RT/RW/Dusun Fields -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label for="rt" class="block text-sm font-medium text-gray-700 mb-2">RT</label>
+                            <input type="text" id="rt" name="rt" value="{{ keluarga_data.rt }}" 
+                                   class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" 
+                                   required />
+                            <p id="rt_error" class="text-red-500 text-xs mt-1 hidden">RT wajib diisi</p>
+                        </div>
 
-      <label for="nama_kepala">Nama Kepala Keluarga:</label>
-      <input
-        type="text"
-        id="nama_kepala"
-        name="nama_kepala"
-        value="{{ keluarga_data.nama_kepala }}"
-        required
-      /><br />
+                        <div>
+                            <label for="rw" class="block text-sm font-medium text-gray-700 mb-2">RW</label>
+                            <input type="text" id="rw" name="rw" value="{{ keluarga_data.rw }}" 
+                                   class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" 
+                                   required />
+                            <p id="rw_error" class="text-red-500 text-xs mt-1 hidden">RW wajib diisi</p>
+                        </div>
 
-      <label for="alamat">Alamat:</label>
-      <input
-        type="text"
-        id="alamat"
-        name="alamat"
-        value="{{ keluarga_data.alamat }}"
-        required
-      /><br />
+                        <div>
+                            <label for="dusun" class="block text-sm font-medium text-gray-700 mb-2">Dusun</label>
+                            <input type="text" id="dusun" name="dusun" value="{{ keluarga_data.dusun }}" 
+                                   class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" 
+                                   required />
+                            <p id="dusun_error" class="text-red-500 text-xs mt-1 hidden">Dusun wajib diisi</p>
+                        </div>
+                    </div>
 
-      <label for="jumlah_anggota">Jumlah Anggota:</label>
-      <input
-        type="number"
-        id="jumlah_anggota"
-        name="jumlah_anggota"
-        value="{{ keluarga_data.jumlah_anggota }}"
-        required
-      /><br />
+                    <div>
+                        <label for="nama_kepala" class="block text-sm font-medium text-gray-700 mb-2">Nama Kepala Keluarga</label>
+                        <input type="text" id="nama_kepala" name="nama_kepala" value="{{ keluarga_data.nama_kepala }}" 
+                               class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" 
+                               required />
+                        <p id="nama_kepala_error" class="text-red-500 text-xs mt-1 hidden">Nama kepala keluarga wajib diisi</p>
+                    </div>
 
-      <label for="jumlah_anggota_15plus">Jumlah Anggota Usia 15+:</label>
-      <input
-        type="number"
-        id="jumlah_anggota_15plus"
-        name="jumlah_anggota_15plus"
-        value="{{ keluarga_data.jumlah_anggota_15plus }}"
-        required
-      /><br />
+                    <div>
+                        <label for="alamat" class="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap</label>
+                        <textarea id="alamat" name="alamat" rows="3" 
+                                  class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 resize-none" 
+                                  required>{{ keluarga_data.alamat }}</textarea>
+                        <p id="alamat_error" class="text-red-500 text-xs mt-1 hidden">Alamat wajib diisi</p>
+                    </div>
 
-      <button type="submit">Simpan Perubahan</button>
-    </form>
+                    <!-- Jumlah Anggota Fields -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="jumlah_anggota" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Anggota Keluarga</label>
+                            <input type="number" id="jumlah_anggota" name="jumlah_anggota" value="{{ keluarga_data.jumlah_anggota }}" 
+                                   min="1" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" 
+                                   required />
+                            <p id="jumlah_anggota_error" class="text-red-500 text-xs mt-1 hidden">Jumlah anggota minimal 1</p>
+                        </div>
+
+                        <div>
+                            <label for="jumlah_anggota_15plus" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Anggota Usia 15+</label>
+                            <input type="number" id="jumlah_anggota_15plus" name="jumlah_anggota_15plus" value="{{ keluarga_data.jumlah_anggota_15plus }}" 
+                                   min="0" class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300" 
+                                   required />
+                            <p id="jumlah_anggota_15plus_error" class="text-red-500 text-xs mt-1 hidden">Tidak boleh lebih dari jumlah anggota keluarga</p>
+                        </div>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div id="successAlert" class="hidden bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg" role="alert">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span id="successMessage">Data keluarga berhasil diperbarui!</span>
+                        </div>
+                    </div>
+
+                    <div id="errorAlert" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span id="errorMessage">Terjadi kesalahan!</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" 
+                                class="submit-btn w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span id="submitText">Simpan Perubahan</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
-      document.getElementById("editKeluargaForm").onsubmit = async function (
-        event
-      ) {
-        event.preventDefault();
-        const formData = new FormData(this);
-        const response = await fetch("/edit-keluarga", {
-          method: "POST",
-          body: formData,
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('editKeluargaForm');
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitText = document.getElementById('submitText');
+
+            // Validate jumlah anggota 15+ tidak lebih dari total anggota
+            document.getElementById('jumlah_anggota_15plus').addEventListener('input', function() {
+                const totalAnggota = parseInt(document.getElementById('jumlah_anggota').value) || 0;
+                const anggota15Plus = parseInt(this.value) || 0;
+                
+                if (anggota15Plus > totalAnggota) {
+                    this.value = totalAnggota;
+                }
+            });
+
+            document.getElementById('jumlah_anggota').addEventListener('input', function() {
+                const totalAnggota = parseInt(this.value) || 0;
+                const anggota15Plus = parseInt(document.getElementById('jumlah_anggota_15plus').value) || 0;
+                
+                if (anggota15Plus > totalAnggota) {
+                    document.getElementById('jumlah_anggota_15plus').value = totalAnggota;
+                }
+            });
+
+            // Hide alerts when user starts typing
+            const inputs = form.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    successAlert.classList.add('hidden');
+                    errorAlert.classList.add('hidden');
+                    
+                    // Hide specific field error
+                    const errorElement = document.getElementById(this.id + '_error');
+                    if (errorElement) {
+                        errorElement.classList.add('hidden');
+                    }
+                });
+            });
+
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                // Reset error messages
+                document.querySelectorAll('[id$="_error"]').forEach(el => el.classList.add('hidden'));
+                
+                let isValid = true;
+                
+                // Validate required fields
+                const requiredFields = ['rt', 'rw', 'dusun', 'nama_kepala', 'alamat', 'jumlah_anggota', 'jumlah_anggota_15plus'];
+                
+                requiredFields.forEach(field => {
+                    const input = document.getElementById(field);
+                    const error = document.getElementById(field + '_error');
+                    
+                    if (!input.value.trim()) {
+                        error.classList.remove('hidden');
+                        isValid = false;
+                        
+                        // Add shake animation
+                        input.classList.add('border-red-500');
+                        input.animate([
+                            { transform: 'translateX(0)' },
+                            { transform: 'translateX(-5px)' },
+                            { transform: 'translateX(5px)' },
+                            { transform: 'translateX(-5px)' },
+                            { transform: 'translateX(5px)' },
+                            { transform: 'translateX(0)' }
+                        ], {
+                            duration: 500,
+                            easing: 'ease-in-out'
+                        });
+                        
+                        setTimeout(() => {
+                            input.classList.remove('border-red-500');
+                        }, 2000);
+                    }
+                });
+                
+                // Additional validation
+                const totalMembers = parseInt(document.getElementById('jumlah_anggota').value) || 0;
+                const adultMembers = parseInt(document.getElementById('jumlah_anggota_15plus').value) || 0;
+                
+                if (adultMembers > totalMembers) {
+                    document.getElementById('jumlah_anggota_15plus_error').classList.remove('hidden');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    errorMessage.textContent = 'Mohon lengkapi semua field yang wajib diisi.';
+                    errorAlert.classList.remove('hidden');
+                    return;
+                }
+                
+                // Show loading state
+                const originalText = submitText.textContent;
+                submitText.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Menyimpan...
+                `;
+                
+                try {
+                    const formData = new FormData(this);
+                    const response = await fetch('/edit-keluarga', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    // Reset button
+                    submitText.textContent = originalText;
+                    
+                    if (result.success) {
+                        successMessage.textContent = result.message;
+                        successAlert.classList.remove('hidden');
+                        errorAlert.classList.add('hidden');
+                        
+                        // Redirect after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = '/final';
+                        }, 2000);
+                    } else {
+                        errorMessage.textContent = result.message;
+                        errorAlert.classList.remove('hidden');
+                        successAlert.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    submitText.textContent = originalText;
+                    errorMessage.textContent = 'Terjadi kesalahan pada server.';
+                    errorAlert.classList.remove('hidden');
+                    successAlert.classList.add('hidden');
+                }
+            });
         });
-        const result = await response.json();
-        alert(result.message);
-        if (result.success) {
-          window.location.href = "/final"; // Redirect to final page or another page
-        }
-      };
     </script>
-  </body>
+</body>
 </html>

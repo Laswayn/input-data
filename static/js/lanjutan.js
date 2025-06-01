@@ -102,6 +102,14 @@ document.addEventListener("DOMContentLoaded", () => {
       // Create form data
       const formData = new FormData(dataForm)
 
+      // Handle "Lainnya" option for bidang usaha
+      const bidangUsahaSelect = document.getElementById("bidang_usaha")
+      const otherBidangUsahaInput = document.getElementById("other_bidang_usaha_input")
+
+      if (bidangUsahaSelect.value === "Lainnya" && otherBidangUsahaInput && otherBidangUsahaInput.value.trim()) {
+        formData.set("bidang_usaha", otherBidangUsahaInput.value.trim())
+      }
+
       // Show loading state
       const submitButton = dataForm.querySelector('button[type="submit"]')
       const originalButtonText = submitButton.innerHTML
@@ -148,6 +156,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 successAlert.classList.add("hidden")
               }, 3000)
             } else if (data.redirect) {
+              // Clear saved data before redirecting
+              clearSavedData()
+
               // Redirect to final page or next step
               console.log("Redirecting to:", data.redirect_url) // Debug log
               setTimeout(() => {
