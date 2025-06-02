@@ -1,13 +1,12 @@
+import os
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, session
 import pandas as pd
-import os
 from datetime import datetime, timedelta
 import secrets
-import json
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
 # Create static/Excel folder if it doesn't exist
 STATIC_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
@@ -19,12 +18,12 @@ os.makedirs(SIGNATURES_FOLDER, exist_ok=True)
 EXCEL_FILENAME = 'data_sensus.xlsx'
 EXCEL_FILE = os.path.join(EXCEL_FOLDER, EXCEL_FILENAME)
 
-# Login credentials
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'pahlawan140'
+# Login credentials - use environment variables in production
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'pahlawan140')
 
 # Session timeout (1 hour in seconds)
-SESSION_TIMEOUT = 3600  # 1 hour
+SESSION_TIMEOUT = int(os.environ.get('SESSION_TIMEOUT', 3600))  # 1 hour
 
 def login_required(f):
     """Decorator to require login for protected routes"""
