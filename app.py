@@ -18,9 +18,17 @@ os.makedirs(SIGNATURES_FOLDER, exist_ok=True)
 EXCEL_FILENAME = 'data_sensus.xlsx'
 EXCEL_FILE = os.path.join(EXCEL_FOLDER, EXCEL_FILENAME)
 
-# Login credentials - use environment variables in production
-ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'pahlawan140')
+# User credentials - use environment variables in production
+USERS = {
+    'admin': {
+        'password': os.environ.get('ADMIN_PASSWORD', 'pahlawan140'),
+        'role': 'admin'
+    },
+    'user': {
+        'password': os.environ.get('USER_PASSWORD', 'bps140'),
+        'role': 'user'
+    }
+}
 
 # Session timeout (1 hour in seconds)
 SESSION_TIMEOUT = int(os.environ.get('SESSION_TIMEOUT', 3600))  # 1 hour
@@ -44,6 +52,15 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def admin_required(f):
+    """Decorator to require admin role for protected routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'role' not in session or session['role'] != 'admin':
+            return jsonify({'error': 'Admin access required'}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -51,14 +68,16 @@ def login():
         username = data.get('username')
         password = data.get('password')
         
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        if username in USERS and USERS[username]['password'] == password:
             session['logged_in'] = True
             session['username'] = username
+            session['role'] = USERS[username]['role']
             session['last_activity'] = datetime.now().isoformat()
             return jsonify({
                 'success': True,
                 'message': 'Login berhasil',
-                'redirect_url': url_for('dashboard')
+                'redirect_url': url_for('dashboard'),
+                'role': USERS[username]['role']
             })
         else:
             return jsonify({
@@ -761,6 +780,7 @@ def edit_individu(index):
 
 @app.route('/download/<filename>')
 @login_required
+@admin_required
 def download_file(filename):
     """Route to download Excel file"""
     try:
@@ -789,6 +809,7 @@ def download_file(filename):
 
 @app.route('/check-file')
 @login_required
+@admin_required
 def check_file():
     """Check if Excel file exists"""
     exists = os.path.exists(EXCEL_FILE)
