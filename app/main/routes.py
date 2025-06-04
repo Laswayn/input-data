@@ -20,7 +20,7 @@ def login_required(f):
         # Check session timeout
         if 'last_activity' in session:
             last_activity = datetime.fromisoformat(session['last_activity'])
-            timeout = current_app.config['SESSION_TIMEOUT', 3600]
+            timeout = current_app.config['SESSION_TIMEOUT']
             if (datetime.now() - last_activity).total_seconds() > timeout:
                 session.clear()
                 return redirect(url_for('auth.login', message='Session expired'))
