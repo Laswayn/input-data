@@ -4,6 +4,7 @@ from app.models import Keluarga, Individu
 from app import db
 from datetime import datetime
 from functools import wraps
+from io import BytesIO
 import pandas as pd
 import os
 import tempfile
@@ -637,21 +638,15 @@ def submit_final():
 @login_required
 @admin_required
 def download_excel():
-    """Generate and download Excel file from database"""
     try:
-        # Query all data
         keluarga_list = Keluarga.query.all()
-        
         if not keluarga_list:
             return jsonify({'error': 'No data found'}), 404
         
-        # Prepare data for Excel
         all_rows = []
-        
         for keluarga in keluarga_list:
-            # Add head of family row
             head_row = {
-                'Timestamp': keluarga.created_at.strftime("%d-%m-%Y %H:%M:%S"),
+                'Timestamp': keluarga.tanggal_pencacah or '',
                 'ID Keluarga': keluarga.keluarga_id,
                 'RT': keluarga.rt,
                 'RW': keluarga.rw,
@@ -693,11 +688,9 @@ def download_excel():
                 'Catatan': keluarga.catatan or ''
             }
             all_rows.append(head_row)
-            
-            # Add member rows
             for individu in keluarga.anggota:
                 member_row = {
-                    'Timestamp': keluarga.created_at.strftime("%d-%m-%Y %H:%M:%S"),
+                    'Timestamp': keluarga.tanggal_pencacah or '',
                     'ID Keluarga': keluarga.keluarga_id,
                     'RT': keluarga.rt,
                     'RW': keluarga.rw,
@@ -740,27 +733,21 @@ def download_excel():
                 }
                 all_rows.append(member_row)
         
-        # Create DataFrame and Excel file
         df = pd.DataFrame(all_rows)
         
-        # Create temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
             df.to_excel(tmp.name, index=False)
             tmp_path = tmp.name
         
-        # Generate download filename
         download_name = f"data_sensus_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-        
         return send_file(
             tmp_path,
             as_attachment=True,
             download_name=download_name,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
-        
     except Exception as e:
-        print(f"Error generating Excel: {str(e)}")
-        return jsonify({'error': f'Error: {str(e)}'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @bp.route('/get-form-data')
 @login_required

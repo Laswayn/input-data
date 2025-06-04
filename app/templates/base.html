@@ -1,35 +1,43 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Pendataan Sidokepung{% endblock %}</title>
-    
+
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/base.css') }}"
+    />
     {% block extra_css %}{% endblock %}
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='img/BPS.jpg') }}">
-</head>
-<body>
+    <link
+      rel="icon"
+      type="image/jpeg"
+      href="{{ url_for('static', filename='img/BPS.jpg') }}"
+    />
+  </head>
+  <body>
     {% block body_class %}{% endblock %}
-    
+
     <!-- Main Content -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-    
+    <main>{% block content %}{% endblock %}</main>
+
     <!-- Alert Container -->
     <div id="alert-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
-    
+
     <!-- Base JavaScript -->
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
     <script src="{{ url_for('static', filename='js/forms.js') }}"></script>
-    
+
     {% block extra_js %}{% endblock %}
-</body>
+  </body>
 </html>

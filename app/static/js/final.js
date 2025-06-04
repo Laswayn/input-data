@@ -1,282 +1,186 @@
-// Final page JavaScript
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM fully loaded - initializing final page")
-
-  // Set current date and time as default
-  const now = new Date()
-  const currentDateTime =
-    now.toLocaleDateString("id-ID", {
-      weekday: "long",
+// Set current date for readonly date fields
+document.addEventListener("DOMContentLoaded", function () {
+  // Set current date for readonly fields
+  const currentDate = new Date()
+    .toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "2-digit",
       year: "numeric",
-      month: "long",
-      day: "numeric",
-    }) +
-    " " +
-    now.toLocaleTimeString("id-ID")
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+    .replace(/\./g, ":");
 
-  const tanggalPencacah = document.getElementById("tanggal_pencacah")
-  const tanggalPemberiJawaban = document.getElementById("tanggal_pemberi_jawaban")
+  document.getElementById("tanggal_pencacah").value = currentDate;
+  document.getElementById("tanggal_pemberi_jawaban").value = currentDate;
 
-  if (tanggalPencacah) tanggalPencacah.value = currentDateTime
-  if (tanggalPemberiJawaban) tanggalPemberiJawaban.value = currentDateTime
+  // Set up form submission
+  const form = document.getElementById("finalForm");
+  const successAlert = document.getElementById("successAlert");
+  const errorAlert = document.getElementById("errorAlert");
+  const errorMessage = document.getElementById("errorMessage");
 
-  setupFinalForm()
-  setupEditButtons()
-  loadFamilyData()
-})
+  // Close success alert
+  document.getElementById("closeAlert").addEventListener("click", function () {
+    successAlert.classList.add("hidden");
+  });
 
-function setupFinalForm() {
-  console.log("Setting up final form")
-  const form = document.getElementById("finalForm")
-  if (!form) {
-    console.error("Final form not found!")
-    return
-  }
+  // Close error alert
+  document
+    .getElementById("closeErrorAlert")
+    .addEventListener("click", function () {
+      errorAlert.classList.add("hidden");
+    });
 
-  console.log("Adding submit event listener to form")
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault()
-    console.log("Form submit triggered")
+  // Form submission
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-    if (!validateFinalForm()) {
-      console.log("Form validation failed")
-      return
+    // Reset error states
+    document
+      .querySelectorAll(".text-red-500")
+      .forEach((el) => el.classList.add("hidden"));
+    errorAlert.classList.add("hidden");
+
+    // Validate required fields
+    let isValid = true;
+    const requiredFields = [
+      { id: "nama_pencacah", errorId: "nama_pencacah_error" },
+      { id: "hp_pencacah", errorId: "hp_pencacah_error" },
+      { id: "nama_pemberi_jawaban", errorId: "nama_pemberi_jawaban_error" },
+      { id: "hp_pemberi_jawaban", errorId: "hp_pemberi_jawaban_error" },
+    ];
+
+    requiredFields.forEach((field) => {
+      const input = document.getElementById(field.id);
+      const errorElement = document.getElementById(field.errorId);
+
+      if (!input.value.trim()) {
+        errorElement.classList.remove("hidden");
+        isValid = false;
+        input.classList.add("border-red-500");
+      } else {
+        input.classList.remove("border-red-500");
+      }
+    });
+
+    if (!isValid) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
     }
-
-    const submitBtn = document.getElementById("submitBtn")
-    if (!submitBtn) {
-      console.error("Submit button not found!")
-      return
-    }
-
-    const originalText = submitBtn.innerHTML
 
     // Show loading state
-    submitBtn.disabled = true
-    submitBtn.innerHTML = `
-            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Menyimpan...
-        `
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = `
+      <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Menyimpan...
+    `;
 
     try {
-      // Collect form data
-      const formData = new FormData(form)
+      // Create form data
+      const formData = new FormData(form);
 
-      // Debug: Log form data
-      console.log("Form data being submitted:")
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`)
-      }
-
-      console.log("Sending data to server...")
+      // Submit the form
       const response = await fetch("/submit-final", {
         method: "POST",
         body: formData,
-      })
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
 
-      console.log("Response received:", response)
-      const result = await response.json()
-      console.log("Server response:", result)
+      const result = await response.json();
+
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalButtonText;
 
       if (result.success) {
-        console.log("Data saved successfully!")
-        showMessage(result.message, "success")
+        // Show success message
+        successAlert.classList.remove("hidden");
+        form.reset();
 
-        // Wait a bit before redirect
-        setTimeout(() => {
-          if (result.redirect_url) {
-            console.log("Redirecting to:", result.redirect_url)
-            window.location.href = result.redirect_url
-          } else {
-            console.log("Redirecting to index with clear=true")
-            window.location.href = "/index?clear=true"
-          }
-        }, 2000)
+        // Set up download link if admin
+        const downloadLink = document.getElementById("downloadLink");
+        if (downloadLink) {
+          downloadLink.addEventListener("click", async function (e) {
+            e.preventDefault();
+            try {
+              const response = await fetch("/download-excel", {
+                headers: {
+                  "X-Requested-With": "XMLHttpRequest",
+                },
+              });
+
+              if (response.ok) {
+                // Create a blob from the response
+                const blob = await response.blob();
+                // Create a temporary URL for the blob
+                const url = window.URL.createObjectURL(blob);
+                // Create a temporary link element
+                const a = document.createElement("a");
+                a.href = url;
+                // Get the filename from the Content-Disposition header if available
+                const contentDisposition = response.headers.get(
+                  "Content-Disposition"
+                );
+                const filenameMatch =
+                  contentDisposition &&
+                  contentDisposition.match(/filename="(.+)"/);
+                a.download = filenameMatch
+                  ? filenameMatch[1]
+                  : "data_sensus.xlsx";
+                // Trigger the download
+                document.body.appendChild(a);
+                a.click();
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+              } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Download failed");
+              }
+            } catch (error) {
+              console.error("Download error:", error);
+              errorMessage.textContent =
+                "Gagal mengunduh file. Silakan coba lagi.";
+              errorAlert.classList.remove("hidden");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          });
+        }
+
+        // Auto redirect after 3 seconds if redirect URL is provided
+        if (result.redirect && result.redirect_url) {
+          setTimeout(function () {
+            window.location.href = result.redirect_url;
+          }, 3000);
+        }
       } else {
-        console.error("Server returned error:", result.message)
-        showMessage(result.message, "error")
+        // Show error message
+        errorMessage.textContent =
+          result.message || "Terjadi kesalahan. Silakan coba lagi.";
+        errorAlert.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (error) {
-      console.error("Error during form submission:", error)
-      showMessage("Terjadi kesalahan saat menyimpan data: " + error.message, "error")
-    } finally {
-      // Restore button
-      submitBtn.disabled = false
-      submitBtn.innerHTML = originalText
+      console.error("Error:", error);
+
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalButtonText;
+
+      // Show error message
+      errorMessage.textContent =
+        "Terjadi kesalahan jaringan. Silakan coba lagi.";
+      errorAlert.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  })
-}
-
-function validateFinalForm() {
-  console.log("Validating final form")
-  let isValid = true
-
-  // Clear previous errors
-  document.querySelectorAll(".text-red-500").forEach((error) => {
-    error.classList.add("hidden")
-  })
-
-  // Validate required fields
-  const requiredFields = ["nama_pencacah", "hp_pencacah", "nama_pemberi_jawaban", "hp_pemberi_jawaban"]
-
-  requiredFields.forEach((fieldId) => {
-    const field = document.getElementById(fieldId)
-    if (!field || !field.value.trim()) {
-      showFieldError(fieldId, "Field ini wajib diisi")
-      isValid = false
-    }
-  })
-
-  console.log("Form validation result:", isValid)
-  return isValid
-}
-
-function showFieldError(fieldId, message) {
-  console.log(`Showing error for field ${fieldId}: ${message}`)
-  const errorElement = document.getElementById(`${fieldId}_error`)
-  if (errorElement) {
-    errorElement.textContent = message
-    errorElement.classList.remove("hidden")
-  }
-
-  const field = document.getElementById(fieldId)
-  if (field) {
-    field.classList.add("border-red-500")
-    field.focus()
-  }
-}
-
-function loadFamilyData() {
-  // This function can be used to load and display family data
-  console.log("Loading family data...")
-
-  // Check if we have data in window object
-  if (window.keluargaData) {
-    console.log("Family data available:", window.keluargaData)
-  } else {
-    console.warn("No family data available in window object")
-  }
-}
-
-function setupEditButtons() {
-  console.log("Setting up edit buttons")
-
-  // Setup edit family button
-  const editFamilyBtn = document.getElementById("editFamilyBtn")
-  if (editFamilyBtn) {
-    editFamilyBtn.addEventListener("click", editFamily)
-  }
-
-  // Setup edit member buttons
-  const editButtons = document.querySelectorAll('[id^="editMember"]')
-  editButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      const memberIndex = this.getAttribute("data-member-index")
-      editMember(Number.parseInt(memberIndex))
-    })
-  })
-}
-
-function editMember(index) {
-  console.log("Editing member at index:", index)
-  const memberData = (window.allMembersData || [])[index]
-  const familyData = window.keluargaData || {}
-
-  if (!memberData) {
-    console.error("Member data not found for index:", index)
-    return
-  }
-
-  const params = new URLSearchParams({
-    memberIndex: index,
-    memberData: encodeURIComponent(JSON.stringify(memberData)),
-    familyData: encodeURIComponent(JSON.stringify(familyData)),
-  })
-
-  window.location.href = `/edit-anggota?${params.toString()}`
-}
-
-function editFamily() {
-  console.log("Editing family data")
-  const familyData = window.keluargaData || {}
-  const params = new URLSearchParams({
-    data: encodeURIComponent(JSON.stringify(familyData)),
-  })
-  window.location.href = `/edit-keluarga?${params.toString()}`
-}
-
-function showMessage(message, type) {
-  console.log(`Showing ${type} message: ${message}`)
-  const messageContainer = document.getElementById("messageContainer")
-  if (!messageContainer) {
-    console.error("Message container not found!")
-    return
-  }
-
-  const messageDiv = document.createElement("div")
-  messageDiv.className = `p-4 rounded-lg shadow-lg mb-4 ${
-    type === "success"
-      ? "bg-green-100 border border-green-400 text-green-700"
-      : "bg-red-100 border border-red-400 text-red-700"
-  }`
-
-  messageDiv.innerHTML = `
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                ${
-                  type === "success"
-                    ? '<svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'
-                    : '<svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>'
-                }
-            </div>
-            <div class="ml-3">
-                <p class="text-sm font-medium">${message}</p>
-            </div>
-        </div>
-    `
-
-  messageContainer.appendChild(messageDiv)
-
-  // Auto remove after 5 seconds
-  setTimeout(() => {
-    messageDiv.remove()
-  }, 5000)
-}
-
-// Add debugging function to check session data
-function checkSessionData() {
-  console.log("Checking session data...")
-  fetch("/debug-session")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Session data:", data)
-    })
-    .catch((error) => {
-      console.error("Error checking session data:", error)
-    })
-}
-
-// Call this on page load to debug
-checkSessionData()
-
-// Setup alert close handlers
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Setting up alert close handlers")
-
-  const closeAlertBtn = document.getElementById("closeAlert")
-  if (closeAlertBtn) {
-    closeAlertBtn.addEventListener("click", () => {
-      document.getElementById("successAlert").classList.add("hidden")
-    })
-  }
-
-  const closeErrorAlertBtn = document.getElementById("closeErrorAlert")
-  if (closeErrorAlertBtn) {
-    closeErrorAlertBtn.addEventListener("click", () => {
-      document.getElementById("errorAlert").classList.add("hidden")
-    })
-  }
-})
+  });
+});
