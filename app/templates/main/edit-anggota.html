@@ -28,14 +28,81 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit-anggota.css') }}">
+    <style>
+      .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .form-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .form-input, .select-input {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+      }
+
+      .form-input:focus, .select-input:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .submit-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        transition: all 0.3s ease;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      }
+
+      .cancel-btn {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        transition: all 0.3s ease;
+      }
+
+      .cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+      }
+
+      .tab-button {
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .tab-button.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+      }
+
+      .info-card {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 12px;
+      }
+    </style>
   </head>
-  <body class="bg-gradient-to-br from-primary-50 to-primary-100 min-h-screen py-8 px-4">
+  <body class="bg-primary-50 min-h-screen py-8 px-4">
     <div class="container mx-auto max-w-3xl">
       <div class="form-card">
         <div class="form-header">
           <h1 class="text-2xl font-bold">Edit Data Anggota Keluarga</h1>
-          <p class="text-primary-100 mt-1">Silakan edit data dengan lengkap dan benar</p>
+          <p class="text-primary-100 mt-1 text-sm">Silakan edit data dengan lengkap dan benar</p>
         </div>
 
         <div class="p-6">
@@ -120,7 +187,7 @@
             <div id="section-basic" class="tab-section">
               <!-- Nama Individu -->
               <div>
-                <label for="nama_anggota" class="section-title block text-sm font-medium text-gray-700">
+                <label for="nama_anggota" class="block text-sm font-medium text-gray-700 mb-1">
                   Nama Lengkap
                 </label>
                 <input
@@ -128,7 +195,7 @@
                   id="nama_anggota"
                   name="nama_anggota"
                   placeholder="Masukkan nama lengkap"
-                  class="form-input w-full px-4 py-2.5 mt-2"
+                  class="form-input w-full px-4 py-2.5"
                   value="{{ member_data.nama_anggota }}"
                   required
                 />
@@ -137,10 +204,10 @@
 
               <!-- Hubungan Dengan Kepala Keluarga -->
               <div>
-                <label for="hubungan_kepala" class="section-title block text-sm font-medium text-gray-700">
+                <label for="hubungan_kepala" class="block text-sm font-medium text-gray-700 mb-1">
                   Hubungan Dengan Kepala Keluarga
                 </label>
-                <div class="relative mt-2">
+                <div class="relative">
                   <select
                     id="hubungan_kepala"
                     name="hubungan_kepala"
@@ -165,10 +232,10 @@
 
               <!-- Jenis Kelamin -->
               <div>
-                <label for="jenis_kelamin" class="section-title block text-sm font-medium text-gray-700">
+                <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-1">
                   Jenis Kelamin
                 </label>
-                <div class="relative mt-2">
+                <div class="relative">
                   <select
                     id="jenis_kelamin"
                     name="jenis_kelamin"
@@ -190,7 +257,7 @@
 
               <!-- Umur -->
               <div>
-                <label for="umur" class="section-title block text-sm font-medium text-gray-700">
+                <label for="umur" class="block text-sm font-medium text-gray-700 mb-1">
                   Umur
                 </label>
                 <input
@@ -198,22 +265,23 @@
                   id="umur"
                   name="umur"
                   min="15"
-                  placeholder="Masukkan umur"
-                  class="form-input w-full px-4 py-2.5 mt-2"
+                  max="64"
+                  placeholder="Masukkan umur (15-64 tahun)"
+                  class="form-input w-full px-4 py-2.5"
                   value="{{ member_data.umur }}"
                   required
                 />
                 <p id="umur_error" class="text-red-500 text-xs mt-1 hidden">
-                  Wajib diisi, minimal 15 tahun
+                  Wajib diisi, umur antara 15-64 tahun
                 </p>
               </div>
 
               <!-- Status Perkawinan -->
               <div>
-                <label for="status_perkawinan" class="section-title block text-sm font-medium text-gray-700">
+                <label for="status_perkawinan" class="block text-sm font-medium text-gray-700 mb-1">
                   Status Perkawinan
                 </label>
-                <div class="relative mt-2">
+                <div class="relative">
                   <select
                     id="status_perkawinan"
                     name="status_perkawinan"
@@ -237,10 +305,10 @@
 
               <!-- Pendidikan Terakhir -->
               <div>
-                <label for="pendidikan_terakhir" class="section-title block text-sm font-medium text-gray-700">
+                <label for="pendidikan_terakhir" class="block text-sm font-medium text-gray-700 mb-1">
                   Pendidikan Terakhir
                 </label>
-                <div class="relative mt-2">
+                <div class="relative">
                   <select
                     id="pendidikan_terakhir"
                     name="pendidikan_terakhir"
@@ -265,10 +333,10 @@
 
               <!-- Kegiatan Sehari-hari -->
               <div>
-                <label for="kegiatan_sehari" class="section-title block text-sm font-medium text-gray-700">
+                <label for="kegiatan_sehari" class="block text-sm font-medium text-gray-700 mb-1">
                   Kegiatan Sehari-hari
                 </label>
-                <div class="relative mt-2">
+                <div class="relative">
                   <select
                     id="kegiatan_sehari"
                     name="kegiatan_sehari"
@@ -374,8 +442,8 @@
             <!-- Job Section -->
             <div id="section-job" class="tab-section hidden">
               <!-- Main Job Fields -->
-              <div id="jobFields" class="job-fields p-4 border-2 border-blue-300 rounded-lg bg-blue-50 {{ 'hidden' if member_data.memiliki_pekerjaan != 'Ya' else '' }}">
-                <h2 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+              <div id="jobFields" class="bg-primary-50 p-4 rounded-lg border border-primary-200 {{ 'hidden' if member_data.memiliki_pekerjaan != 'Ya' else '' }}">
+                <h2 class="text-lg font-semibold text-primary-800 mb-4 flex items-center">
                   <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
@@ -384,65 +452,93 @@
                 <div class="space-y-4">
                   <!-- Bidang Pekerjaan Dropdown -->
                   <div>
-                    <label for="bidang_pekerjaan" class="block text-sm font-medium text-gray-700">Bidang Pekerjaan *</label>
-                    <select id="bidang_pekerjaan" name="bidang_pekerjaan" class="form-input w-full px-4 py-2.5">
-                      <option value="" disabled>Pilih Bidang Pekerjaan</option>
-                      <option value="Pertanian, Kehutanan dan Perikanan" {{ 'selected' if member_data.bidang_pekerjaan == 'Pertanian, Kehutanan dan Perikanan' else '' }}>A - Pertanian, Kehutanan dan Perikanan</option>
-                      <option value="Pertambangan dan Penggalian" {{ 'selected' if member_data.bidang_pekerjaan == 'Pertambangan dan Penggalian' else '' }}>B - Pertambangan dan Penggalian</option>
-                      <option value="Industri Pengolahan" {{ 'selected' if member_data.bidang_pekerjaan == 'Industri Pengolahan' else '' }}>C - Industri Pengolahan</option>
-                      <option value="Pengadaan Listrik, Gas, Uap dan AC" {{ 'selected' if member_data.bidang_pekerjaan == 'Pengadaan Listrik, Gas, Uap dan AC' else '' }}>D - Pengadaan Listrik, Gas, Uap dan AC</option>
-                      <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang" {{ 'selected' if member_data.bidang_pekerjaan == 'Pengadaan Air, Pengelolaan Sampah dan Daur Ulang' else '' }}>E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
-                      <option value="Konstruksi" {{ 'selected' if member_data.bidang_pekerjaan == 'Konstruksi' else '' }}>F - Konstruksi</option>
-                      <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor" {{ 'selected' if member_data.bidang_pekerjaan == 'Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor' else '' }}>G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
-                      <option value="Transportasi dan Pergudangan" {{ 'selected' if member_data.bidang_pekerjaan == 'Transportasi dan Pergudangan' else '' }}>H - Transportasi dan Pergudangan</option>
-                      <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum" {{ 'selected' if member_data.bidang_pekerjaan == 'Penyediaan Akomodasi dan Penyediaan Makan Minum' else '' }}>I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
-                      <option value="Informasi dan Komunikasi" {{ 'selected' if member_data.bidang_pekerjaan == 'Informasi dan Komunikasi' else '' }}>J - Informasi dan Komunikasi</option>
-                      <option value="Jasa Keuangan dan Asuransi" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Keuangan dan Asuransi' else '' }}>K - Jasa Keuangan dan Asuransi</option>
-                      <option value="Real Estat" {{ 'selected' if member_data.bidang_pekerjaan == 'Real Estat' else '' }}>L - Real Estat</option>
-                      <option value="Jasa Profesional, Ilmiah dan Teknis" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Profesional, Ilmiah dan Teknis' else '' }}>M - Jasa Profesional, Ilmiah dan Teknis</option>
-                      <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya' else '' }}>N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
-                      <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial" {{ 'selected' if member_data.bidang_pekerjaan == 'Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial' else '' }}>O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
-                      <option value="Jasa Pendidikan" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Pendidikan' else '' }}>P - Jasa Pendidikan</option>
-                      <option value="Jasa Kesehatan dan Kegiatan Sosial" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Kesehatan dan Kegiatan Sosial' else '' }}>Q - Jasa Kesehatan dan Kegiatan Sosial</option>
-                      <option value="Kesenian, Hiburan dan Rekreasi" {{ 'selected' if member_data.bidang_pekerjaan == 'Kesenian, Hiburan dan Rekreasi' else '' }}>R - Kesenian, Hiburan dan Rekreasi</option>
-                      <option value="Jasa lainnya" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa lainnya' else '' }}>S - Jasa lainnya</option>
-                      <option value="Jasa Perorangan yang Melayani Rumah Tangga" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Perorangan yang Melayani Rumah Tangga' else '' }}>T - Jasa Perorangan yang Melayani Rumah Tangga</option>
-                      <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional" {{ 'selected' if member_data.bidang_pekerjaan == 'Kegiatan Badan Internasional dan Badan Ekstra Internasional' else '' }}>U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
-                    </select>
+                    <label for="bidang_pekerjaan" class="block text-sm font-medium text-gray-700 mb-1">Bidang Pekerjaan *</label>
+                    <div class="relative">
+                      <select id="bidang_pekerjaan" name="bidang_pekerjaan" class="select-input w-full px-4 py-2.5 appearance-none bg-white">
+                        <option value="" disabled>Pilih Bidang Pekerjaan</option>
+                        <option value="Pertanian, Kehutanan dan Perikanan" {{ 'selected' if member_data.bidang_pekerjaan == 'Pertanian, Kehutanan dan Perikanan' else '' }}>A - Pertanian, Kehutanan dan Perikanan</option>
+                        <option value="Pertambangan dan Penggalian" {{ 'selected' if member_data.bidang_pekerjaan == 'Pertambangan dan Penggalian' else '' }}>B - Pertambangan dan Penggalian</option>
+                        <option value="Industri Pengolahan" {{ 'selected' if member_data.bidang_pekerjaan == 'Industri Pengolahan' else '' }}>C - Industri Pengolahan</option>
+                        <option value="Pengadaan Listrik, Gas, Uap dan AC" {{ 'selected' if member_data.bidang_pekerjaan == 'Pengadaan Listrik, Gas, Uap dan AC' else '' }}>D - Pengadaan Listrik, Gas, Uap dan AC</option>
+                        <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang" {{ 'selected' if member_data.bidang_pekerjaan == 'Pengadaan Air, Pengelolaan Sampah dan Daur Ulang' else '' }}>E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
+                        <option value="Konstruksi" {{ 'selected' if member_data.bidang_pekerjaan == 'Konstruksi' else '' }}>F - Konstruksi</option>
+                        <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor" {{ 'selected' if member_data.bidang_pekerjaan == 'Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor' else '' }}>G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
+                        <option value="Transportasi dan Pergudangan" {{ 'selected' if member_data.bidang_pekerjaan == 'Transportasi dan Pergudangan' else '' }}>H - Transportasi dan Pergudangan</option>
+                        <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum" {{ 'selected' if member_data.bidang_pekerjaan == 'Penyediaan Akomodasi dan Penyediaan Makan Minum' else '' }}>I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
+                        <option value="Informasi dan Komunikasi" {{ 'selected' if member_data.bidang_pekerjaan == 'Informasi dan Komunikasi' else '' }}>J - Informasi dan Komunikasi</option>
+                        <option value="Jasa Keuangan dan Asuransi" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Keuangan dan Asuransi' else '' }}>K - Jasa Keuangan dan Asuransi</option>
+                        <option value="Real Estat" {{ 'selected' if member_data.bidang_pekerjaan == 'Real Estat' else '' }}>L - Real Estat</option>
+                        <option value="Jasa Profesional, Ilmiah dan Teknis" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Profesional, Ilmiah dan Teknis' else '' }}>M - Jasa Profesional, Ilmiah dan Teknis</option>
+                        <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya' else '' }}>N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
+                        <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial" {{ 'selected' if member_data.bidang_pekerjaan == 'Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial' else '' }}>O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
+                        <option value="Jasa Pendidikan" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Pendidikan' else '' }}>P - Jasa Pendidikan</option>
+                        <option value="Jasa Kesehatan dan Kegiatan Sosial" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Kesehatan dan Kegiatan Sosial' else '' }}>Q - Jasa Kesehatan dan Kegiatan Sosial</option>
+                        <option value="Kesenian, Hiburan dan Rekreasi" {{ 'selected' if member_data.bidang_pekerjaan == 'Kesenian, Hiburan dan Rekreasi' else '' }}>R - Kesenian, Hiburan dan Rekreasi</option>
+                        <option value="Jasa lainnya" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa lainnya' else '' }}>S - Jasa lainnya</option>
+                        <option value="Jasa Perorangan yang Melayani Rumah Tangga" {{ 'selected' if member_data.bidang_pekerjaan == 'Jasa Perorangan yang Melayani Rumah Tangga' else '' }}>T - Jasa Perorangan yang Melayani Rumah Tangga</option>
+                        <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional" {{ 'selected' if member_data.bidang_pekerjaan == 'Kegiatan Badan Internasional dan Badan Ekstra Internasional' else '' }}>U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                     <p id="bidang_pekerjaan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
                   </div>
                   
                   <div>
-                    <label for="status_pekerjaan_utama" class="block text-sm font-medium text-gray-700">Status Pekerjaan *</label>
-                    <select id="status_pekerjaan_utama" name="status_pekerjaan_utama" class="form-input w-full px-4 py-2.5" onchange="togglePemasaranFields('utama')">
-                      <option value="" disabled>Pilih Status Pekerjaan</option>
-                      <option value="Berusaha Sendiri" {{ 'selected' if member_data.status_pekerjaan_utama == 'Berusaha Sendiri' else '' }}>Berusaha Sendiri</option>
-                      <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {{ 'selected' if member_data.status_pekerjaan_utama == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' else '' }}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
-                      <option value="Pekerja Keluarga" {{ 'selected' if member_data.status_pekerjaan_utama == 'Pekerja Keluarga' else '' }}>Pekerja Keluarga</option>
-                    </select>
+                    <label for="status_pekerjaan_utama" class="block text-sm font-medium text-gray-700 mb-1">Status Pekerjaan *</label>
+                    <div class="relative">
+                      <select id="status_pekerjaan_utama" name="status_pekerjaan_utama" class="select-input w-full px-4 py-2.5 appearance-none bg-white" onchange="togglePemasaranFields('utama')">
+                        <option value="" disabled>Pilih Status Pekerjaan</option>
+                        <option value="Berusaha Sendiri" {{ 'selected' if member_data.status_pekerjaan_utama == 'Berusaha Sendiri' else '' }}>Berusaha Sendiri</option>
+                        <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {{ 'selected' if member_data.status_pekerjaan_utama == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' else '' }}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
+                        <option value="Pekerja Keluarga" {{ 'selected' if member_data.status_pekerjaan_utama == 'Pekerja Keluarga' else '' }}>Pekerja Keluarga</option>
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                     <p id="status_pekerjaan_utama_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
                   </div>
 
                   <div id="pemasaran_utama_container" class="{{ 'hidden' if member_data.status_pekerjaan_utama != 'Berusaha Sendiri' else '' }}">
                     <div class="space-y-4 bg-white p-4 rounded border">
                       <div>
-                        <label for="pemasaran_usaha_utama" class="block text-sm font-medium text-gray-700">Pemasaran Usaha</label>
-                        <select id="pemasaran_usaha_utama" name="pemasaran_usaha_utama" class="form-input w-full px-4 py-2.5" onchange="toggleMarketplaceField('utama')">
-                          <option value="" disabled>Pilih Pemasaran Usaha</option>
-                          <option value="Online" {{ 'selected' if member_data.pemasaran_usaha_utama == 'Online' else '' }}>Online</option>
-                          <option value="Offline" {{ 'selected' if member_data.pemasaran_usaha_utama == 'Offline' else '' }}>Offline</option>
-                          <option value="Offline dan Online" {{ 'selected' if member_data.pemasaran_usaha_utama == 'Offline dan Online' else '' }}>Offline dan Online</option>
-                        </select>
+                        <label for="pemasaran_usaha_utama" class="block text-sm font-medium text-gray-700 mb-1">Pemasaran Usaha</label>
+                        <div class="relative">
+                          <select id="pemasaran_usaha_utama" name="pemasaran_usaha_utama" class="select-input w-full px-4 py-2.5 appearance-none bg-white" onchange="toggleMarketplaceField('utama')">
+                            <option value="" disabled>Pilih Pemasaran Usaha</option>
+                            <option value="Online" {{ 'selected' if member_data.pemasaran_usaha_utama == 'Online' else '' }}>Online</option>
+                            <option value="Offline" {{ 'selected' if member_data.pemasaran_usaha_utama == 'Offline' else '' }}>Offline</option>
+                            <option value="Offline dan Online" {{ 'selected' if member_data.pemasaran_usaha_utama == 'Offline dan Online' else '' }}>Offline dan Online</option>
+                          </select>
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
                         <p id="pemasaran_usaha_utama_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
                       </div>
 
                       <div id="marketplace_utama_container" class="{{ 'hidden' if member_data.pemasaran_usaha_utama not in ['Online', 'Offline dan Online'] else '' }}">
-                        <label for="penjualan_marketplace_utama" class="block text-sm font-medium text-gray-700">Penjualan Melalui Marketplace</label>
-                        <select id="penjualan_marketplace_utama" name="penjualan_marketplace_utama" class="form-input w-full px-4 py-2.5">
-                          <option value="" disabled>Pilih Jawaban</option>
-                          <option value="Ya" {{ 'selected' if member_data.penjualan_marketplace_utama == 'Ya' else '' }}>Ya</option>
-                          <option value="Tidak" {{ 'selected' if member_data.penjualan_marketplace_utama == 'Tidak' else '' }}>Tidak</option>
-                        </select>
+                        <label for="penjualan_marketplace_utama" class="block text-sm font-medium text-gray-700 mb-1">Penjualan Melalui Marketplace</label>
+                        <div class="relative">
+                          <select id="penjualan_marketplace_utama" name="penjualan_marketplace_utama" class="select-input w-full px-4 py-2.5 appearance-none bg-white">
+                            <option value="" disabled>Pilih Jawaban</option>
+                            <option value="Ya" {{ 'selected' if member_data.penjualan_marketplace_utama == 'Ya' else '' }}>Ya</option>
+                            <option value="Tidak" {{ 'selected' if member_data.penjualan_marketplace_utama == 'Tidak' else '' }}>Tidak</option>
+                          </select>
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
                         <p id="penjualan_marketplace_utama_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
                       </div>
                     </div>
@@ -456,18 +552,25 @@
                       </svg>
                       Apakah Memiliki Lebih dari Satu Pekerjaan?
                     </label>
-                    <select id="memiliki_lebih_satu_pekerjaan" name="memiliki_lebih_satu_pekerjaan" class="form-input w-full px-4 py-2.5" onchange="toggleSideJobs()">
-                      <option value="" disabled>Pilih satu</option>
-                      <option value="Tidak" {{ 'selected' if member_data.memiliki_lebih_satu_pekerjaan == 'Tidak' else '' }}>Tidak</option>
-                      <option value="Ya" {{ 'selected' if member_data.memiliki_lebih_satu_pekerjaan == 'Ya' else '' }}>Ya</option>
-                    </select>
+                    <div class="relative">
+                      <select id="memiliki_lebih_satu_pekerjaan" name="memiliki_lebih_satu_pekerjaan" class="select-input w-full px-4 py-2.5 appearance-none bg-white" onchange="toggleSideJobs()">
+                        <option value="" disabled>Pilih satu</option>
+                        <option value="Tidak" {{ 'selected' if member_data.memiliki_lebih_satu_pekerjaan == 'Tidak' else '' }}>Tidak</option>
+                        <option value="Ya" {{ 'selected' if member_data.memiliki_lebih_satu_pekerjaan == 'Ya' else '' }}>Ya</option>
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                     <p id="memiliki_lebih_satu_pekerjaan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
                   </div>
 
                   <!-- Side Jobs Container -->
                   <div id="sideJobsContainer" class="space-y-6 {{ 'hidden' if member_data.memiliki_lebih_satu_pekerjaan != 'Ya' else '' }}">
                     <!-- Side Job 1 -->
-                    <div class="job-fields p-4 border-2 border-green-300 rounded-lg bg-green-50">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
                       <h2 class="text-lg font-semibold text-green-800 mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -478,62 +581,90 @@
                       <div class="space-y-4">
                         <!-- Bidang Pekerjaan Dropdown -->
                         <div>
-                          <label for="bidang_pekerjaan_sampingan1" class="block text-sm font-medium text-gray-700">Bidang Pekerjaan *</label>
-                          <select id="bidang_pekerjaan_sampingan1" name="bidang_pekerjaan_sampingan1" class="form-input w-full px-4 py-2.5">
-                            <option value="" disabled>Pilih Bidang Pekerjaan</option>
-                            <option value="Pertanian, Kehutanan dan Perikanan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pertanian, Kehutanan dan Perikanan' else '' }}>A - Pertanian, Kehutanan dan Perikanan</option>
-                            <option value="Pertambangan dan Penggalian" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pertambangan dan Penggalian' else '' }}>B - Pertambangan dan Penggalian</option>
-                            <option value="Industri Pengolahan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Industri Pengolahan' else '' }}>C - Industri Pengolahan</option>
-                            <option value="Pengadaan Listrik, Gas, Uap dan AC" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pengadaan Listrik, Gas, Uap dan AC' else '' }}>D - Pengadaan Listrik, Gas, Uap dan AC</option>
-                            <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pengadaan Air, Pengelolaan Sampah dan Daur Ulang' else '' }}>E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
-                            <option value="Konstruksi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Konstruksi' else '' }}>F - Konstruksi</option>
-                            <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor' else '' }}>G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
-                            <option value="Transportasi dan Pergudangan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Transportasi dan Pergudangan' else '' }}>H - Transportasi dan Pergudangan</option>
-                            <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Penyediaan Akomodasi dan Penyediaan Makan Minum' else '' }}>I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
-                            <option value="Informasi dan Komunikasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Informasi dan Komunikasi' else '' }}>J - Informasi dan Komunikasi</option>
-                            <option value="Jasa Keuangan dan Asuransi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Keuangan dan Asuransi' else '' }}>K - Jasa Keuangan dan Asuransi</option>
-                            <option value="Real Estat" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Real Estat' else '' }}>L - Real Estat</option>
-                            <option value="Jasa Profesional, Ilmiah dan Teknis" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Profesional, Ilmiah dan Teknis' else '' }}>M - Jasa Profesional, Ilmiah dan Teknis</option>
-                            <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya' else '' }}>N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
-                            <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial' else '' }}>O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
-                            <option value="Jasa Pendidikan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Pendidikan' else '' }}>P - Jasa Pendidikan</option>
-                            <option value="Jasa Kesehatan dan Kegiatan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Kesehatan dan Kegiatan Sosial' else '' }}>Q - Jasa Kesehatan dan Kegiatan Sosial</option>
-                            <option value="Kesenian, Hiburan dan Rekreasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Kesenian, Hiburan dan Rekreasi' else '' }}>R - Kesenian, Hiburan dan Rekreasi</option>
-                            <option value="Jasa lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa lainnya' else '' }}>S - Jasa lainnya</option>
-                            <option value="Jasa Perorangan yang Melayani Rumah Tangga" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Perorangan yang Melayani Rumah Tangga' else '' }}>T - Jasa Perorangan yang Melayani Rumah Tangga</option>
-                            <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Kegiatan Badan Internasional dan Badan Ekstra Internasional' else '' }}>U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
-                          </select>
+                          <label for="bidang_pekerjaan_sampingan1" class="block text-sm font-medium text-gray-700 mb-1">Bidang Pekerjaan *</label>
+                          <div class="relative">
+                            <select id="bidang_pekerjaan_sampingan1" name="bidang_pekerjaan_sampingan1" class="select-input w-full px-4 py-2.5 appearance-none bg-white">
+                              <option value="" disabled>Pilih Bidang Pekerjaan</option>
+                              <option value="Pertanian, Kehutanan dan Perikanan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pertanian, Kehutanan dan Perikanan' else '' }}>A - Pertanian, Kehutanan dan Perikanan</option>
+                              <option value="Pertambangan dan Penggalian" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pertambangan dan Penggalian' else '' }}>B - Pertambangan dan Penggalian</option>
+                              <option value="Industri Pengolahan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Industri Pengolahan' else '' }}>C - Industri Pengolahan</option>
+                              <option value="Pengadaan Listrik, Gas, Uap dan AC" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pengadaan Listrik, Gas, Uap dan AC' else '' }}>D - Pengadaan Listrik, Gas, Uap dan AC</option>
+                              <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Pengadaan Air, Pengelolaan Sampah dan Daur Ulang' else '' }}>E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
+                              <option value="Konstruksi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Konstruksi' else '' }}>F - Konstruksi</option>
+                              <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor' else '' }}>G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
+                              <option value="Transportasi dan Pergudangan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Transportasi dan Pergudangan' else '' }}>H - Transportasi dan Pergudangan</option>
+                              <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Penyediaan Akomodasi dan Penyediaan Makan Minum' else '' }}>I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
+                              <option value="Informasi dan Komunikasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Informasi dan Komunikasi' else '' }}>J - Informasi dan Komunikasi</option>
+                              <option value="Jasa Keuangan dan Asuransi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Keuangan dan Asuransi' else '' }}>K - Jasa Keuangan dan Asuransi</option>
+                              <option value="Real Estat" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Real Estat' else '' }}>L - Real Estat</option>
+                              <option value="Jasa Profesional, Ilmiah dan Teknis" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Profesional, Ilmiah dan Teknis' else '' }}>M - Jasa Profesional, Ilmiah dan Teknis</option>
+                              <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya' else '' }}>N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
+                              <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial' else '' }}>O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
+                              <option value="Jasa Pendidikan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Pendidikan' else '' }}>P - Jasa Pendidikan</option>
+                              <option value="Jasa Kesehatan dan Kegiatan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Kesehatan dan Kegiatan Sosial' else '' }}>Q - Jasa Kesehatan dan Kegiatan Sosial</option>
+                              <option value="Kesenian, Hiburan dan Rekreasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Kesenian, Hiburan dan Rekreasi' else '' }}>R - Kesenian, Hiburan dan Rekreasi</option>
+                              <option value="Jasa lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa lainnya' else '' }}>S - Jasa lainnya</option>
+                              <option value="Jasa Perorangan yang Melayani Rumah Tangga" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Jasa Perorangan yang Melayani Rumah Tangga' else '' }}>T - Jasa Perorangan yang Melayani Rumah Tangga</option>
+                              <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional" {{ 'selected' if member_data.bidang_pekerjaan_sampingan1 == 'Kegiatan Badan Internasional dan Badan Ekstra Internasional' else '' }}>U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
                         
                         <div>
-                          <label for="status_pekerjaan_sampingan1" class="block text-sm font-medium text-gray-700">Status Pekerjaan *</label>
-                          <select id="status_pekerjaan_sampingan1" name="status_pekerjaan_sampingan1" class="form-input w-full px-4 py-2.5" onchange="togglePemasaranFields('sampingan1')">
-                            <option value="" disabled>Pilih Status Pekerjaan</option>
-                            <option value="Berusaha Sendiri" {{ 'selected' if member_data.status_pekerjaan_sampingan1 == 'Berusaha Sendiri' else '' }}>Berusaha Sendiri</option>
-                            <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {{ 'selected' if member_data.status_pekerjaan_sampingan1 == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' else '' }}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
-                            <option value="Pekerja Keluarga" {{ 'selected' if member_data.status_pekerjaan_sampingan1 == 'Pekerja Keluarga' else '' }}>Pekerja Keluarga</option>
-                          </select>
+                          <label for="status_pekerjaan_sampingan1" class="block text-sm font-medium text-gray-700 mb-1">Status Pekerjaan *</label>
+                          <div class="relative">
+                            <select id="status_pekerjaan_sampingan1" name="status_pekerjaan_sampingan1" class="select-input w-full px-4 py-2.5 appearance-none bg-white" onchange="togglePemasaranFields('sampingan1')">
+                              <option value="" disabled>Pilih Status Pekerjaan</option>
+                              <option value="Berusaha Sendiri" {{ 'selected' if member_data.status_pekerjaan_sampingan1 == 'Berusaha Sendiri' else '' }}>Berusaha Sendiri</option>
+                              <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {{ 'selected' if member_data.status_pekerjaan_sampingan1 == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' else '' }}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
+                              <option value="Pekerja Keluarga" {{ 'selected' if member_data.status_pekerjaan_sampingan1 == 'Pekerja Keluarga' else '' }}>Pekerja Keluarga</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
 
                         <div id="pemasaran_sampingan1_container" class="{{ 'hidden' if member_data.status_pekerjaan_sampingan1 != 'Berusaha Sendiri' else '' }}">
                           <div class="space-y-4 bg-white p-4 rounded border">
                             <div>
-                              <label for="pemasaran_usaha_sampingan1" class="block text-sm font-medium text-gray-700">Pemasaran Usaha</label>
-                              <select id="pemasaran_usaha_sampingan1" name="pemasaran_usaha_sampingan1" class="form-input w-full px-4 py-2.5" onchange="toggleMarketplaceField('sampingan1')">
-                                <option value="" disabled>Pilih Pemasaran Usaha</option>
-                                <option value="Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan1 == 'Online' else '' }}>Online</option>
-                                <option value="Offline" {{ 'selected' if member_data.pemasaran_usaha_sampingan1 == 'Offline' else '' }}>Offline</option>
-                                <option value="Offline dan Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan1 == 'Offline dan Online' else '' }}>Offline dan Online</option>
-                              </select>
+                              <label for="pemasaran_usaha_sampingan1" class="block text-sm font-medium text-gray-700 mb-1">Pemasaran Usaha</label>
+                              <div class="relative">
+                                <select id="pemasaran_usaha_sampingan1" name="pemasaran_usaha_sampingan1" class="select-input w-full px-4 py-2.5 appearance-none bg-white" onchange="toggleMarketplaceField('sampingan1')">
+                                  <option value="" disabled>Pilih Pemasaran Usaha</option>
+                                  <option value="Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan1 == 'Online' else '' }}>Online</option>
+                                  <option value="Offline" {{ 'selected' if member_data.pemasaran_usaha_sampingan1 == 'Offline' else '' }}>Offline</option>
+                                  <option value="Offline dan Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan1 == 'Offline dan Online' else '' }}>Offline dan Online</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </div>
                             </div>
 
                             <div id="marketplace_sampingan1_container" class="{{ 'hidden' if member_data.pemasaran_usaha_sampingan1 not in ['Online', 'Offline dan Online'] else '' }}">
-                              <label for="penjualan_marketplace_sampingan1" class="block text-sm font-medium text-gray-700">Penjualan Melalui Marketplace</label>
-                              <select id="penjualan_marketplace_sampingan1" name="penjualan_marketplace_sampingan1" class="form-input w-full px-4 py-2.5">
-                                <option value="" disabled>Pilih Jawaban</option>
-                                <option value="Ya" {{ 'selected' if member_data.penjualan_marketplace_sampingan1 == 'Ya' else '' }}>Ya</option>
-                                <option value="Tidak" {{ 'selected' if member_data.penjualan_marketplace_sampingan1 == 'Tidak' else '' }}>Tidak</option>
-                              </select>
+                              <label for="penjualan_marketplace_sampingan1" class="block text-sm font-medium text-gray-700 mb-1">Penjualan Melalui Marketplace</label>
+                              <div class="relative">
+                                <select id="penjualan_marketplace_sampingan1" name="penjualan_marketplace_sampingan1" class="select-input w-full px-4 py-2.5 appearance-none bg-white">
+                                  <option value="" disabled>Pilih Jawaban</option>
+                                  <option value="Ya" {{ 'selected' if member_data.penjualan_marketplace_sampingan1 == 'Ya' else '' }}>Ya</option>
+                                  <option value="Tidak" {{ 'selected' if member_data.penjualan_marketplace_sampingan1 == 'Tidak' else '' }}>Tidak</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -541,7 +672,7 @@
                     </div>
 
                     <!-- Side Job 2 -->
-                    <div class="job-fields p-4 border-2 border-purple-300 rounded-lg bg-purple-50">
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
                       <h2 class="text-lg font-semibold text-purple-800 mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -552,62 +683,90 @@
                       <div class="space-y-4">
                         <!-- Bidang Pekerjaan Dropdown -->
                         <div>
-                          <label for="bidang_pekerjaan_sampingan2" class="block text-sm font-medium text-gray-700">Bidang Pekerjaan *</label>
-                          <select id="bidang_pekerjaan_sampingan2" name="bidang_pekerjaan_sampingan2" class="form-input w-full px-4 py-2.5">
-                            <option value="" disabled>Pilih Bidang Pekerjaan</option>
-                            <option value="Pertanian, Kehutanan dan Perikanan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pertanian, Kehutanan dan Perikanan' else '' }}>A - Pertanian, Kehutanan dan Perikanan</option>
-                            <option value="Pertambangan dan Penggalian" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pertambangan dan Penggalian' else '' }}>B - Pertambangan dan Penggalian</option>
-                            <option value="Industri Pengolahan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Industri Pengolahan' else '' }}>C - Industri Pengolahan</option>
-                            <option value="Pengadaan Listrik, Gas, Uap dan AC" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pengadaan Listrik, Gas, Uap dan AC' else '' }}>D - Pengadaan Listrik, Gas, Uap dan AC</option>
-                            <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pengadaan Air, Pengelolaan Sampah dan Daur Ulang' else '' }}>E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
-                            <option value="Konstruksi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Konstruksi' else '' }}>F - Konstruksi</option>
-                            <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor' else '' }}>G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
-                            <option value="Transportasi dan Pergudangan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Transportasi dan Pergudangan' else '' }}>H - Transportasi dan Pergudangan</option>
-                            <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Penyediaan Akomodasi dan Penyediaan Makan Minum' else '' }}>I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
-                            <option value="Informasi dan Komunikasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Informasi dan Komunikasi' else '' }}>J - Informasi dan Komunikasi</option>
-                            <option value="Jasa Keuangan dan Asuransi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Keuangan dan Asuransi' else '' }}>K - Jasa Keuangan dan Asuransi</option>
-                            <option value="Real Estat" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Real Estat' else '' }}>L - Real Estat</option>
-                            <option value="Jasa Profesional, Ilmiah dan Teknis" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Profesional, Ilmiah dan Teknis' else '' }}>M - Jasa Profesional, Ilmiah dan Teknis</option>
-                            <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya' else '' }}>N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
-                            <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial' else '' }}>O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
-                            <option value="Jasa Pendidikan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Pendidikan' else '' }}>P - Jasa Pendidikan</option>
-                            <option value="Jasa Kesehatan dan Kegiatan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Kesehatan dan Kegiatan Sosial' else '' }}>Q - Jasa Kesehatan dan Kegiatan Sosial</option>
-                            <option value="Kesenian, Hiburan dan Rekreasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Kesenian, Hiburan dan Rekreasi' else '' }}>R - Kesenian, Hiburan dan Rekreasi</option>
-                            <option value="Jasa lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa lainnya' else '' }}>S - Jasa lainnya</option>
-                            <option value="Jasa Perorangan yang Melayani Rumah Tangga" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Perorangan yang Melayani Rumah Tangga' else '' }}>T - Jasa Perorangan yang Melayani Rumah Tangga</option>
-                            <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Kegiatan Badan Internasional dan Badan Ekstra Internasional' else '' }}>U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
-                          </select>
+                          <label for="bidang_pekerjaan_sampingan2" class="block text-sm font-medium text-gray-700 mb-1">Bidang Pekerjaan *</label>
+                          <div class="relative">
+                            <select id="bidang_pekerjaan_sampingan2" name="bidang_pekerjaan_sampingan2" class="select-input w-full px-4 py-2.5 appearance-none bg-white">
+                              <option value="" disabled>Pilih Bidang Pekerjaan</option>
+                              <option value="Pertanian, Kehutanan dan Perikanan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pertanian, Kehutanan dan Perikanan' else '' }}>A - Pertanian, Kehutanan dan Perikanan</option>
+                              <option value="Pertambangan dan Penggalian" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pertambangan dan Penggalian' else '' }}>B - Pertambangan dan Penggalian</option>
+                              <option value="Industri Pengolahan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Industri Pengolahan' else '' }}>C - Industri Pengolahan</option>
+                              <option value="Pengadaan Listrik, Gas, Uap dan AC" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pengadaan Listrik, Gas, Uap dan AC' else '' }}>D - Pengadaan Listrik, Gas, Uap dan AC</option>
+                              <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Pengadaan Air, Pengelolaan Sampah dan Daur Ulang' else '' }}>E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
+                              <option value="Konstruksi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Konstruksi' else '' }}>F - Konstruksi</option>
+                              <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor' else '' }}>G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
+                              <option value="Transportasi dan Pergudangan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Transportasi dan Pergudangan' else '' }}>H - Transportasi dan Pergudangan</option>
+                              <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Penyediaan Akomodasi dan Penyediaan Makan Minum' else '' }}>I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
+                              <option value="Informasi dan Komunikasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Informasi dan Komunikasi' else '' }}>J - Informasi dan Komunikasi</option>
+                              <option value="Jasa Keuangan dan Asuransi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Keuangan dan Asuransi' else '' }}>K - Jasa Keuangan dan Asuransi</option>
+                              <option value="Real Estat" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Real Estat' else '' }}>L - Real Estat</option>
+                              <option value="Jasa Profesional, Ilmiah dan Teknis" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Profesional, Ilmiah dan Teknis' else '' }}>M - Jasa Profesional, Ilmiah dan Teknis</option>
+                              <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya' else '' }}>N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
+                              <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial' else '' }}>O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
+                              <option value="Jasa Pendidikan" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Pendidikan' else '' }}>P - Jasa Pendidikan</option>
+                              <option value="Jasa Kesehatan dan Kegiatan Sosial" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Kesehatan dan Kegiatan Sosial' else '' }}>Q - Jasa Kesehatan dan Kegiatan Sosial</option>
+                              <option value="Kesenian, Hiburan dan Rekreasi" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Kesenian, Hiburan dan Rekreasi' else '' }}>R - Kesenian, Hiburan dan Rekreasi</option>
+                              <option value="Jasa lainnya" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa lainnya' else '' }}>S - Jasa lainnya</option>
+                              <option value="Jasa Perorangan yang Melayani Rumah Tangga" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Jasa Perorangan yang Melayani Rumah Tangga' else '' }}>T - Jasa Perorangan yang Melayani Rumah Tangga</option>
+                              <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional" {{ 'selected' if member_data.bidang_pekerjaan_sampingan2 == 'Kegiatan Badan Internasional dan Badan Ekstra Internasional' else '' }}>U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
                         
                         <div>
-                          <label for="status_pekerjaan_sampingan2" class="block text-sm font-medium text-gray-700">Status Pekerjaan *</label>
-                          <select id="status_pekerjaan_sampingan2" name="status_pekerjaan_sampingan2" class="form-input w-full px-4 py-2.5" onchange="togglePemasaranFields('sampingan2')">
-                            <option value="" disabled>Pilih Status Pekerjaan</option>
-                            <option value="Berusaha Sendiri" {{ 'selected' if member_data.status_pekerjaan_sampingan2 == 'Berusaha Sendiri' else '' }}>Berusaha Sendiri</option>
-                            <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {{ 'selected' if member_data.status_pekerjaan_sampingan2 == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' else '' }}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
-                            <option value="Pekerja Keluarga" {{ 'selected' if member_data.status_pekerjaan_sampingan2 == 'Pekerja Keluarga' else '' }}>Pekerja Keluarga</option>
-                          </select>
+                          <label for="status_pekerjaan_sampingan2" class="block text-sm font-medium text-gray-700 mb-1">Status Pekerjaan *</label>
+                          <div class="relative">
+                            <select id="status_pekerjaan_sampingan2" name="status_pekerjaan_sampingan2" class="select-input w-full px-4 py-2.5 appearance-none bg-white" onchange="togglePemasaranFields('sampingan2')">
+                              <option value="" disabled>Pilih Status Pekerjaan</option>
+                              <option value="Berusaha Sendiri" {{ 'selected' if member_data.status_pekerjaan_sampingan2 == 'Berusaha Sendiri' else '' }}>Berusaha Sendiri</option>
+                              <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas" {{ 'selected' if member_data.status_pekerjaan_sampingan2 == 'Buruh/Karyawan/Pegawai/Pekerja Bebas' else '' }}>Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
+                              <option value="Pekerja Keluarga" {{ 'selected' if member_data.status_pekerjaan_sampingan2 == 'Pekerja Keluarga' else '' }}>Pekerja Keluarga</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
 
                         <div id="pemasaran_sampingan2_container" class="{{ 'hidden' if member_data.status_pekerjaan_sampingan2 != 'Berusaha Sendiri' else '' }}">
                           <div class="space-y-4 bg-white p-4 rounded border">
                             <div>
-                              <label for="pemasaran_usaha_sampingan2" class="block text-sm font-medium text-gray-700">Pemasaran Usaha</label>
-                              <select id="pemasaran_usaha_sampingan2" name="pemasaran_usaha_sampingan2" class="form-input w-full px-4 py-2.5" onchange="toggleMarketplaceField('sampingan2')">
-                                <option value="" disabled>Pilih Pemasaran Usaha</option>
-                                <option value="Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan2 == 'Online' else '' }}>Online</option>
-                                <option value="Offline" {{ 'selected' if member_data.pemasaran_usaha_sampingan2 == 'Offline' else '' }}>Offline</option>
-                                <option value="Offline dan Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan2 == 'Offline dan Online' else '' }}>Offline dan Online</option>
-                              </select>
+                              <label for="pemasaran_usaha_sampingan2" class="block text-sm font-medium text-gray-700 mb-1">Pemasaran Usaha</label>
+                              <div class="relative">
+                                <select id="pemasaran_usaha_sampingan2" name="pemasaran_usaha_sampingan2" class="select-input w-full px-4 py-2.5 appearance-none bg-white" onchange="toggleMarketplaceField('sampingan2')">
+                                  <option value="" disabled>Pilih Pemasaran Usaha</option>
+                                  <option value="Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan2 == 'Online' else '' }}>Online</option>
+                                  <option value="Offline" {{ 'selected' if member_data.pemasaran_usaha_sampingan2 == 'Offline' else '' }}>Offline</option>
+                                  <option value="Offline dan Online" {{ 'selected' if member_data.pemasaran_usaha_sampingan2 == 'Offline dan Online' else '' }}>Offline dan Online</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </div>
                             </div>
 
                             <div id="marketplace_sampingan2_container" class="{{ 'hidden' if member_data.pemasaran_usaha_sampingan2 not in ['Online', 'Offline dan Online'] else '' }}">
-                              <label for="penjualan_marketplace_sampingan2" class="block text-sm font-medium text-gray-700">Penjualan Melalui Marketplace</label>
-                              <select id="penjualan_marketplace_sampingan2" name="penjualan_marketplace_sampingan2" class="form-input w-full px-4 py-2.5">
-                                <option value="" disabled>Pilih Jawaban</option>
-                                <option value="Ya" {{ 'selected' if member_data.penjualan_marketplace_sampingan2 == 'Ya' else '' }}>Ya</option>
-                                <option value="Tidak" {{ 'selected' if member_data.penjualan_marketplace_sampingan2 == 'Tidak' else '' }}>Tidak</option>
-                              </select>
+                              <label for="penjualan_marketplace_sampingan2" class="block text-sm font-medium text-gray-700 mb-1">Penjualan Melalui Marketplace</label>
+                              <div class="relative">
+                                <select id="penjualan_marketplace_sampingan2" name="penjualan_marketplace_sampingan2" class="select-input w-full px-4 py-2.5 appearance-none bg-white">
+                                  <option value="" disabled>Pilih Jawaban</option>
+                                  <option value="Ya" {{ 'selected' if member_data.penjualan_marketplace_sampingan2 == 'Ya' else '' }}>Ya</option>
+                                  <option value="Tidak" {{ 'selected' if member_data.penjualan_marketplace_sampingan2 == 'Tidak' else '' }}>Tidak</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -623,14 +782,14 @@
               <button
                 type="button"
                 id="cancelBtn"
-                class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-200"
+                class="px-6 py-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 cancel-btn"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 id="submitBtn"
-                class="px-6 py-3 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-200"
+                class="px-6 py-3 text-sm font-medium text-white bg-green-500 border border-transparent rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 submit-btn"
               >
                 Simpan Perubahan
               </button>

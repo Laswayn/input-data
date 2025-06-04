@@ -54,6 +54,12 @@ def dashboard():
 def index():
     return render_template('main/index.html')
 
+@bp.route('/check-file')
+@login_required
+def check_file():
+    """Route to check if files exist - for debugging purposes"""
+    return jsonify({'status': 'ok', 'message': 'File check endpoint working'})
+
 @bp.route('/back-to-index')
 @login_required
 def back_to_index():

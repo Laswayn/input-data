@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Age validation
     const umur = Number.parseInt(document.getElementById("umur").value)
-    if (umur < 15) {
+    if (umur < 15 || umur > 64) {
       document.getElementById("umur_error").classList.remove("hidden")
       isValid = false
     }
