@@ -91,11 +91,38 @@
         align-items: center;
         gap: 0.5rem;
         box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem;
       }
 
       .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+      }
+
+      .logout-btn {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        width: 100%;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+      }
+
+      .logout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
       }
 
       .image-section {
@@ -107,28 +134,6 @@
         height: auto;
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      }
-
-      .logout-btn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-        z-index: 1000;
-      }
-
-      .logout-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
       }
 
       @media (max-width: 768px) {
@@ -149,14 +154,6 @@
     </style>
   </head>
   <body>
-    <!-- Logout Button -->
-    <button onclick="logout()" class="logout-btn">
-      <svg style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
-      </svg>
-      Logout
-    </button>
-
     <div class="container">
       <div class="text-section">
         <h1>Selamat Datang di Pendataan Sidokepung</h1>
@@ -164,13 +161,24 @@
           Klik tombol di bawah untuk masuk ke sistem pendataan dan mulai
           prosesnya.
         </p>
-        <a href="{{ url_for('main.index') }}" class="btn">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Mulai Sekarang
-        </a>
+        
+        <div class="button-container">
+          <a href="{{ url_for('main.index') }}" class="btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Mulai Sekarang
+          </a>
+          
+          <button onclick="logout()" class="logout-btn">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+            </svg>
+            Logout
+          </button>
+        </div>
       </div>
+      
       <div class="image-section">
         <img src="{{ url_for('static', filename='img/BPS.jpg') }}" alt="Logo BPS" />
       </div>

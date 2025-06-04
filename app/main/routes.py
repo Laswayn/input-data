@@ -20,7 +20,7 @@ def login_required(f):
         # Check session timeout
         if 'last_activity' in session:
             last_activity = datetime.fromisoformat(session['last_activity'])
-            timeout = current_app.config['SESSION_TIMEOUT']
+            timeout = current_app.config['SESSION_TIMEOUT', 3600]
             if (datetime.now() - last_activity).total_seconds() > timeout:
                 session.clear()
                 return redirect(url_for('auth.login', message='Session expired'))
@@ -38,6 +38,7 @@ def admin_required(f):
             return jsonify({'error': 'Admin access required'}), 403
         return f(*args, **kwargs)
     return decorated_function
+
 
 @bp.route('/')
 def home():
