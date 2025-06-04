@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Input Data Pekerjaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+                950: "#082f49",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .form-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .form-input {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .submit-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        transition: all 0.3s ease;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      }
+
+      .back-btn {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        transition: all 0.3s ease;
+      }
+
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+      }
+    </style>
+</head>
+<body class="bg-primary-50 min-h-screen py-8 px-4 flex items-center justify-center">
+    <div class="container mx-auto max-w-2xl">
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="text-2xl font-bold mb-4">Form Input Data Pekerjaan</h1>
+                
+                <!-- Member Information Card -->
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                        <h2 class="text-lg font-semibold">Data Anggota Keluarga</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div class="bg-white/10 rounded-lg p-3">
+                            <div class="text-sm opacity-90 mb-1">Nama Lengkap</div>
+                            <div class="font-bold text-lg">{{ individu_data['nama_anggota'] }}</div>
+                        </div>
+                        
+                        <div class="bg-white/10 rounded-lg p-3">
+                            <div class="text-sm opacity-90 mb-1">Umur</div>
+                            <div class="font-bold text-lg">{{ individu_data['umur'] }} tahun</div>
+                        </div>
+                        
+                        <div class="bg-white/10 rounded-lg p-3">
+                            <div class="text-sm opacity-90 mb-1">Hubungan dengan KK</div>
+                            <div class="font-bold text-lg">{{ individu_data['hubungan_kepala'] }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-primary-100 text-sm">
+                    <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    Silakan lengkapi informasi pekerjaan untuk anggota keluarga ini
+                </p>
+            </div>
+
+            <div class="p-6">
+                <form id="pekerjaanForm" method="POST" class="space-y-6">
+                    <!-- Main Job Fields -->
+                    <div class="job-fields p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
+                        <h2 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Pekerjaan Utama
+                        </h2>
+                        <div class="space-y-4">
+                            <!-- Bidang Pekerjaan Dropdown -->
+                            <div>
+                                <label for="bidang_pekerjaan" class="block text-sm font-medium text-gray-700">Bidang Pekerjaan *</label>
+                                <select id="bidang_pekerjaan" name="bidang_pekerjaan" class="form-input w-full px-4 py-2.5" required>
+                                    <option value="" disabled selected>Pilih Bidang Pekerjaan</option>
+                                    <option value="Pertanian, Kehutanan dan Perikanan">A - Pertanian, Kehutanan dan Perikanan</option>
+                                    <option value="Pertambangan dan Penggalian">B - Pertambangan dan Penggalian</option>
+                                    <option value="Industri Pengolahan">C - Industri Pengolahan</option>
+                                    <option value="Pengadaan Listrik, Gas, Uap dan AC">D - Pengadaan Listrik, Gas, Uap dan AC</option>
+                                    <option value="Pengadaan Air, Pengelolaan Sampah dan Daur Ulang">E - Pengadaan Air, Pengelolaan Sampah dan Daur Ulang</option>
+                                    <option value="Konstruksi">F - Konstruksi</option>
+                                    <option value="Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor">G - Perdagangan Besar dan Eceran, Reparasi dan Perawatan Mobil dan Motor</option>
+                                    <option value="Transportasi dan Pergudangan">H - Transportasi dan Pergudangan</option>
+                                    <option value="Penyediaan Akomodasi dan Penyediaan Makan Minum">I - Penyediaan Akomodasi dan Penyediaan Makan Minum</option>
+                                    <option value="Informasi dan Komunikasi">J - Informasi dan Komunikasi</option>
+                                    <option value="Jasa Keuangan dan Asuransi">K - Jasa Keuangan dan Asuransi</option>
+                                    <option value="Real Estat">L - Real Estat</option>
+                                    <option value="Jasa Profesional, Ilmiah dan Teknis">M - Jasa Profesional, Ilmiah dan Teknis</option>
+                                    <option value="Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya">N - Jasa Persewaan Dan Sewa Guna Tanpa Hak Opsi, Ketenagakerjaan, Agen Perjalanan dan Penunjang Usaha Lainnya</option>
+                                    <option value="Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial">O - Administrasi Pemerintahan, Pertahanan dan Jaminan Sosial</option>
+                                    <option value="Jasa Pendidikan">P - Jasa Pendidikan</option>
+                                    <option value="Jasa Kesehatan dan Kegiatan Sosial">Q - Jasa Kesehatan dan Kegiatan Sosial</option>
+                                    <option value="Kesenian, Hiburan dan Rekreasi">R - Kesenian, Hiburan dan Rekreasi</option>
+                                    <option value="Jasa lainnya">S - Jasa lainnya</option>
+                                    <option value="Jasa Perorangan yang Melayani Rumah Tangga">T - Jasa Perorangan yang Melayani Rumah Tangga</option>
+                                    <option value="Kegiatan Badan Internasional dan Badan Ekstra Internasional">U - Kegiatan Badan Internasional dan Badan Ekstra Internasional</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="status_pekerjaan_0" class="block text-sm font-medium text-gray-700">Status Pekerjaan *</label>
+                                <select id="status_pekerjaan_0" name="status_pekerjaan_0" class="form-input w-full px-4 py-2.5" required onchange="toggleFields(0)">
+                                    <option value="" disabled selected>Pilih Status Pekerjaan</option>
+                                    <option value="Berusaha Sendiri">Berusaha Sendiri</option>
+                                    <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas">Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
+                                    <option value="Pekerja Keluarga">Pekerja Keluarga</option>
+                                </select>
+                            </div>
+
+                            <div id="additionalFields_0" style="display: none;">
+                                <div class="space-y-4 bg-white p-4 rounded border">
+                                    <div>
+                                        <label for="pemasaran_usaha_0" class="block text-sm font-medium text-gray-700">Pemasaran Usaha</label>
+                                        <select id="pemasaran_usaha_0" name="pemasaran_usaha_0" class="form-input w-full px-4 py-2.5">
+                                            <option value="" disabled selected>Pilih Pemasaran Usaha</option>
+                                            <option value="Online">Online</option>
+                                            <option value="Offline">Offline</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label for="penjualan_marketplace_0" class="block text-sm font-medium text-gray-700">Penjualan Melalui Marketplace</label>
+                                        <select id="penjualan_marketplace_0" name="penjualan_marketplace_0" class="form-input w-full px-4 py-2.5">
+                                            <option value="" disabled selected>Pilih Jawaban</option>
+                                            <option value="Ya">Ya</option>
+                                            <option value="Tidak">Tidak</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question about multiple jobs -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <label for="lebih_dari_satu_pekerjaan" class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            Apakah Anda Memiliki Lebih dari Satu Pekerjaan?
+                        </label>
+                        <select id="lebih_dari_satu_pekerjaan" name="lebih_dari_satu_pekerjaan" class="form-input w-full px-4 py-2.5" onchange="handleMultipleJobsChange()">
+                            <option value="" disabled selected>Pilih satu</option>
+                            <option value="Tidak">Tidak</option>
+                            <option value="Ya">Ya</option>
+                        </select>
+                    </div>
+
+                    <div id="sideJobFieldsContainer" class="space-y-4">
+                        <!-- Side Job Fields will be added here dynamically -->
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div id="successAlert" class="alert hidden bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md" role="alert">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="font-bold">Berhasil!</p>
+                                <p id="successMessage" class="text-sm">Data telah berhasil disimpan.</p>
+                            </div>
+                            <button id="closeAlert" class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg p-1.5 hover:bg-green-200 inline-flex h-8 w-8">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="errorAlert" class="alert hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md" role="alert">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="font-bold">Error!</p>
+                                <p id="errorMessage" class="text-sm">Terjadi kesalahan.</p>
+                            </div>
+                            <button id="closeErrorAlert" class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg p-1.5 hover:bg-red-200 inline-flex h-8 w-8">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 space-y-3">
+                        <button type="submit" class="submit-btn w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Simpan & Lanjutkan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/pekerjaan.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Input Data Keluarga</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+                950: "#082f49",
+              },
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-in-out",
+              "slide-up": "slideUp 0.5s ease-out",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { transform: "translateY(20px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .form-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .form-input {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .submit-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        transition: all 0.3s ease;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      }
+
+      .download-btn {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        transition: all 0.3s ease;
+      }
+
+      .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+      }
+    </style>
+  </head>
+  <body class="bg-primary-50 min-h-screen py-8 px-4 flex items-center justify-center">
+    <div class="container mx-auto max-w-2xl">
+      <div class="form-card">
+        <div class="form-header">
+          <h1 class="text-2xl font-bold">Form Input Data Desa Sidokepung</h1>
+          <p class="text-primary-100 mt-1 text-sm">
+            Silakan isi data dengan lengkap dan benar
+          </p>
+        </div>
+
+        <form id="dataForm" class="p-6 space-y-5">
+          <!-- Dusun/RT/RW Fields with Cascading Dropdowns -->
+          <div class="space-y-4">
+            <!-- Dusun Dropdown -->
+            <div class="relative">
+              <label for="dusun" class="block text-sm font-medium text-gray-700 mb-1">Dusun</label>
+              <div class="relative">
+                <select
+                  id="dusun"
+                  name="dusun"
+                  class="form-input w-full px-4 py-2.5 appearance-none bg-white"
+                  required
+                  onchange="updateRTRWOptions()"
+                >
+                  <option value="" disabled selected>Pilih Dusun</option>
+                  <option value="Sidopurno">Sidopurno</option>
+                  <option value="Melaten">Melaten</option>
+                  <option value="Ngepung">Ngepung</option>
+                  <option value="Duran">Duran</option>
+                  <option value="Maten Perum Grenhill">Maten Perum Grenhill</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="dusun_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- RT and RW in a grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- RT Dropdown -->
+              <div class="relative">
+                <label for="rt" class="block text-sm font-medium text-gray-700 mb-1">RT</label>
+                <div class="relative">
+                  <select
+                    id="rt"
+                    name="rt"
+                    class="form-input w-full px-4 py-2.5 appearance-none bg-white"
+                    required
+                    disabled
+                  >
+                    <option value="" disabled selected>Pilih Dusun dulu</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <p id="rt_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+              </div>
+
+              <!-- RW Dropdown -->
+              <div class="relative">
+                <label for="rw" class="block text-sm font-medium text-gray-700 mb-1">RW</label>
+                <div class="relative">
+                  <select
+                    id="rw"
+                    name="rw"
+                    class="form-input w-full px-4 py-2.5 appearance-none bg-white"
+                    required
+                    disabled
+                  >
+                    <option value="" disabled selected>Pilih Dusun dulu</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <p id="rw_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative">
+            <label for="nama_kepala" class="block text-sm font-medium text-gray-700 mb-1">
+              Nama Kepala Keluarga
+            </label>
+            <input
+              type="text"
+              id="nama_kepala"
+              name="nama_kepala"
+              placeholder="Masukkan nama kepala keluarga"
+              class="form-input w-full px-4 py-2.5"
+              required
+            />
+            <p id="nama_kepala_error" class="text-red-500 text-xs mt-1 hidden">
+              Field ini tidak boleh kosong
+            </p>
+          </div>
+
+          <div class="relative">
+            <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">
+              Alamat Lengkap
+            </label>
+            <textarea
+              id="alamat"
+              name="alamat"
+              rows="3"
+              placeholder="Jalan/Gang dan Nomor Rumah"
+              class="form-input w-full px-4 py-2.5 resize-none"
+              required
+            ></textarea>
+            <p id="alamat_error" class="text-red-500 text-xs mt-1 hidden">
+              Field ini tidak boleh kosong
+            </p>
+          </div>
+
+          <!-- Jumlah Anggota Fields -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="relative">
+              <label for="jumlah_anggota" class="block text-sm font-medium text-gray-700 mb-1">
+                Jumlah Anggota Keluarga
+              </label>
+              <input
+                type="number"
+                id="jumlah_anggota"
+                name="jumlah_anggota"
+                min="1"
+                placeholder="Contoh: 4"
+                class="form-input w-full px-4 py-2.5"
+                required
+              />
+              <p id="jumlah_anggota_error" class="text-red-500 text-xs mt-1 hidden">
+                Wajib diisi
+              </p>
+            </div>
+
+            <div class="relative">
+              <label for="jumlah_anggota_15plus" class="block text-sm font-medium text-gray-700 mb-1">
+                Jumlah Anggota Usia 15+
+              </label>
+              <input
+                type="number"
+                id="jumlah_anggota_15plus"
+                name="jumlah_anggota_15plus"
+                min="0"
+                placeholder="Contoh: 3"
+                class="form-input w-full px-4 py-2.5"
+                required
+              />
+              <p id="jumlah_anggota_15plus_error" class="text-red-500 text-xs mt-1 hidden">
+                Wajib diisi
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-3">
+            <button
+              type="submit"
+              class="submit-btn w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                ></path>
+              </svg>
+              Simpan Data
+            </button>
+          </div>
+        </form>
+
+        <div class="px-6 pb-6">
+          <a
+            id="downloadExcel"
+            href="#"
+            class="download-btn hidden w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 text-center block flex items-center justify-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              ></path>
+            </svg>
+            Download Data Sensus
+          </a>
+        </div>
+      </div>
+
+      <!-- Success Alert -->
+      <div
+        id="successAlert"
+        class="alert hidden mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md"
+        role="alert"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-green-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="font-bold">Berhasil!</p>
+            <p class="text-sm">Data telah berhasil disimpan.</p>
+            <div class="mt-2">
+              <a
+                id="downloadLink"
+                href="#"
+                class="text-green-800 font-medium underline flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  ></path>
+                </svg>
+                Download Data Sensus
+              </a>
+            </div>
+          </div>
+          <button
+            id="closeAlert"
+            class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg p-1.5 hover:bg-green-200 inline-flex h-8 w-8"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Alert -->
+      <div
+        id="errorAlert"
+        class="alert hidden mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md"
+        role="alert"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-red-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="font-bold">Error!</p>
+            <p id="errorMessage" class="text-sm">Terjadi kesalahan.</p>
+          </div>
+          <button
+            id="closeErrorAlert"
+            class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg p-1.5 hover:bg-red-200 inline-flex h-8 w-8"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>

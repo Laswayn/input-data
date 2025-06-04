@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Input Data Individu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+                950: "#082f49",
+              },
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-in-out",
+              "slide-up": "slideUp 0.5s ease-out",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { transform: "translateY(20px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .form-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .form-input, .select-input {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+      }
+
+      .form-input:focus, .select-input:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .submit-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        transition: all 0.3s ease;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      }
+
+      .info-card {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 12px;
+      }
+
+      .section-title {
+        color: #374151;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-primary-50 to-primary-100 min-h-screen py-8 px-4 flex items-center justify-center">
+    <div class="container mx-auto max-w-md">
+      <div class="form-card">
+        <div class="form-header">
+          <h1 class="text-2xl font-bold">Form Input Data Individu</h1>
+          <p class="text-primary-100 mt-1">Anggota Keluarga Usia 15+ Tahun</p>
+        </div>
+
+        <div class="p-6">
+          <!-- Back Button -->
+          <div class="mb-4">
+            <a
+              href="{{ url_for('main.back_to_index') }}"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition duration-200"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Kembali ke Data Keluarga
+            </a>
+          </div>
+
+          <div class="info-card p-4 mb-6">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg
+                  class="h-5 w-5 text-primary-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-primary-800">
+                  Keluarga:
+                  <span class="font-bold">{{ keluarga_data.nama_kepala }}</span>
+                </p>
+                <p class="text-sm text-primary-700 mt-1">
+                  RT {{ keluarga_data.rt }}/RW {{ keluarga_data.rw }} Dusun {{ keluarga_data.dusun }}
+                </p>
+                <div class="mt-2 flex items-center">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                  >
+                    Tersisa
+                    <span id="remaining" class="font-bold mx-1">{{ keluarga_data.jumlah_anggota_15plus }}</span>
+                    anggota
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form id="dataForm" class="space-y-6">
+            <!-- Nama Individu -->
+            <div>
+              <label for="nama" class="section-title block text-sm font-medium text-gray-700">
+                Nama Lengkap
+              </label>
+              <input
+                type="text"
+                id="nama"
+                name="nama"
+                placeholder="Masukkan nama lengkap"
+                class="form-input w-full px-4 py-2.5 mt-2"
+                required
+              />
+              <p id="nama_error" class="text-red-500 text-xs mt-1 hidden">Wajib diisi</p>
+            </div>
+
+            <!-- Hubungan Dengan Kepala Keluarga -->
+            <div>
+              <label for="hubungan" class="section-title block text-sm font-medium text-gray-700">
+                Hubungan Dengan Kepala Keluarga
+              </label>
+              <div class="relative mt-2">
+                <select
+                  id="hubungan"
+                  name="hubungan"
+                  class="select-input w-full px-4 py-2.5 appearance-none bg-white"
+                  onchange="checkHubungan()"
+                  required
+                >
+                  <option value="" disabled selected>Pilih hubungan</option>
+                  <option value="Kepala Keluarga">1. Kepala Keluarga</option>
+                  <option value="Suami/Istri">2. Suami/Istri</option>
+                  <option value="Anak">3. Anak</option>
+                  <option value="Menantu">4. Menantu</option>
+                  <option value="Lainnya">5. Lainnya</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="hubungan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- Jenis Kelamin -->
+            <div>
+              <label for="jenis_kelamin" class="section-title block text-sm font-medium text-gray-700">
+                Jenis Kelamin
+              </label>
+              <div class="relative mt-2">
+                <select
+                  id="jenis_kelamin"
+                  name="jenis_kelamin"
+                  class="select-input w-full px-4 py-2.5 appearance-none bg-white"
+                  required
+                >
+                  <option value="" disabled selected>Pilih jenis kelamin</option>
+                  <option value="Laki-Laki">1. Laki-Laki</option>
+                  <option value="Perempuan">2. Perempuan</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="jenis_kelamin_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- Umur -->
+            <div>
+              <label for="umur" class="section-title block text-sm font-medium text-gray-700">
+                Umur
+              </label>
+              <input
+                type="number"
+                id="umur"
+                name="umur"
+                min="15"
+                placeholder="Masukkan umur"
+                class="form-input w-full px-4 py-2.5 mt-2"
+                required
+              />
+              <p id="umur_error" class="text-red-500 text-xs mt-1 hidden">
+                Wajib diisi, minimal 15 tahun
+              </p>
+            </div>
+
+            <!-- Status Perkawinan -->
+            <div>
+              <label for="status_perkawinan" class="section-title block text-sm font-medium text-gray-700">
+                Status Perkawinan
+              </label>
+              <div class="relative mt-2">
+                <select
+                  id="status_perkawinan"
+                  name="status_perkawinan"
+                  class="select-input w-full px-4 py-2.5 appearance-none bg-white"
+                  required
+                >
+                  <option value="" disabled selected>Pilih status perkawinan</option>
+                  <option value="Belum Kawin">1. Belum Kawin</option>
+                  <option value="Kawin">2. Kawin</option>
+                  <option value="Cerai Hidup">3. Cerai Hidup</option>
+                  <option value="Cerai Mati">4. Cerai Mati</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="status_perkawinan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- Pendidikan Terakhir -->
+            <div>
+              <label for="pendidikan" class="section-title block text-sm font-medium text-gray-700">
+                Pendidikan Terakhir
+              </label>
+              <div class="relative mt-2">
+                <select
+                  id="pendidikan"
+                  name="pendidikan"
+                  class="select-input w-full px-4 py-2.5 appearance-none bg-white"
+                  required
+                >
+                  <option value="" disabled selected>Pilih pendidikan terakhir</option>
+                  <option value="Tidak/Belum Tamat SD">1. Tidak/Belum Tamat SD</option>
+                  <option value="SD/MI/SDLB/PAKET A">2. SD/MI/SDLB/PAKET A</option>
+                  <option value="SMP/MTS/SMPLB/PAKET B">3. SMP/MTS/SMPLB/PAKET B</option>
+                  <option value="SMA/MA/SMK/MAK/SMALB/PAKET C">4. SMA/MA/SMK/MAK/SMALB/PAKET C</option>
+                  <option value="PERGURUAN TINGGI">5. PERGURUAN TINGGI</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="pendidikan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- Kegiatan Sehari-hari -->
+            <div>
+              <label for="kegiatan" class="section-title block text-sm font-medium text-gray-700">
+                Kegiatan Sehari-hari
+              </label>
+              <div class="relative mt-2">
+                <select
+                  id="kegiatan"
+                  name="kegiatan"
+                  class="select-input w-full px-4 py-2.5 appearance-none bg-white"
+                  onchange="checkKegiatan()"
+                  required
+                >
+                  <option value="" disabled selected>Pilih kegiatan sehari-hari</option>
+                  <option value="Bekerja">1. Bekerja</option>
+                  <option value="Sekolah">2. Sekolah</option>
+                  <option value="Mengurus Rumah Tangga">3. Mengurus Rumah Tangga</option>
+                  <option value="Melakukan Kegiatan Lainnya">4. Melakukan Kegiatan Lainnya</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="kegiatan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- Pertanyaan tentang pekerjaan -->
+            <div id="pertanyaan_5_10" class="bg-primary-50 p-4 rounded-lg border border-primary-200">
+              <label for="memiliki_pekerjaan" class="block text-sm font-medium text-gray-700 mb-2">
+                Apakah <span class="nama-placeholder">NAMA</span> Bekerja
+              </label>
+              <div class="relative">
+                <select
+                  id="memiliki_pekerjaan"
+                  name="memiliki_pekerjaan"
+                  class="select-input w-full px-4 py-2.5 appearance-none bg-white"
+                  onchange="checkMemilikiPekerjaan()"
+                  required
+                >
+                  <option value="" disabled selected>Pilih jawaban</option>
+                  <option value="Ya">Ya</option>
+                  <option value="Tidak">Tidak</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="memiliki_pekerjaan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- Status Pekerjaan yang Diinginkan -->
+            <div id="status_pekerjaan_container" class="bg-primary-50 p-4 rounded-lg border border-primary-200 hidden">
+              <label for="status_pekerjaan_diinginkan" class="block text-sm font-medium text-gray-700 mb-2">
+                Status Pekerjaan yang Diinginkan oleh <span class="nama-placeholder">NAMA</span>
+              </label>
+              <div class="relative">
+                <select
+                  id="status_pekerjaan_diinginkan"
+                  name="status_pekerjaan_diinginkan"
+                  class="select-input w-full px-4 py-2.5 appearance-none bg-white"
+                  onchange="toggleBidangUsaha()"
+                >
+                  <option value="" disabled selected>Pilih status pekerjaan yang diinginkan</option>
+                  <option value="Berusaha Sendiri">Berusaha Sendiri</option>
+                  <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas">Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="status_pekerjaan_diinginkan_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
+            </div>
+
+            <!-- Bidang Usaha yang Diminati -->
+            <div id="bidang_usaha_container" class="bg-orange-50 p-4 rounded-lg border border-orange-200 hidden">
+              <label for="bidang_usaha" class="block text-sm font-medium text-gray-700 mb-2">
+                Pelatihan di Bidang Apa yang Diminati oleh <span class="nama-placeholder">NAMA</span>
+              </label>
+              <div class="relative mt-2">
+                <select
+                  id="bidang_usaha"
+                  name="bidang_usaha"
+                  class="form-input w-full px-4 py-2.5 appearance-none bg-white"
+                  onchange="toggleOtherInput()"
+                >
+                  <option value="" disabled selected>Pilih bidang Pelatihan</option>
+                  <option value="Pelatihan Barista">1. Pelatihan Barista</option>
+                  <option value="Pelatihan Pastry">2. Pelatihan Pastry</option>
+                  <option value="Pelatihan Perawatan AC">3. Pelatihan Perawatan AC</option>
+                  <option value="Pelatihan Menjahit">4. Pelatihan Menjahit</option>
+                  <option value="Lainnya">5. Lainnya</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p id="bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
+                Wajib dipilih jika memilih "Berusaha Sendiri"
+              </p>
+
+              <!-- Input for "Lainnya" -->
+              <div id="other_bidang_usaha" class="mt-2 hidden">
+                <input
+                  type="text"
+                  id="other_bidang_usaha_input"
+                  name="other_bidang_usaha_input"
+                  placeholder="Masukkan bidang usaha yang diminati"
+                  class="form-input w-full px-4 py-2.5"
+                />
+                <p id="other_bidang_usaha_error" class="text-red-500 text-xs mt-1 hidden">
+                  Wajib diisi jika memilih "Lainnya"
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-4 space-y-3">
+              <button
+                type="submit"
+                class="submit-btn w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Simpan & Lanjutkan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Success Alert -->
+      <div
+        id="successAlert"
+        class="alert hidden mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md"
+        role="alert"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-green-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="font-bold">Berhasil!</p>
+            <p id="successMessage" class="text-sm">Data telah berhasil disimpan.</p>
+          </div>
+          <button
+            id="closeAlert"
+            class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg p-1.5 hover:bg-green-200 inline-flex h-8 w-8"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Alert -->
+      <div
+        id="errorAlert"
+        class="alert hidden mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md"
+        role="alert"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-red-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="font-bold">Error!</p>
+            <p id="errorMessage" class="text-sm">Terjadi kesalahan.</p>
+          </div>
+          <button
+            id="closeErrorAlert"
+            class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg p-1.5 hover:bg-red-200 inline-flex h-8 w-8"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/lanjutan.js') }}"></script>
+  </body>
+</html>
