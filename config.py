@@ -3,16 +3,22 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'sensus-secret-key-pahlawan140'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///data_sensus.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///instance/data_sensus.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Session configuration
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
     SESSION_TIMEOUT = 3600
     
+    # Session cookie configuration untuk subdirectory
+    SESSION_COOKIE_PATH = '/'
+    SESSION_COOKIE_SECURE = False    # Set True jika HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
     # User credentials untuk sensus
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'pahlawan140')
-    USER_PASSWORD = os.environ.get('USER_PASSWORD', 'bps140')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'pahlawan140'
+    USER_PASSWORD = os.environ.get('USER_PASSWORD') or 'bps140'
     
     # Upload configuration
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
@@ -44,18 +50,8 @@ class ProductionConfig(Config):
     # Static files configuration untuk sensus
     STATIC_URL_PATH = '/sensus/static'
     
-    @staticmethod
-    def init_app(app):
-        # Create necessary directories untuk sensus
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        instance_dir = os.path.join(base_dir, 'instance')
-        upload_dir = os.path.join(base_dir, 'uploads')
-        
-        os.makedirs(instance_dir, exist_ok=True)
-        os.makedirs(upload_dir, exist_ok=True)
-        
-        # Set static folder path
-        app.static_url_path = '/sensus/static'
+    # Session cookie path untuk subdirectory
+    SESSION_COOKIE_PATH = '/sensus'
 
 config = {
     'development': DevelopmentConfig,

@@ -88,22 +88,33 @@ class App {
     field.classList.remove("border-red-500")
   }
 
-  showAlert(message, type = "info") {
+  showAlert(message, type = "info", duration = 5000) {
     const alertContainer = document.getElementById("alert-container") || this.createAlertContainer()
 
     const alert = document.createElement("div")
-    alert.className = `alert alert-${type}`
+    alert.className = `alert alert-${type} animate-slide-in`
+    alert.setAttribute("role", "alert")
+    alert.setAttribute("aria-live", "polite")
+
+    const alertId = `alert-${Date.now()}`
+    alert.id = alertId
+
     alert.innerHTML = `
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
+      <div class="alert-content">
+        <div class="alert-icon">
           ${this.getAlertIcon(type)}
         </div>
-        <div class="ml-3">
-          <p class="text-sm">${message}</p>
+        <div class="alert-message">
+          <p>${message}</p>
         </div>
-        <button data-dismiss="alert" class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 hover:bg-gray-100 inline-flex h-8 w-8">
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        <button 
+          data-dismiss="alert" 
+          class="alert-close"
+          aria-label="Close alert"
+          onclick="app.hideAlert(document.getElementById('${alertId}'))"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
         </button>
       </div>
@@ -111,15 +122,26 @@ class App {
 
     alertContainer.appendChild(alert)
 
-    // Auto-hide after 5 seconds
-    setTimeout(() => this.hideAlert(alert), 5000)
+    // Auto-hide after duration
+    if (duration > 0) {
+      setTimeout(() => this.hideAlert(alert), duration)
+    }
+
+    // Add click to dismiss
+    alert.addEventListener("click", (e) => {
+      if (e.target.matches('[data-dismiss="alert"]') || e.target.closest('[data-dismiss="alert"]')) {
+        this.hideAlert(alert)
+      }
+    })
 
     return alert
   }
 
   hideAlert(alert) {
-    alert.style.opacity = "0"
-    alert.style.transform = "translateY(-20px)"
+    if (!alert || !alert.parentNode) return
+
+    alert.classList.add("animate-slide-out")
+
     setTimeout(() => {
       if (alert.parentNode) {
         alert.parentNode.removeChild(alert)
@@ -130,7 +152,7 @@ class App {
   createAlertContainer() {
     const container = document.createElement("div")
     container.id = "alert-container"
-    container.className = "fixed top-4 right-4 z-50 space-y-2"
+    container.className = "alert-container"
     document.body.appendChild(container)
     return container
   }
@@ -248,26 +270,71 @@ class App {
   createTimeoutModal() {
     const modal = document.createElement("div")
     modal.id = "timeout-modal"
-    modal.className = "timeout-modal hidden"
+    modal.className = "timeout-modal"
+    modal.setAttribute("role", "dialog")
+    modal.setAttribute("aria-modal", "true")
+    modal.setAttribute("aria-labelledby", "timeout-title")
+
     modal.innerHTML = `
+      <div class="timeout-modal-overlay" onclick="event.stopPropagation()"></div>
       <div class="timeout-modal-content">
-        <div style="color: #f59e0b; font-size: 48px; margin-bottom: 20px;">⚠️</div>
-        <h3 style="margin: 0 0 15px 0; color: #374151;">Session Will Expire</h3>
-        <p style="margin: 0 0 25px 0; color: #6b7280;">
-          Your session will expire in <span id="countdown">5:00</span> minutes due to inactivity.
+        <div class="timeout-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h3 id="timeout-title" class="timeout-title">Session Will Expire</h3>
+        <p class="timeout-message">
+          Your session will expire in <span id="countdown" class="countdown">5:00</span> due to inactivity.
         </p>
-        <div style="display: flex; gap: 10px; justify-content: center;">
-          <button onclick="app.extendSession()" class="btn btn-success">
+        <div class="timeout-actions">
+          <button onclick="app.extendSession()" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7"/>
+            </svg>
             Extend Session
           </button>
-          <button onclick="app.logout()" class="btn btn-danger">
+          <button onclick="app.logout()" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16,17 21,12 16,7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
             Logout Now
           </button>
         </div>
       </div>
     `
 
-    modal.style.display = "flex"
+    // Prevent modal close on content click
+    modal.querySelector(".timeout-modal-content").addEventListener("click", (e) => {
+      e.stopPropagation()
+    })
+
+    // Close on overlay click
+    modal.addEventListener("click", () => {
+      // Don't auto-close timeout modal
+    })
+
+    // Escape key to extend session
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        this.extendSession()
+        document.removeEventListener("keydown", handleEscape)
+      }
+    }
+    document.addEventListener("keydown", handleEscape)
+
+    document.body.appendChild(modal)
+
+    // Focus management
+    setTimeout(() => {
+      const firstButton = modal.querySelector(".btn")
+      if (firstButton) firstButton.focus()
+    }, 100)
+
     return modal
   }
 
@@ -316,7 +383,7 @@ class App {
     let inThrottle
     return function () {
       const args = arguments
-      
+
       if (!inThrottle) {
         func.apply(this, args)
         inThrottle = true

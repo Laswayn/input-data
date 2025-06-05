@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const successMessage = document.getElementById("successMessage")
   const closeAlert = document.getElementById("closeAlert")
   const closeErrorAlert = document.getElementById("closeErrorAlert")
-  const remainingSpan = document.getElementById("remaining")
 
   // Update nama placeholders when nama field changes
   function updateNamaPlaceholders(nama) {
@@ -17,302 +16,228 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Listen for nama input changes
-  document.getElementById("nama").addEventListener("input", function () {
-    updateNamaPlaceholders(this.value)
-  })
+  const namaInput = document.getElementById("nama")
+  if (namaInput) {
+    namaInput.addEventListener("input", function () {
+      updateNamaPlaceholders(this.value)
+    })
+  }
+
+  // Close alert handlers
+  if (closeAlert) {
+    closeAlert.addEventListener("click", () => {
+      successAlert.classList.add("hidden")
+    })
+  }
+
+  if (closeErrorAlert) {
+    closeErrorAlert.addEventListener("click", () => {
+      errorAlert.classList.add("hidden")
+    })
+  }
 
   // Form validation and submission
-  dataForm.addEventListener("submit", async (e) => {
-    e.preventDefault()
+  if (dataForm) {
+    dataForm.addEventListener("submit", (e) => {
+      // Reset error messages
+      document.querySelectorAll(".text-red-500").forEach((el) => el.classList.add("hidden"))
 
-    // Reset error messages
-    document.querySelectorAll(".text-red-500").forEach((el) => el.classList.add("hidden"))
+      let isValid = true
 
-    let isValid = true
+      // Validate required fields
+      const requiredFields = [
+        "nama",
+        "umur",
+        "hubungan",
+        "jenis_kelamin",
+        "status_perkawinan",
+        "pendidikan",
+        "kegiatan",
+        "memiliki_pekerjaan",
+      ]
 
-    // Validate required fields
-    const requiredFields = [
-      "nama",
-      "umur",
-      "hubungan",
-      "jenis_kelamin",
-      "status_perkawinan",
-      "pendidikan",
-      "kegiatan",
-      "memiliki_pekerjaan",
-    ]
+      requiredFields.forEach((field) => {
+        const input = document.getElementById(field)
+        const error = document.getElementById(`${field}_error`)
 
-    requiredFields.forEach((field) => {
-      const input = document.getElementById(field)
-      const error = document.getElementById(`${field}_error`)
+        if (input && (!input.value || !input.value.trim())) {
+          if (error) error.classList.remove("hidden")
+          isValid = false
 
-      if (!input.value.trim()) {
-        error.classList.remove("hidden")
-        isValid = false
+          // Add shake animation
+          input.classList.add("border-red-500")
+          input.animate(
+            [
+              { transform: "translateX(0)" },
+              { transform: "translateX(-5px)" },
+              { transform: "translateX(5px)" },
+              { transform: "translateX(0)" },
+            ],
+            { duration: 100, iterations: 3 },
+          )
+        } else if (input) {
+          input.classList.remove("border-red-500")
+        }
+      })
 
-        // Add shake animation
-        input.classList.add("border-red-500")
-        input.animate(
-          [
-            { transform: "translateX(0)" },
-            { transform: "translateX(-5px)" },
-            { transform: "translateX(5px)" },
-            { transform: "translateX(0)" },
-          ],
-          { duration: 100, iterations: 3 },
-        )
-      } else {
-        input.classList.remove("border-red-500")
-      }
-    })
+      // Additional validation for conditional fields
+      const memilikiPekerjaanEl = document.getElementById("memiliki_pekerjaan")
+      if (memilikiPekerjaanEl && memilikiPekerjaanEl.value === "Tidak") {
+        const statusPekerjaanEl = document.getElementById("status_pekerjaan_diinginkan")
+        const statusError = document.getElementById("status_pekerjaan_diinginkan_error")
 
-    // Additional validation for conditional fields
-    const memilikiPekerjaan = document.getElementById("memiliki_pekerjaan").value
-    if (memilikiPekerjaan === "Tidak") {
-      const statusPekerjaan = document.getElementById("status_pekerjaan_diinginkan").value
-      const statusError = document.getElementById("status_pekerjaan_diinginkan_error")
-
-      if (!statusPekerjaan) {
-        statusError.classList.remove("hidden")
-        isValid = false
-      }
-
-      if (statusPekerjaan === "Berusaha Sendiri") {
-        const bidangUsaha = document.getElementById("bidang_usaha").value
-        const bidangError = document.getElementById("bidang_usaha_error")
-
-        if (!bidangUsaha) {
-          bidangError.classList.remove("hidden")
+        if (statusPekerjaanEl && !statusPekerjaanEl.value) {
+          if (statusError) statusError.classList.remove("hidden")
           isValid = false
         }
 
-        if (bidangUsaha === "Lainnya") {
-          const otherInput = document.getElementById("other_bidang_usaha_input").value
-          const otherError = document.getElementById("other_bidang_usaha_error")
+        if (statusPekerjaanEl && statusPekerjaanEl.value === "Berusaha Sendiri") {
+          const bidangUsahaEl = document.getElementById("bidang_usaha")
+          const bidangError = document.getElementById("bidang_usaha_error")
 
-          if (!otherInput.trim()) {
-            otherError.classList.remove("hidden")
+          if (bidangUsahaEl && !bidangUsahaEl.value) {
+            if (bidangError) bidangError.classList.remove("hidden")
             isValid = false
+          }
+
+          if (bidangUsahaEl && bidangUsahaEl.value === "Lainnya") {
+            const otherInputEl = document.getElementById("other_bidang_usaha_input")
+            const otherError = document.getElementById("other_bidang_usaha_error")
+
+            if (otherInputEl && (!otherInputEl.value || !otherInputEl.value.trim())) {
+              if (otherError) otherError.classList.remove("hidden")
+              isValid = false
+            }
           }
         }
       }
-    }
 
-    // Age validation
-    const umur = Number.parseInt(document.getElementById("umur").value)
-    if (umur < 15 || umur > 64) {
-      document.getElementById("umur_error").classList.remove("hidden")
-      isValid = false
-    }
+      // Age validation
+      const umurEl = document.getElementById("umur")
+      const umurError = document.getElementById("umur_error")
+      if (umurEl) {
+        const umur = Number.parseInt(umurEl.value)
+        if (isNaN(umur) || umur < 15 || umur > 64) {
+          if (umurError) umurError.classList.remove("hidden")
+          isValid = false
+        }
+      }
 
-    // If form is valid, submit it
-    if (isValid) {
-      try {
-        // Show loading state
-        const submitBtn = dataForm.querySelector('button[type="submit"]')
-        const originalText = submitBtn.innerHTML
+      // If form is not valid, prevent submission
+      if (!isValid) {
+        e.preventDefault()
+        return false
+      }
+
+      // Show loading state
+      const submitBtn = dataForm.querySelector('button[type="submit"]')
+      if (submitBtn) {
         submitBtn.innerHTML = `
-          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           Menyimpan...
         `
         submitBtn.disabled = true
-
-        // Prepare form data
-        const formData = new FormData(dataForm)
-
-        // Handle "Lainnya" option for bidang usaha
-        const bidangUsaha = document.getElementById("bidang_usaha").value
-        if (bidangUsaha === "Lainnya") {
-          const otherValue = document.getElementById("other_bidang_usaha_input").value
-          formData.set("bidang_usaha", otherValue)
-        }
-
-        // Submit form
-        const response = await fetch("/submit-individu", {
-          method: "POST",
-          body: formData,
-        })
-
-        const result = await response.json()
-
-        if (result.success) {
-          successMessage.textContent = result.message
-          successAlert.classList.remove("hidden")
-
-          // Update remaining count if provided
-          if (result.remaining !== undefined) {
-            remainingSpan.textContent = result.remaining
-          }
-
-          // Handle different response types
-          if (result.redirect && result.redirect_url) {
-            // Redirect to specified URL (job input or final page)
-            setTimeout(() => {
-              window.location.href = result.redirect_url
-            }, 1500)
-          } else if (result.continue_next_member) {
-            // Continue to next member - reset form
-            setTimeout(() => {
-              resetFormCompletely()
-              successAlert.classList.add("hidden")
-
-              // Update remaining count
-              if (result.remaining !== undefined) {
-                remainingSpan.textContent = result.remaining
-              }
-
-              // Scroll to top
-              window.scrollTo({ top: 0, behavior: "smooth" })
-            }, 1500)
-          }
-        } else {
-          errorMessage.textContent = result.message || "Terjadi kesalahan saat menyimpan data"
-          errorAlert.classList.remove("hidden")
-        }
-
-        // Restore button state
-        submitBtn.innerHTML = originalText
-        submitBtn.disabled = false
-      } catch (error) {
-        console.error("Error submitting form:", error)
-        errorMessage.textContent = "Terjadi kesalahan koneksi. Silakan coba lagi."
-        errorAlert.classList.remove("hidden")
-
-        // Restore button state
-        const submitBtn = dataForm.querySelector('button[type="submit"]')
-        const originalText = submitBtn.innerHTML // Declare originalText variable
-        submitBtn.innerHTML = originalText
-        submitBtn.disabled = false
       }
-    }
-  })
 
-  // Close success alert
-  closeAlert.addEventListener("click", () => {
-    successAlert.classList.add("hidden")
-  })
+      // Handle "Lainnya" option for bidang usaha
+      const bidangUsahaEl = document.getElementById("bidang_usaha")
+      if (bidangUsahaEl && bidangUsahaEl.value === "Lainnya") {
+        const otherInputEl = document.getElementById("other_bidang_usaha_input")
+        if (otherInputEl && otherInputEl.value) {
+          bidangUsahaEl.value = otherInputEl.value
+        }
+      }
 
-  // Close error alert
-  closeErrorAlert.addEventListener("click", () => {
-    errorAlert.classList.add("hidden")
-  })
-})
-
-// Make functions global so they can be called from inline scripts
-window.checkMemilikiPekerjaan = () => {
-  const memilikiPekerjaan = document.getElementById("memiliki_pekerjaan").value
-  const statusPekerjaanContainer = document.getElementById("status_pekerjaan_container")
-  const bidangUsahaContainer = document.getElementById("bidang_usaha_container")
-
-  console.log("checkMemilikiPekerjaan called with:", memilikiPekerjaan)
-
-  if (memilikiPekerjaan === "Tidak") {
-    statusPekerjaanContainer.classList.remove("hidden")
-  } else {
-    statusPekerjaanContainer.classList.add("hidden")
-    bidangUsahaContainer.classList.add("hidden")
-    // Reset values when hiding
-    document.getElementById("status_pekerjaan_diinginkan").value = ""
-    document.getElementById("bidang_usaha").value = ""
-    document.getElementById("other_bidang_usaha").classList.add("hidden")
-  }
-}
-
-// Function to toggle bidang usaha field
-window.toggleBidangUsaha = () => {
-  const statusPekerjaan = document.getElementById("status_pekerjaan_diinginkan").value
-  const bidangUsahaContainer = document.getElementById("bidang_usaha_container")
-
-  console.log("toggleBidangUsaha called with:", statusPekerjaan)
-
-  if (statusPekerjaan === "Berusaha Sendiri") {
-    bidangUsahaContainer.classList.remove("hidden")
-  } else {
-    bidangUsahaContainer.classList.add("hidden")
-    document.getElementById("bidang_usaha").value = ""
-    document.getElementById("other_bidang_usaha").classList.add("hidden")
-  }
-}
-
-// Function to check memiliki pekerjaan and show/hide conditional fields
-function checkMemilikiPekerjaan() {
-  window.checkMemilikiPekerjaan()
-}
-
-// Function to toggle bidang usaha field
-function toggleBidangUsaha() {
-  window.toggleBidangUsaha()
-}
-
-// Declare clearSavedData function
-function clearSavedData() {
-  localStorage.removeItem("lanjutan_form_data")
-  console.log("Saved data cleared")
-}
-
-function resetFormCompletely() {
-  // Reset form
-  const dataForm = document.getElementById("dataForm")
-  dataForm.reset()
-
-  // Reset nama placeholders
-  const updateNamaPlaceholders = (nama) => {
-    const placeholders = document.querySelectorAll(".nama-placeholder")
-    placeholders.forEach((placeholder) => {
-      placeholder.textContent = nama || "NAMA"
+      // Form will submit normally to the server
+      return true
     })
   }
-  updateNamaPlaceholders("")
 
-  // Hide all conditional sections
-  document.getElementById("status_pekerjaan_container").classList.add("hidden")
-  document.getElementById("bidang_usaha_container").classList.add("hidden")
-  document.getElementById("other_bidang_usaha").classList.add("hidden")
+  // Check for URL parameters to show messages
+  const urlParams = new URLSearchParams(window.location.search)
+  const successParam = urlParams.get("success")
+  const errorParam = urlParams.get("error")
 
-  // Reset all select values to default
-  const selects = dataForm.querySelectorAll("select")
-  selects.forEach((select) => {
-    select.selectedIndex = 0
-  })
-
-  // Reset all error messages
-  document.querySelectorAll(".text-red-500").forEach((el) => el.classList.add("hidden"))
-
-  // Reset any disabled options
-  const statusPerkawinanSelect = document.getElementById("status_perkawinan")
-  const belumKawinOption = statusPerkawinanSelect.querySelector('option[value="Belum Kawin"]')
-  if (belumKawinOption) {
-    belumKawinOption.disabled = false
+  if (successParam && successMessage && successAlert) {
+    successMessage.textContent = decodeURIComponent(successParam)
+    successAlert.classList.remove("hidden")
   }
 
-  const memilikiPekerjaanSelect = document.getElementById("memiliki_pekerjaan")
-  const tidakOption = memilikiPekerjaanSelect.querySelector('option[value="Tidak"]')
-  if (tidakOption) {
-    tidakOption.disabled = false
+  if (errorParam && errorMessage && errorAlert) {
+    errorMessage.textContent = decodeURIComponent(errorParam)
+    errorAlert.classList.remove("hidden")
   }
+})
 
-  // Scroll to top
-  window.scrollTo({ top: 0, behavior: "smooth" })
+// Global functions for inline event handlers
+window.checkMemilikiPekerjaan = () => {
+  const memilikiPekerjaanEl = document.getElementById("memiliki_pekerjaan")
+  const statusContainer = document.getElementById("status_pekerjaan_container")
+  const bidangContainer = document.getElementById("bidang_usaha_container")
 
-  console.log("Form completely reset for next member")
+  if (!memilikiPekerjaanEl || !statusContainer) return
+
+  const memilikiPekerjaan = memilikiPekerjaanEl.value
+
+  if (memilikiPekerjaan === "Tidak") {
+    statusContainer.classList.remove("hidden")
+  } else {
+    statusContainer.classList.add("hidden")
+    if (bidangContainer) bidangContainer.classList.add("hidden")
+
+    // Reset values when hiding
+    const statusEl = document.getElementById("status_pekerjaan_diinginkan")
+    const bidangEl = document.getElementById("bidang_usaha")
+    const otherContainer = document.getElementById("other_bidang_usaha")
+
+    if (statusEl) statusEl.value = ""
+    if (bidangEl) bidangEl.value = ""
+    if (otherContainer) otherContainer.classList.add("hidden")
+  }
+}
+
+window.toggleBidangUsaha = () => {
+  const statusEl = document.getElementById("status_pekerjaan_diinginkan")
+  const bidangContainer = document.getElementById("bidang_usaha_container")
+
+  if (!statusEl || !bidangContainer) return
+
+  const statusPekerjaan = statusEl.value
+
+  if (statusPekerjaan === "Berusaha Sendiri") {
+    bidangContainer.classList.remove("hidden")
+  } else {
+    bidangContainer.classList.add("hidden")
+
+    const bidangEl = document.getElementById("bidang_usaha")
+    const otherContainer = document.getElementById("other_bidang_usaha")
+
+    if (bidangEl) bidangEl.value = ""
+    if (otherContainer) otherContainer.classList.add("hidden")
+  }
 }
 
 function checkHubungan() {
-  const hubungan = document.getElementById("hubungan").value
-  const statusPerkawinan = document.getElementById("status_perkawinan")
-  const optionBelumKawin = statusPerkawinan.querySelector('option[value="Belum Kawin"]')
+  const hubunganEl = document.getElementById("hubungan")
+  const statusPerkawinanEl = document.getElementById("status_perkawinan")
 
-  // Reset the status perkawinan dropdown
+  if (!hubunganEl || !statusPerkawinanEl) return
+
+  const hubungan = hubunganEl.value
+  const optionBelumKawin = statusPerkawinanEl.querySelector('option[value="Belum Kawin"]')
+
+  if (!optionBelumKawin) return
+
   if (hubungan === "Suami/Istri") {
-    optionBelumKawin.disabled = true // Disable "Belum Kawin"
-    if (statusPerkawinan.value === "Belum Kawin") {
-      statusPerkawinan.value = "" // Reset if currently selected
+    optionBelumKawin.disabled = true
+    if (statusPerkawinanEl.value === "Belum Kawin") {
+      statusPerkawinanEl.value = ""
     }
   } else {
-    optionBelumKawin.disabled = false // Enable "Belum Kawin" for other relationships
+    optionBelumKawin.disabled = false
   }
 }
 
@@ -321,44 +246,50 @@ function toggleOtherInput() {
   const otherBidangUsahaDiv = document.getElementById("other_bidang_usaha")
   const otherBidangUsahaInput = document.getElementById("other_bidang_usaha_input")
 
+  if (!bidangUsahaSelect || !otherBidangUsahaDiv) return
+
   if (bidangUsahaSelect.value === "Lainnya") {
-    otherBidangUsahaDiv.classList.remove("hidden") // Show the input field
-    otherBidangUsahaInput.value = "" // Clear the input field
+    otherBidangUsahaDiv.classList.remove("hidden")
+    if (otherBidangUsahaInput) otherBidangUsahaInput.value = ""
   } else {
-    otherBidangUsahaDiv.classList.add("hidden") // Hide the input field
+    otherBidangUsahaDiv.classList.add("hidden")
   }
 }
 
 function checkKegiatan() {
-  const kegiatan = document.getElementById("kegiatan").value
+  const kegiatanEl = document.getElementById("kegiatan")
   const memilikiPekerjaanSelect = document.getElementById("memiliki_pekerjaan")
+
+  if (!kegiatanEl || !memilikiPekerjaanSelect) return
+
+  const kegiatan = kegiatanEl.value
   const tidakOption = memilikiPekerjaanSelect.querySelector('option[value="Tidak"]')
-  const statusPekerjaanContainer = document.getElementById("status_pekerjaan_container")
-  const bidangUsahaContainer = document.getElementById("bidang_usaha_container")
+  const statusContainer = document.getElementById("status_pekerjaan_container")
+  const bidangContainer = document.getElementById("bidang_usaha_container")
 
   if (kegiatan === "Bekerja") {
-    // Set the "memiliki_pekerjaan" dropdown to "Ya" and disable "Tidak"
-    memilikiPekerjaanSelect.value = "Ya" // Automatically select "Ya"
-    tidakOption.disabled = true // Disable "Tidak"
+    memilikiPekerjaanSelect.value = "Ya"
+    if (tidakOption) tidakOption.disabled = true
 
-    // Hide status pekerjaan and bidang usaha containers
-    statusPekerjaanContainer.classList.add("hidden")
-    bidangUsahaContainer.classList.add("hidden")
+    // Hide containers
+    if (statusContainer) statusContainer.classList.add("hidden")
+    if (bidangContainer) bidangContainer.classList.add("hidden")
 
-    // Reset values when hiding
-    document.getElementById("status_pekerjaan_diinginkan").value = ""
-    document.getElementById("bidang_usaha").value = ""
+    // Reset values
+    const statusEl = document.getElementById("status_pekerjaan_diinginkan")
+    const bidangEl = document.getElementById("bidang_usaha")
+
+    if (statusEl) statusEl.value = ""
+    if (bidangEl) bidangEl.value = ""
   } else {
-    // Enable the dropdown and reset the selection for other activities
-    tidakOption.disabled = false // Enable "Tidak"
-    memilikiPekerjaanSelect.value = "" // Reset the selection
+    if (tidakOption) tidakOption.disabled = false
+    memilikiPekerjaanSelect.value = ""
 
-    // Show status pekerjaan container if "Tidak" is selected
     if (memilikiPekerjaanSelect.value === "Tidak") {
-      statusPekerjaanContainer.classList.remove("hidden")
+      if (statusContainer) statusContainer.classList.remove("hidden")
     } else {
-      statusPekerjaanContainer.classList.add("hidden")
-      bidangUsahaContainer.classList.add("hidden")
+      if (statusContainer) statusContainer.classList.add("hidden")
+      if (bidangContainer) bidangContainer.classList.add("hidden")
     }
   }
 }

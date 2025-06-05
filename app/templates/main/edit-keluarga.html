@@ -1,362 +1,405 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Data Keluarga</title>
+    <title>Edit Data Keluarga - Pendataan Sidokepung</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: "#f0f9ff",
-                100: "#e0f2fe",
-                200: "#bae6fd",
-                300: "#7dd3fc",
-                400: "#38bdf8",
-                500: "#0ea5e9",
-                600: "#0284c7",
-                700: "#0369a1",
-                800: "#075985",
-                900: "#0c4a6e",
-                950: "#082f49",
-              },
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: "#f0f9ff",
+                            100: "#e0f2fe",
+                            200: "#bae6fd",
+                            300: "#7dd3fc",
+                            400: "#38bdf8",
+                            500: "#0ea5e9",
+                            600: "#0284c7",
+                            700: "#0369a1",
+                            800: "#075985",
+                            900: "#0c4a6e",
+                            950: "#082f49",
+                        },
+                    },
+                },
             },
-          },
-        },
-      };
+        };
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit-keluarga.css') }}">
-  </head>
-  <body class="bg-primary-50 min-h-screen py-8 px-4 flex items-center justify-center">
-    <div class="container mx-auto max-w-2xl">
-      <div class="form-card">
-        <div class="form-header">
-          <h1 class="text-2xl font-bold">Edit Data Keluarga</h1>
-          <p class="text-primary-100 mt-1 text-sm">
-            Silakan edit data dengan lengkap dan benar
-          </p>
-        </div>
+    <style>
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
 
-        <form id="editKeluargaForm" class="p-6 space-y-5">
-          <input type="hidden" id="keluarga_id" name="keluarga_id" value="{{ keluarga_data.keluarga_id }}">
-          
-          <!-- Hidden inputs to store existing values -->
-          <input type="hidden" id="dusun_value" value="{{ keluarga_data.dusun }}">
-          <input type="hidden" id="rt_value" value="{{ keluarga_data.rt }}">
-          <input type="hidden" id="rw_value" value="{{ keluarga_data.rw }}">
-          <input type="hidden" id="nama_kepala_value" value="{{ keluarga_data.nama_kepala }}">
-          <input type="hidden" id="alamat_value" value="{{ keluarga_data.alamat }}">
-          <input type="hidden" id="jumlah_anggota_value" value="{{ keluarga_data.jumlah_anggota }}">
-          <input type="hidden" id="jumlah_anggota_15plus_value" value="{{ keluarga_data.original_jumlah_anggota_15plus }}">
-          <input type="hidden" id="current_members_count" value="{{ keluarga_data.all_members_data|length }}">
-          
-          <!-- Dusun/RT/RW Fields with Cascading Dropdowns -->
-          <div class="space-y-4">
-            <!-- Dusun Dropdown -->
-            <div class="relative">
-              <label for="dusun" class="block text-sm font-medium text-gray-700 mb-1">Dusun</label>
-              <div class="relative">
-                <select
-                  id="dusun"
-                  name="dusun"
-                  class="form-input w-full px-4 py-2.5 appearance-none bg-white"
-                  required
-                  onchange="updateRTRWOptions()"
-                >
-                  <option value="" disabled selected>Pilih Dusun</option>
-                  <option value="Sidopurno">Sidopurno</option>
-                  <option value="Melaten">Melaten</option>
-                  <option value="Ngepung">Ngepung</option>
-                  <option value="Duran">Duran</option>
-                  <option value="Maten Perum Grenhill">Maten Perum Grenhill</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+        .form-header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .form-input {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .cancel-btn {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+        }
+
+        @media (max-width: 640px) {
+            .form-header {
+                padding: 1rem;
+            }
+            .form-card {
+                border-radius: 15px;
+                margin: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-primary-50 to-primary-100 min-h-screen py-4 sm:py-8 px-2 sm:px-4">
+    <div class="container mx-auto max-w-4xl">
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="text-xl sm:text-2xl font-bold mb-2">Edit Data Keluarga</h1>
+                <p class="text-primary-100 text-sm">Ubah informasi keluarga sesuai kebutuhan</p>
+                
+                <!-- Current Family Info Display -->
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3 sm:p-4 mt-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 text-sm">
+                        <div class="text-center">
+                            <div class="text-xs opacity-90 mb-1">ID Keluarga</div>
+                            <div class="font-bold">{{ keluarga_data.keluarga_id }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs opacity-90 mb-1">RT/RW</div>
+                            <div class="font-bold">{{ keluarga_data.rt }}/{{ keluarga_data.rw }}</div>
+                        </div>
+                        <div class="text-center sm:col-span-2 lg:col-span-1">
+                            <div class="text-xs opacity-90 mb-1">Dusun</div>
+                            <div class="font-bold">{{ keluarga_data.dusun }}</div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <p id="dusun_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
             </div>
 
-            <!-- RT and RW in a grid -->
-            <div class="grid grid-cols-2 gap-4">
-              <!-- RT Dropdown -->
-              <div class="relative">
-                <label for="rt" class="block text-sm font-medium text-gray-700 mb-1">RT</label>
-                <div class="relative">
-                  <select
-                    id="rt"
-                    name="rt"
-                    class="form-input w-full px-4 py-2.5 appearance-none bg-white"
-                    required
-                  >
-                    <option value="" disabled selected>Pilih Dusun dulu</option>
-                  </select>
-                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+            <div class="p-4 sm:p-6">
+                <!-- Success Alert -->
+                {% if success %}
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-3 sm:p-4 rounded-lg mb-4" role="alert">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-bold text-sm sm:text-base">Berhasil!</p>
+                            <p class="text-sm">{{ success }}</p>
+                        </div>
+                    </div>
                 </div>
-                <p id="rt_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
-              </div>
+                {% endif %}
 
-              <!-- RW Dropdown -->
-              <div class="relative">
-                <label for="rw" class="block text-sm font-medium text-gray-700 mb-1">RW</label>
-                <div class="relative">
-                  <select
-                    id="rw"
-                    name="rw"
-                    class="form-input w-full px-4 py-2.5 appearance-none bg-white"
-                    required
-                  >
-                    <option value="" disabled selected>Pilih Dusun dulu</option>
-                  </select>
-                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+                <!-- Error Alert -->
+                {% if error %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 sm:p-4 rounded-lg mb-4" role="alert">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-bold text-sm sm:text-base">Error!</p>
+                            <p class="text-sm">{{ error }}</p>
+                        </div>
+                    </div>
                 </div>
-                <p id="rw_error" class="text-red-500 text-xs mt-1 hidden">Wajib dipilih</p>
-              </div>
+                {% endif %}
+
+                <form id="editFamilyForm" method="POST" action="{{ url_for('main.edit_family') }}" class="space-y-4 sm:space-y-6">
+                    <!-- Location Fields -->
+                    <div class="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200">
+                        <h3 class="text-base sm:text-lg font-semibold text-blue-800 mb-3 sm:mb-4 flex items-center">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                            </svg>
+                            Lokasi
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Dusun -->
+                            <div>
+                                <label for="dusun" class="block text-sm font-medium text-gray-700 mb-2">Dusun</label>
+                                <select id="dusun" name="dusun" class="form-input w-full px-3 sm:px-4 py-2 sm:py-2.5 appearance-none bg-white" required onchange="updateRTRWOptions()">
+                                    <option value="" disabled>Pilih Dusun</option>
+                                    <option value="Sidopurno" {{ 'selected' if keluarga_data.dusun == 'Sidopurno' else '' }}>Sidopurno</option>
+                                    <option value="Melaten" {{ 'selected' if keluarga_data.dusun == 'Melaten' else '' }}>Melaten</option>
+                                    <option value="Ngepung" {{ 'selected' if keluarga_data.dusun == 'Ngepung' else '' }}>Ngepung</option>
+                                    <option value="Duran" {{ 'selected' if keluarga_data.dusun == 'Duran' else '' }}>Duran</option>
+                                    <option value="Maten Perum Grenhill" {{ 'selected' if keluarga_data.dusun == 'Maten Perum Grenhill' else '' }}>Maten Perum Grenhill</option>
+                                </select>
+                            </div>
+
+                            <!-- RT and RW -->
+                            <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <label for="rt" class="block text-sm font-medium text-gray-700 mb-2">RT</label>
+                                    <select id="rt" name="rt" class="form-input w-full px-3 sm:px-4 py-2 sm:py-2.5 appearance-none bg-white" required>
+                                        <option value="{{ keluarga_data.rt }}" selected>{{ keluarga_data.rt }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="rw" class="block text-sm font-medium text-gray-700 mb-2">RW</label>
+                                    <select id="rw" name="rw" class="form-input w-full px-3 sm:px-4 py-2 sm:py-2.5 appearance-none bg-white" required>
+                                        <option value="{{ keluarga_data.rw }}" selected>{{ keluarga_data.rw }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Family Information -->
+                    <div class="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200">
+                        <h3 class="text-base sm:text-lg font-semibold text-green-800 mb-3 sm:mb-4 flex items-center">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                            </svg>
+                            Informasi Keluarga
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Nama Kepala Keluarga -->
+                            <div>
+                                <label for="nama_kepala" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nama Kepala Keluarga <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="nama_kepala" name="nama_kepala" 
+                                       value="{{ keluarga_data.nama_kepala }}"
+                                       class="form-input w-full px-3 sm:px-4 py-2 sm:py-2.5" 
+                                       placeholder="Masukkan nama kepala keluarga" required>
+                            </div>
+
+                            <!-- Alamat -->
+                            <div>
+                                <label for="alamat" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Alamat Lengkap <span class="text-red-500">*</span>
+                                </label>
+                                <textarea id="alamat" name="alamat" rows="3" 
+                                          class="form-input w-full px-3 sm:px-4 py-2 sm:py-2.5 resize-none" 
+                                          placeholder="Jalan/Gang dan Nomor Rumah" required>{{ keluarga_data.alamat }}</textarea>
+                            </div>
+
+                            <!-- Member Counts -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <label for="jumlah_anggota" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Jumlah Anggota Keluarga <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" id="jumlah_anggota" name="jumlah_anggota" 
+                                           value="{{ keluarga_data.jumlah_anggota }}" min="1"
+                                           class="form-input w-full px-3 sm:px-4 py-2 sm:py-2.5" 
+                                           placeholder="Contoh: 4" required>
+                                </div>
+                                <div>
+                                    <label for="jumlah_anggota_15plus" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Jumlah Anggota Usia 15+ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" id="jumlah_anggota_15plus" name="jumlah_anggota_15plus" 
+                                           value="{{ keluarga_data.original_jumlah_anggota_15plus }}" min="0"
+                                           class="form-input w-full px-3 sm:px-4 py-2 sm:py-2.5" 
+                                           placeholder="Contoh: 3" required>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Saat ini: {{ keluarga_data.all_members_data|length }} anggota telah diinput
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warning if reducing member count -->
+                    <div id="memberWarning" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 sm:p-4 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="font-bold text-sm">Peringatan!</p>
+                                <p class="text-sm">Mengurangi jumlah anggota akan menghapus data anggota yang sudah diinput.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+                        <button type="submit" class="submit-btn flex-1 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Simpan Perubahan
+                        </button>
+                        <a href="{{ url_for('main.final_page') }}" class="cancel-btn flex-1 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Batal
+                        </a>
+                    </div>
+                </form>
             </div>
-          </div>
-
-          <div class="relative">
-            <label for="nama_kepala" class="block text-sm font-medium text-gray-700 mb-1">
-              Nama Kepala Keluarga
-            </label>
-            <input
-              type="text"
-              id="nama_kepala"
-              name="nama_kepala"
-              placeholder="Masukkan nama kepala keluarga"
-              class="form-input w-full px-4 py-2.5"
-              required
-            />
-            <p id="nama_kepala_error" class="text-red-500 text-xs mt-1 hidden">
-              Field ini tidak boleh kosong
-            </p>
-          </div>
-
-          <div class="relative">
-            <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">
-              Alamat Lengkap
-            </label>
-            <textarea
-              id="alamat"
-              name="alamat"
-              rows="3"
-              placeholder="Jalan/Gang dan Nomor Rumah"
-              class="form-input w-full px-4 py-2.5 resize-none"
-              required
-            ></textarea>
-            <p id="alamat_error" class="text-red-500 text-xs mt-1 hidden">
-              Field ini tidak boleh kosong
-            </p>
-          </div>
-
-          <!-- Jumlah Anggota Fields -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="relative">
-              <label for="jumlah_anggota" class="block text-sm font-medium text-gray-700 mb-1">
-                Jumlah Anggota Keluarga
-              </label>
-              <input
-                type="number"
-                id="jumlah_anggota"
-                name="jumlah_anggota"
-                min="1"
-                placeholder="Contoh: 4"
-                class="form-input w-full px-4 py-2.5"
-                required
-              />
-              <p id="jumlah_anggota_error" class="text-red-500 text-xs mt-1 hidden">
-                Wajib diisi
-              </p>
-            </div>
-
-            <div class="relative">
-              <label for="jumlah_anggota_15plus" class="block text-sm font-medium text-gray-700 mb-1">
-                Jumlah Anggota Usia 15+
-              </label>
-              <input
-                type="number"
-                id="jumlah_anggota_15plus"
-                name="jumlah_anggota_15plus"
-                min="0"
-                placeholder="Contoh: 3"
-                class="form-input w-full px-4 py-2.5"
-                required
-                onchange="checkMemberCountChange()"
-              />
-              <p id="jumlah_anggota_15plus_error" class="text-red-500 text-xs mt-1 hidden">
-                Wajib diisi
-              </p>
-            </div>
-          </div>
-
-          <!-- Member Count Change Notice -->
-          <div id="memberCountNotice" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-yellow-700" id="memberCountMessage">
-                  <!-- Message will be inserted here -->
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="pt-3 flex space-x-3">
-            <button
-              type="submit"
-              class="submit-btn flex-1 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Simpan Perubahan
-            </button>
-            
-            <a href="{{ url_for('main.final_page') }}" 
-               class="cancel-btn flex-1 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-              Batal
-            </a>
-          </div>
-        </form>
-      </div>
-
-      <!-- Success Alert -->
-      <div
-        id="successAlert"
-        class="alert hidden mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md"
-        role="alert"
-      >
-        <div class="flex items-start">
-          <div class="flex-shrink-0">
-            <svg
-              class="h-5 w-5 text-green-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="font-bold">Berhasil!</p>
-            <p class="text-sm">Data keluarga telah berhasil diperbarui.</p>
-          </div>
-          <button
-            id="closeAlert"
-            class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg p-1.5 hover:bg-green-200 inline-flex h-8 w-8"
-          >
-            <svg
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
         </div>
-      </div>
-
-      <!-- Error Alert -->
-      <div
-        id="errorAlert"
-        class="alert hidden mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md"
-        role="alert"
-      >
-        <div class="flex items-start">
-          <div class="flex-shrink-0">
-            <svg
-              class="h-5 w-5 text-red-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="font-bold">Error!</p>
-            <p id="errorMessage" class="text-sm">Terjadi kesalahan.</p>
-          </div>
-          <button
-            id="closeErrorAlert"
-            class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg p-1.5 hover:bg-red-200 inline-flex h-8 w-8"
-          >
-            <svg
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-        </div>
-      </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/edit-keluarga.js') }}"></script>
-  </body>
+    <script>
+        // Cascading dropdown data
+        const dusunData = {
+            Sidopurno: {
+                rt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 31, 32, 33, 34, 35, 36, 42, 43, 44, 45, 48],
+                rw: [1, 2, 3, 4, 8],
+            },
+            Melaten: {
+                rt: [22, 23, 24, 25, 26, 46, 47],
+                rw: [6],
+            },
+            Ngepung: {
+                rt: [27, 28, 29, 30, 37, 38, 39, 40, 41],
+                rw: [7],
+            },
+            Duran: {
+                rt: [20, 21],
+                rw: [5],
+            },
+            "Maten Perum Grenhill": {
+                rt: [49],
+                rw: [6],
+            },
+        };
+
+        function updateRTRWOptions() {
+            const dusunSelect = document.getElementById("dusun");
+            const rtSelect = document.getElementById("rt");
+            const rwSelect = document.getElementById("rw");
+            const selectedDusun = dusunSelect.value;
+
+            // Clear existing options
+            rtSelect.innerHTML = '<option value="" disabled selected>Pilih RT</option>';
+            rwSelect.innerHTML = '<option value="" disabled selected>Pilih RW</option>';
+
+            if (selectedDusun && dusunData[selectedDusun]) {
+                // Populate RT options
+                dusunData[selectedDusun].rt.forEach((rt) => {
+                    const option = document.createElement("option");
+                    option.value = rt.toString().padStart(2, "0");
+                    option.textContent = rt.toString().padStart(2, "0");
+                    rtSelect.appendChild(option);
+                });
+
+                // Populate RW options
+                dusunData[selectedDusun].rw.forEach((rw) => {
+                    const option = document.createElement("option");
+                    option.value = rw.toString().padStart(2, "0");
+                    option.textContent = rw.toString().padStart(2, "0");
+                    rwSelect.appendChild(option);
+                });
+
+                // Set current values if they exist
+                const currentRT = "{{ keluarga_data.rt }}";
+                const currentRW = "{{ keluarga_data.rw }}";
+                
+                if (currentRT) {
+                    rtSelect.value = currentRT;
+                }
+                if (currentRW) {
+                    rwSelect.value = currentRW;
+                }
+            }
+        }
+
+        // Monitor member count changes
+        document.getElementById('jumlah_anggota_15plus').addEventListener('input', function() {
+            const currentMemberCount = {{ keluarga_data.all_members_data|length }};
+            const newMemberCount = parseInt(this.value) || 0;
+            const warningDiv = document.getElementById('memberWarning');
+            
+            if (newMemberCount < currentMemberCount) {
+                warningDiv.classList.remove('hidden');
+            } else {
+                warningDiv.classList.add('hidden');
+            }
+        });
+
+        // Validate member counts
+        document.getElementById('jumlah_anggota_15plus').addEventListener('input', function() {
+            const totalMembers = parseInt(document.getElementById('jumlah_anggota').value) || 0;
+            const members15Plus = parseInt(this.value) || 0;
+            
+            if (members15Plus > totalMembers) {
+                this.value = totalMembers;
+            }
+        });
+
+        document.getElementById('jumlah_anggota').addEventListener('input', function() {
+            const totalMembers = parseInt(this.value) || 0;
+            const members15PlusInput = document.getElementById('jumlah_anggota_15plus');
+            const members15Plus = parseInt(members15PlusInput.value) || 0;
+            
+            if (members15Plus > totalMembers) {
+                members15PlusInput.value = totalMembers;
+            }
+        });
+
+        // Initialize RT/RW options on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateRTRWOptions();
+        });
+
+        // Form submission with loading state
+        document.getElementById('editFamilyForm').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Menyimpan...
+            `;
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
 </html>

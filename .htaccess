@@ -1,3 +1,8 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/pahlawa5/public_html/sensus"
+PassengerBaseURI "/sensus"
+PassengerPython "/home/pahlawa5/virtualenv/public_html/sensus/3.10/bin/python"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 # .htaccess untuk folder sensus
 RewriteEngine On
 # Handle static files - jangan redirect jika file/folder ada
@@ -14,11 +19,6 @@ Header always set X-XSS-Protection "1; mode=block"
 # Optional: Redirect HTTP ke HTTPS jika SSL tersedia
 # RewriteCond %{HTTPS} off
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
-PassengerAppRoot "/home/pahlawa5/public_html/sensus"
-PassengerBaseURI "/sensus"
-PassengerPython "/home/pahlawa5/virtualenv/public_html/sensus/3.10/bin/python"
-# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 # DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
 <IfModule Litespeed>
 </IfModule>

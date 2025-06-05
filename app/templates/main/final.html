@@ -50,6 +50,103 @@
           </p>
         </div>
 
+        <!-- Success Alert -->
+        {% if success %}
+        <div
+          id="successAlert"
+          class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4"
+          role="alert"
+        >
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <svg
+                class="h-5 w-5 text-green-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p id="successMessage" class="font-bold">{{ success }}</p>
+            </div>
+            <button
+              id="closeAlert"
+              class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg p-1.5 hover:bg-green-200 inline-flex h-8 w-8"
+            >
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Error Alert -->
+        {% if error %}
+        <div
+          id="errorAlert"
+          class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4"
+          role="alert"
+        >
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <svg
+                class="h-5 w-5 text-red-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="font-bold">Error!</p>
+              <p id="errorMessage" class="text-sm">{{ error }}</p>
+            </div>
+            <button
+              id="closeErrorAlert"
+              class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg p-1.5 hover:bg-red-200 inline-flex h-8 w-8"
+            >
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        {% endif %}
+
         <!-- Family Info Summary -->
         <div class="bg-blue-50 p-4 border-b">
           <h2 class="text-lg font-semibold text-blue-800 mb-2">
@@ -91,9 +188,10 @@
         </div>
 
         <!-- Members Summary -->
+        {% if keluarga_data.all_members_data %}
         <div class="bg-gray-50 p-4 border-b">
           <h2 class="text-lg font-semibold text-gray-800 mb-4">
-            Data Anggota Keluarga
+            Data Anggota Keluarga ({{ keluarga_data.all_members_data|length }} orang)
           </h2>
           
           {% for member in keluarga_data.all_members_data %}
@@ -206,8 +304,16 @@
           </div>
           {% endfor %}
         </div>
+        {% else %}
+        <div class="bg-yellow-50 p-4 border-b">
+          <div class="text-center text-yellow-800">
+            <p class="font-medium">Tidak ada data anggota keluarga usia 15+ yang diinput.</p>
+            <p class="text-sm mt-1">Semua anggota keluarga berusia di bawah 15 tahun.</p>
+          </div>
+        </div>
+        {% endif %}
 
-        <form id="finalForm" class="p-6 space-y-6">
+        <form id="finalForm" method="POST" action="{{ url_for('main.submit_final') }}" class="p-6 space-y-6">
           <!-- Petugas Pencacah -->
           <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
             <h2
@@ -414,7 +520,7 @@
         </form>
       </div>
 
-      <!-- Success Alert -->
+      <!-- Success Alert (for after submission) -->
       <div
         id="successAlert"
         class="hidden mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md"
@@ -438,7 +544,8 @@
           </div>
           <div class="ml-3">
             <p class="font-bold">Berhasil!</p>
-            <p class="text-sm">Semua data telah berhasil disimpan.</p>
+            <p id="successMessage" class="text-sm">Semua data telah berhasil disimpan.</p>
+            {% if session.role == 'admin' %}
             <div class="mt-2">
               <a
                 id="downloadLink"
@@ -462,6 +569,7 @@
                 Download Data Sensus
               </a>
             </div>
+            {% endif %}
           </div>
           <button
             id="closeAlert"
@@ -484,7 +592,7 @@
         </div>
       </div>
 
-      <!-- Error Alert -->
+      <!-- Error Alert (for after submission) -->
       <div
         id="errorAlert"
         class="hidden mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md"

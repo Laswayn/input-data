@@ -161,7 +161,85 @@
             </div>
           </div>
 
-          <form id="dataForm" class="space-y-6">
+          <!-- Success Alert -->
+          {% if success %}
+          <div
+            id="successAlert"
+            class="alert mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md"
+            role="alert"
+          >
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg
+                  class="h-5 w-5 text-green-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="font-bold">Berhasil!</p>
+                <p id="successMessage" class="text-sm">{{ success }}</p>
+              </div>
+              <button
+                id="closeAlert"
+                class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg p-1.5 hover:bg-green-200 inline-flex h-8 w-8"
+              >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Error Alert -->
+          {% if error %}
+          <div
+            id="errorAlert"
+            class="alert mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md"
+            role="alert"
+          >
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg
+                  class="h-5 w-5 text-red-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="font-bold">Error!</p>
+                <p id="errorMessage" class="text-sm">{{ error }}</p>
+              </div>
+              <button
+                id="closeErrorAlert"
+                class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg p-1.5 hover:bg-red-200 inline-flex h-8 w-8"
+              >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          {% endif %}
+
+          <form id="dataForm" method="POST" action="{{ url_for('main.submit_individu') }}" class="space-y-6">
             <!-- Nama Individu -->
             <div>
               <label for="nama" class="section-title block text-sm font-medium text-gray-700">
@@ -376,6 +454,7 @@
                   <option value="" disabled selected>Pilih status pekerjaan yang diinginkan</option>
                   <option value="Berusaha Sendiri">Berusaha Sendiri</option>
                   <option value="Buruh/Karyawan/Pegawai/Pekerja Bebas">Buruh/Karyawan/Pegawai/Pekerja Bebas</option>
+                  <option value="Tidak Ingin Bekerja">Tidak Ingin Bekerja</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
                   <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -456,7 +535,7 @@
         </div>
       </div>
 
-      <!-- Success Alert -->
+      <!-- Success Alert (Hidden by default, shown via JS) -->
       <div
         id="successAlert"
         class="alert hidden mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md"
@@ -493,7 +572,7 @@
         </div>
       </div>
 
-      <!-- Error Alert -->
+      <!-- Error Alert (Hidden by default, shown via JS) -->
       <div
         id="errorAlert"
         class="alert hidden mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md"

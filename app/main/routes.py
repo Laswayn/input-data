@@ -1,14 +1,12 @@
-from flask import render_template, request, jsonify, redirect, url_for, session, send_file, current_app
+from flask import render_template, request, redirect, url_for, session, send_file, current_app
 from app.main import bp
 from app.models import Keluarga, Individu
 from app import db
 from datetime import datetime
 from functools import wraps
-from io import BytesIO
 import pandas as pd
-import os
 import tempfile
-import json
+import traceback
 
 def login_required(f):
     """Decorator to require login for protected routes"""
@@ -19,11 +17,14 @@ def login_required(f):
         
         # Check session timeout
         if 'last_activity' in session:
-            last_activity = datetime.fromisoformat(session['last_activity'])
-            timeout = current_app.config['SESSION_TIMEOUT']
-            if (datetime.now() - last_activity).total_seconds() > timeout:
-                session.clear()
-                return redirect(url_for('auth.login', message='Session expired'))
+            try:
+                last_activity = datetime.fromisoformat(session['last_activity'])
+                timeout = current_app.config['SESSION_TIMEOUT']
+                if (datetime.now() - last_activity).total_seconds() > timeout:
+                    session.clear()
+                    return redirect(url_for('auth.login', message='Session expired'))
+            except Exception as e:
+                current_app.logger.error(f"Session timeout check error: {e}")
         
         # Update last activity
         session['last_activity'] = datetime.now().isoformat()
@@ -35,10 +36,9 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'role' not in session or session['role'] != 'admin':
-            return jsonify({'error': 'Admin access required'}), 403
+            return redirect(url_for('main.dashboard', error='Admin access required'))
         return f(*args, **kwargs)
     return decorated_function
-
 
 @bp.route('/')
 def home():
@@ -47,18 +47,23 @@ def home():
 @bp.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('main/dashboard.html')
+    success = request.args.get('success')
+    error = request.args.get('error')
+    return render_template('main/dashboard.html', success=success, error=error)
 
 @bp.route('/index')
 @login_required
 def index():
-    return render_template('main/index.html')
-
-@bp.route('/check-file')
-@login_required
-def check_file():
-    """Route to check if files exist - for debugging purposes"""
-    return jsonify({'status': 'ok', 'message': 'File check endpoint working'})
+    success = request.args.get('success')
+    error = request.args.get('error')
+    clear = request.args.get('clear')
+    
+    # Clear session if requested
+    if clear:
+        session.pop('keluarga_data', None)
+        session.pop('individu_data', None)
+    
+    return render_template('main/index.html', success=success, error=error)
 
 @bp.route('/back-to-index')
 @login_required
@@ -66,7 +71,7 @@ def back_to_index():
     """Route to go back to index and clear session data"""
     session.pop('keluarga_data', None)
     session.pop('individu_data', None)
-    return redirect(url_for('main.index') + '?clear=true')
+    return redirect(url_for('main.index', clear='true'))
 
 @bp.route('/edit-keluarga')
 @login_required
@@ -76,7 +81,9 @@ def edit_keluarga():
         return redirect(url_for('main.index'))
     
     keluarga_data = session['keluarga_data']
-    return render_template('main/edit-keluarga.html', keluarga_data=keluarga_data)
+    success = request.args.get('success')
+    error = request.args.get('error')
+    return render_template('main/edit-keluarga.html', keluarga_data=keluarga_data, success=success, error=error)
 
 @bp.route('/edit-anggota')
 @login_required
@@ -97,11 +104,15 @@ def edit_anggota():
         return redirect(url_for('main.final_page'))
     
     member_data = keluarga_data['all_members_data'][member_index]
+    success = request.args.get('success')
+    error = request.args.get('error')
     
     return render_template('main/edit-anggota.html', 
                          keluarga_data=keluarga_data, 
                          member_data=member_data,
-                         member_index=member_index)
+                         member_index=member_index,
+                         success=success,
+                         error=error)
 
 @bp.route('/submit', methods=['POST'])
 @login_required
@@ -112,75 +123,85 @@ def submit():
         session.pop('individu_data', None)
         
         # Get form data
-        rt = request.form.get('rt')
-        rw = request.form.get('rw')
-        dusun = request.form.get('dusun')
-        nama_kepala = request.form.get('nama_kepala')
-        alamat = request.form.get('alamat')
-        jumlah_anggota = request.form.get('jumlah_anggota')
-        jumlah_anggota_15plus = request.form.get('jumlah_anggota_15plus')
+        rt = request.form.get('rt', '').strip()
+        rw = request.form.get('rw', '').strip()
+        dusun = request.form.get('dusun', '').strip()
+        nama_kepala = request.form.get('nama_kepala', '').strip()
+        alamat = request.form.get('alamat', '').strip()
+        jumlah_anggota = request.form.get('jumlah_anggota', '').strip()
+        jumlah_anggota_15plus = request.form.get('jumlah_anggota_15plus', '').strip()
         
         # Server-side validation
-        if not all([rt, rw, dusun, nama_kepala, alamat, jumlah_anggota, jumlah_anggota_15plus]):
-            return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
+        missing_fields = []
+        if not rt:
+            missing_fields.append('RT')
+        if not rw:
+            missing_fields.append('RW')
+        if not dusun:
+            missing_fields.append('Dusun')
+        if not nama_kepala:
+            missing_fields.append('Nama Kepala Keluarga')
+        if not alamat:
+            missing_fields.append('Alamat')
+        if not jumlah_anggota:
+            missing_fields.append('Jumlah Anggota')
+        if not jumlah_anggota_15plus:
+            missing_fields.append('Jumlah Anggota 15+')
+            
+        if missing_fields:
+            error_msg = f"Field berikut harus diisi: {', '.join(missing_fields)}"
+            return redirect(url_for('main.index', error=error_msg))
         
         # Convert to integers
         try:
-            jumlah_anggota = int(jumlah_anggota)
-            jumlah_anggota_15plus = int(jumlah_anggota_15plus)
+            jumlah_anggota_int = int(jumlah_anggota)
+            jumlah_anggota_15plus_int = int(jumlah_anggota_15plus)
         except ValueError:
-            return jsonify({'success': False, 'message': 'Jumlah anggota harus berupa angka'}), 400
+            return redirect(url_for('main.index', error='Jumlah anggota harus berupa angka yang valid'))
         
         # Validate member counts
-        if jumlah_anggota < 1:
-            return jsonify({'success': False, 'message': 'Jumlah anggota keluarga minimal 1'}), 400
+        if jumlah_anggota_int < 1:
+            return redirect(url_for('main.index', error='Jumlah anggota keluarga minimal 1'))
         
-        if jumlah_anggota_15plus < 0:
-            return jsonify({'success': False, 'message': 'Jumlah anggota usia 15+ tidak boleh negatif'}), 400
+        if jumlah_anggota_15plus_int < 0:
+            return redirect(url_for('main.index', error='Jumlah anggota usia 15+ tidak boleh negatif'))
             
-        if jumlah_anggota_15plus > jumlah_anggota:
-            return jsonify({'success': False, 'message': 'Jumlah anggota usia 15+ tidak boleh lebih dari jumlah anggota keluarga'}), 400
+        if jumlah_anggota_15plus_int > jumlah_anggota_int:
+            return redirect(url_for('main.index', error='Jumlah anggota usia 15+ tidak boleh lebih dari jumlah anggota keluarga'))
 
+        # Generate timestamp and ID
         timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         keluarga_id = f"KEL-{rt}{rw}-{datetime.now().strftime('%d%m%Y%H%M%S')}"
         
         # Save basic family data to session
-        session['keluarga_data'] = {
+        keluarga_data = {
             'keluarga_id': keluarga_id,
             'rt': rt,
             'rw': rw,
             'dusun': dusun,
             'nama_kepala': nama_kepala,
             'alamat': alamat,
-            'jumlah_anggota': jumlah_anggota,
-            'jumlah_anggota_15plus': jumlah_anggota_15plus,
-            'original_jumlah_anggota_15plus': jumlah_anggota_15plus,
+            'jumlah_anggota': jumlah_anggota_int,
+            'jumlah_anggota_15plus': jumlah_anggota_15plus_int,
+            'original_jumlah_anggota_15plus': jumlah_anggota_15plus_int,
             'anggota_count': 0,
             'timestamp': timestamp,
             'all_members_data': []
         }
         
-        # If there are members aged 15+, redirect to member input
-        if jumlah_anggota_15plus > 0:
-            return jsonify({
-                'success': True,
-                'message': 'Data keluarga berhasil disimpan. Lanjutkan ke input anggota keluarga.',
-                'redirect': True,
-                'redirect_url': url_for('main.lanjutan')
-            })
+        session['keluarga_data'] = keluarga_data
+        session.permanent = True
+        
+        # Determine next step
+        if jumlah_anggota_15plus_int > 0:
+            return redirect(url_for('main.lanjutan', success='Data keluarga berhasil disimpan. Lanjutkan ke input anggota keluarga.'))
         else:
-            # No members 15+, go directly to final page
-            return jsonify({
-                'success': True,
-                'message': 'Data keluarga berhasil disimpan. Lanjutkan ke halaman akhir.',
-                'redirect': True,
-                'redirect_url': url_for('main.final_page')
-            })
+            return redirect(url_for('main.final_page', success='Data keluarga berhasil disimpan. Lanjutkan ke halaman akhir.'))
             
     except Exception as e:
-        error_msg = f"Error: {str(e)}"
-        print(error_msg)
-        return jsonify({'success': False, 'message': error_msg}), 500
+        current_app.logger.error(f"Error in submit route: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return redirect(url_for('main.index', error=f'Terjadi kesalahan server: {str(e)}'))
 
 @bp.route('/lanjutan')
 @login_required
@@ -189,7 +210,9 @@ def lanjutan():
         return redirect(url_for('main.index'))
     
     keluarga_data = session['keluarga_data']
-    return render_template('main/lanjutan.html', keluarga_data=keluarga_data)
+    success = request.args.get('success')
+    error = request.args.get('error')
+    return render_template('main/lanjutan.html', keluarga_data=keluarga_data, success=success, error=error)
 
 @bp.route('/pekerjaan')
 @login_required
@@ -199,27 +222,36 @@ def pekerjaan():
     
     keluarga_data = session['keluarga_data']
     individu_data = session['individu_data']
-    return render_template('main/pekerjaan.html', keluarga_data=keluarga_data, individu_data=individu_data)
+    success = request.args.get('success')
+    error = request.args.get('error')
+    return render_template('main/pekerjaan.html', keluarga_data=keluarga_data, individu_data=individu_data, success=success, error=error)
 
 @bp.route('/final')
 @login_required
 def final_page():
     if 'keluarga_data' not in session:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.index', error='Data keluarga tidak ditemukan. Silakan mulai dari awal.'))
     
     keluarga_data = session['keluarga_data']
-    return render_template('main/final.html', keluarga_data=keluarga_data)
+    success = request.args.get('success')
+    error = request.args.get('error')
+    
+    # Log for debugging
+    current_app.logger.info(f"Final page - keluarga_data: {keluarga_data}")
+    current_app.logger.info(f"Final page - members count: {len(keluarga_data.get('all_members_data', []))}")
+    
+    return render_template('main/final.html', keluarga_data=keluarga_data, success=success, error=error)
 
 @bp.route('/submit-individu', methods=['POST'])
 @login_required
 def submit_individu():
     try:
         if 'keluarga_data' not in session:
-            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+            return redirect(url_for('main.index', error='Data keluarga tidak ditemukan'))
         
         keluarga_data = session['keluarga_data']
         
-        # Collect individual data from form - matching database field names
+        # Collect individual data from form
         nama_anggota = request.form.get('nama')
         umur = request.form.get('umur')
         hubungan_kepala = request.form.get('hubungan')
@@ -234,20 +266,20 @@ def submit_individu():
         # Validate individual data
         required_fields = [nama_anggota, umur, hubungan_kepala, jenis_kelamin, status_perkawinan, pendidikan_terakhir, kegiatan_sehari, memiliki_pekerjaan]
         if not all(required_fields):
-            return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
+            return redirect(url_for('main.lanjutan', error='Semua field harus diisi'))
         
         try:
             umur_int = int(umur)
         except ValueError:
-            return jsonify({'success': False, 'message': 'Usia harus berupa angka'}), 400
+            return redirect(url_for('main.lanjutan', error='Usia harus berupa angka'))
         
         if umur_int < 15:
-            return jsonify({'success': False, 'message': 'Usia minimal 15 tahun'}), 400
+            return redirect(url_for('main.lanjutan', error='Usia minimal 15 tahun'))
         
         # Increment anggota_count
         keluarga_data['anggota_count'] = keluarga_data.get('anggota_count', 0) + 1
         
-        # Create individu data with database field names
+        # Create individu data
         individu_data = {
             'anggota_ke': keluarga_data['anggota_count'],
             'nama_anggota': nama_anggota,
@@ -265,12 +297,7 @@ def submit_individu():
         # If memiliki_pekerjaan is "Ya", redirect to pekerjaan page
         if memiliki_pekerjaan == "Ya":
             session['individu_data'] = individu_data
-            return jsonify({
-                'success': True,
-                'message': 'Data berhasil disimpan. Lanjutkan ke input data pekerjaan.',
-                'redirect': True,
-                'redirect_url': url_for('main.pekerjaan')
-            })
+            return redirect(url_for('main.pekerjaan', success='Data berhasil disimpan. Lanjutkan ke input data pekerjaan.'))
         else:
             # Add empty job fields since we're skipping detailed job input
             individu_data.update({
@@ -298,39 +325,48 @@ def submit_individu():
 
             # Check if there are more members to process
             if keluarga_data['jumlah_anggota_15plus'] > 0:
-                return jsonify({
-                    'success': True,
-                    'message': 'Data berhasil disimpan. Lanjutkan ke anggota berikutnya.',
-                    'remaining': keluarga_data['jumlah_anggota_15plus'],
-                    'continue_next_member': True
-                })
+                return redirect(url_for('main.lanjutan', success=f'Data berhasil disimpan. Sisa {keluarga_data["jumlah_anggota_15plus"]} anggota lagi.'))
             else:
-                return jsonify({
-                    'success': True,
-                    'message': 'Semua data anggota berhasil disimpan. Lanjutkan ke halaman akhir.',
-                    'redirect': True,
-                    'redirect_url': url_for('main.final_page')
-                })
+                return redirect(url_for('main.final_page', success='Semua data anggota berhasil disimpan. Lanjutkan ke halaman akhir.'))
         
     except Exception as e:
-        print(f"ERROR in submit_individu: {str(e)}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+        current_app.logger.error(f"ERROR in submit_individu: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return redirect(url_for('main.lanjutan', error=f'Error: {str(e)}'))
 
 @bp.route('/submit-pekerjaan', methods=['POST'])
 @login_required
 def submit_pekerjaan():
     try:
         if 'keluarga_data' not in session:
-            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+            current_app.logger.error("No keluarga_data in session")
+            return redirect(url_for('main.index', error='Data keluarga tidak ditemukan'))
 
         if 'individu_data' not in session:
-            return jsonify({'success': False, 'message': 'Data individu tidak ditemukan'}), 400
+            current_app.logger.error("No individu_data in session")
+            return redirect(url_for('main.lanjutan', error='Data individu tidak ditemukan'))
 
         keluarga_data = session['keluarga_data']
         individu_data = session['individu_data']
-        form_data = request.form.to_dict()
+        
+        current_app.logger.info(f"Processing job data for: {individu_data.get('nama_anggota', 'Unknown')}")
+        
+        # Get form data
+        bidang_pekerjaan = request.form.get('bidang_pekerjaan', '').strip()
+        lebih_dari_satu_pekerjaan = request.form.get('lebih_dari_satu_pekerjaan', '').strip()
+        status_pekerjaan_0 = request.form.get('status_pekerjaan_0', '').strip()
+        
+        # Validate required fields
+        if not bidang_pekerjaan:
+            return redirect(url_for('main.pekerjaan', error='Bidang pekerjaan harus dipilih'))
+        
+        if not status_pekerjaan_0:
+            return redirect(url_for('main.pekerjaan', error='Status pekerjaan utama harus dipilih'))
+        
+        if not lebih_dari_satu_pekerjaan:
+            return redirect(url_for('main.pekerjaan', error='Pertanyaan tentang memiliki lebih dari satu pekerjaan harus dijawab'))
 
-        # Build member data with job information using database field names
+        # Build member data with job information
         member_data = {
             'anggota_ke': individu_data['anggota_ke'],
             'nama_anggota': individu_data['nama_anggota'],
@@ -346,32 +382,46 @@ def submit_pekerjaan():
         }
 
         # Add bidang pekerjaan
-        member_data['bidang_pekerjaan'] = form_data.get('bidang_pekerjaan', '')
+        member_data['bidang_pekerjaan'] = bidang_pekerjaan
 
         # Add multiple jobs info
-        member_data['memiliki_lebih_satu_pekerjaan'] = form_data.get('lebih_dari_satu_pekerjaan', 'Tidak')
+        member_data['memiliki_lebih_satu_pekerjaan'] = lebih_dari_satu_pekerjaan
 
         # Process main job (index 0)
-        main_job_status = form_data.get('status_pekerjaan_0', '')
-        if not main_job_status:
-            return jsonify({'success': False, 'message': 'Status pekerjaan utama harus diisi'}), 400
-        
         member_data.update({
-            'status_pekerjaan_utama': main_job_status,
-            'pemasaran_usaha_utama': form_data.get('pemasaran_usaha_0', ''),
-            'penjualan_marketplace_utama': form_data.get('penjualan_marketplace_0', ''),
+            'status_pekerjaan_utama': status_pekerjaan_0,
+            'pemasaran_usaha_utama': request.form.get('pemasaran_usaha_0', ''),
+            'penjualan_marketplace_utama': request.form.get('penjualan_marketplace_0', ''),
         })
 
-        # Process side jobs (up to 2 side jobs)
-        for i in range(1, 3):  # Side jobs 1 and 2
-            member_data.update({
-                f'bidang_pekerjaan_sampingan{i}': form_data.get(f'bidang_pekerjaan_{i}', ''),
-                f'status_pekerjaan_sampingan{i}': form_data.get(f'status_pekerjaan_{i}', ''),
-                f'pemasaran_usaha_sampingan{i}': form_data.get(f'pemasaran_usaha_{i}', ''),
-                f'penjualan_marketplace_sampingan{i}': form_data.get(f'penjualan_marketplace_{i}', ''),
-            })
+        # Process side jobs (up to 2 side jobs) - only if user has multiple jobs
+        if lebih_dari_satu_pekerjaan == 'Ya':
+            for i in range(1, 3):  # Side jobs 1 and 2
+                member_data.update({
+                    f'bidang_pekerjaan_sampingan{i}': request.form.get(f'bidang_pekerjaan_{i}', ''),
+                    f'status_pekerjaan_sampingan{i}': request.form.get(f'status_pekerjaan_{i}', ''),
+                    f'pemasaran_usaha_sampingan{i}': request.form.get(f'pemasaran_usaha_{i}', ''),
+                    f'penjualan_marketplace_sampingan{i}': request.form.get(f'penjualan_marketplace_{i}', ''),
+                })
+        else:
+            # Clear side job fields if user doesn't have multiple jobs
+            for i in range(1, 3):
+                member_data.update({
+                    f'bidang_pekerjaan_sampingan{i}': '',
+                    f'status_pekerjaan_sampingan{i}': '',
+                    f'pemasaran_usaha_sampingan{i}': '',
+                    f'penjualan_marketplace_sampingan{i}': '',
+                })
+
+        # Log for debugging
+        current_app.logger.info(f"Processing job data for member: {member_data['nama_anggota']}")
+        current_app.logger.info(f"Main job: {bidang_pekerjaan} - {status_pekerjaan_0}")
+        current_app.logger.info(f"Multiple jobs: {lebih_dari_satu_pekerjaan}")
 
         # Add to all_members_data
+        if 'all_members_data' not in keluarga_data:
+            keluarga_data['all_members_data'] = []
+        
         keluarga_data['all_members_data'].append(member_data)
         
         # Decrease remaining members count
@@ -382,60 +432,63 @@ def submit_pekerjaan():
         session.pop('individu_data', None)
 
         # Check if there are more members to process
-        if keluarga_data['jumlah_anggota_15plus'] > 0:
-            return jsonify({
-                'success': True,
-                'message': 'Data pekerjaan berhasil disimpan. Lanjutkan ke anggota berikutnya.',
-                'redirect': True,
-                'redirect_url': url_for('main.lanjutan')
-            })
+        remaining_members = keluarga_data['jumlah_anggota_15plus']
+        current_app.logger.info(f"Remaining members: {remaining_members}")
+        
+        if remaining_members > 0:
+            success_msg = f'Data pekerjaan berhasil disimpan. Sisa {remaining_members} anggota lagi.'
+            current_app.logger.info(f"Redirecting to lanjutan with message: {success_msg}")
+            return redirect(url_for('main.lanjutan', success=success_msg))
         else:
-            return jsonify({
-                'success': True,
-                'message': 'Semua data berhasil disimpan. Lanjutkan ke halaman akhir.',
-                'redirect': True,
-                'redirect_url': url_for('main.final_page')
-            })
+            current_app.logger.info("All members processed, redirecting to final page")
+            return redirect(url_for('main.final_page', success='Semua data berhasil disimpan. Lanjutkan ke halaman akhir.'))
 
     except Exception as e:
-        print(f"ERROR in submit_pekerjaan: {str(e)}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+        current_app.logger.error(f"ERROR in submit_pekerjaan: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return redirect(url_for('main.pekerjaan', error=f'Terjadi kesalahan: {str(e)}'))
 
 @bp.route('/edit-member', methods=['POST'])
 @login_required
 def edit_member():
     try:
         if 'keluarga_data' not in session:
-            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+            return redirect(url_for('main.final_page', error='Data keluarga tidak ditemukan'))
 
         keluarga_data = session['keluarga_data']
         
-        # Get data from JSON request
-        data = request.get_json()
-        member_index = int(data.get('memberIndex'))
+        # Debug: Log all form data
+        current_app.logger.info(f"Form data received: {dict(request.form)}")
+        
+        # Get member index from form
+        member_index = int(request.form.get('memberIndex'))
+        
+        current_app.logger.info(f"Editing member at index: {member_index}")
         
         if member_index < 0 or member_index >= len(keluarga_data['all_members_data']):
-            return jsonify({'success': False, 'message': 'Index anggota tidak valid'}), 400
+            return redirect(url_for('main.final_page', error='Index anggota tidak valid'))
 
         # Update member data
         member_data = keluarga_data['all_members_data'][member_index]
         
+        current_app.logger.info(f"Original member data: {member_data}")
+        
         # Update basic info
-        member_data['nama_anggota'] = data.get('nama_anggota', '')
-        member_data['umur'] = int(data.get('umur', 0))
-        member_data['jenis_kelamin'] = data.get('jenis_kelamin', '')
-        member_data['hubungan_kepala'] = data.get('hubungan_kepala', '')
-        member_data['status_perkawinan'] = data.get('status_perkawinan', '')
-        member_data['pendidikan_terakhir'] = data.get('pendidikan_terakhir', '')
-        member_data['kegiatan_sehari'] = data.get('kegiatan_sehari', '')
-        member_data['memiliki_pekerjaan'] = data.get('memiliki_pekerjaan', '')
+        member_data['nama_anggota'] = request.form.get('nama_anggota', '').strip()
+        member_data['umur'] = int(request.form.get('umur', 0))
+        member_data['jenis_kelamin'] = request.form.get('jenis_kelamin', '').strip()
+        member_data['hubungan_kepala'] = request.form.get('hubungan_kepala', '').strip()
+        member_data['status_perkawinan'] = request.form.get('status_perkawinan', '').strip()
+        member_data['pendidikan_terakhir'] = request.form.get('pendidikan_terakhir', '').strip()
+        member_data['kegiatan_sehari'] = request.form.get('kegiatan_sehari', '').strip()
+        member_data['memiliki_pekerjaan'] = request.form.get('memiliki_pekerjaan', '').strip()
 
         # Update job-related fields based on memiliki_pekerjaan
         if member_data['memiliki_pekerjaan'] == 'Tidak':
             # Clear job fields and update no-job fields
             member_data.update({
-                'status_pekerjaan_diinginkan': data.get('status_pekerjaan_diinginkan', ''),
-                'bidang_usaha_diminati': data.get('bidang_usaha_diminati', ''),
+                'status_pekerjaan_diinginkan': request.form.get('status_pekerjaan_diinginkan', '').strip(),
+                'bidang_usaha_diminati': request.form.get('bidang_usaha_diminati', '').strip(),
                 'bidang_pekerjaan': '',
                 'memiliki_lebih_satu_pekerjaan': '',
                 'status_pekerjaan_utama': '',
@@ -455,52 +508,65 @@ def edit_member():
             member_data.update({
                 'status_pekerjaan_diinginkan': '',
                 'bidang_usaha_diminati': '',
-                'bidang_pekerjaan': data.get('bidang_pekerjaan', ''),
-                'memiliki_lebih_satu_pekerjaan': data.get('memiliki_lebih_satu_pekerjaan', 'Tidak'),
-                'status_pekerjaan_utama': data.get('status_pekerjaan_utama', ''),
-                'pemasaran_usaha_utama': data.get('pemasaran_usaha_utama', ''),
-                'penjualan_marketplace_utama': data.get('penjualan_marketplace_utama', ''),
-                'bidang_pekerjaan_sampingan1': data.get('bidang_pekerjaan_sampingan1', ''),
-                'status_pekerjaan_sampingan1': data.get('status_pekerjaan_sampingan1', ''),
-                'pemasaran_usaha_sampingan1': data.get('pemasaran_usaha_sampingan1', ''),
-                'penjualan_marketplace_sampingan1': data.get('penjualan_marketplace_sampingan1', ''),
-                'bidang_pekerjaan_sampingan2': data.get('bidang_pekerjaan_sampingan2', ''),
-                'status_pekerjaan_sampingan2': data.get('status_pekerjaan_sampingan2', ''),
-                'pemasaran_usaha_sampingan2': data.get('pemasaran_usaha_sampingan2', ''),
-                'penjualan_marketplace_sampingan2': data.get('penjualan_marketplace_sampingan2', ''),
+                'bidang_pekerjaan': request.form.get('bidang_pekerjaan', '').strip(),
+                'memiliki_lebih_satu_pekerjaan': request.form.get('memiliki_lebih_satu_pekerjaan', 'Tidak').strip(),
+                'status_pekerjaan_utama': request.form.get('status_pekerjaan_utama', '').strip(),
+                'pemasaran_usaha_utama': request.form.get('pemasaran_usaha_utama', '').strip(),
+                'penjualan_marketplace_utama': request.form.get('penjualan_marketplace_utama', '').strip(),
+                'bidang_pekerjaan_sampingan1': request.form.get('bidang_pekerjaan_sampingan1', '').strip(),
+                'status_pekerjaan_sampingan1': request.form.get('status_pekerjaan_sampingan1', '').strip(),
+                'pemasaran_usaha_sampingan1': request.form.get('pemasaran_usaha_sampingan1', '').strip(),
+                'penjualan_marketplace_sampingan1': request.form.get('penjualan_marketplace_sampingan1', '').strip(),
+                'bidang_pekerjaan_sampingan2': request.form.get('bidang_pekerjaan_sampingan2', '').strip(),
+                'status_pekerjaan_sampingan2': request.form.get('status_pekerjaan_sampingan2', '').strip(),
+                'pemasaran_usaha_sampingan2': request.form.get('pemasaran_usaha_sampingan2', '').strip(),
+                'penjualan_marketplace_sampingan2': request.form.get('penjualan_marketplace_sampingan2', '').strip(),
             })
 
-        # Update session
-        session['keluarga_data'] = keluarga_data
+        current_app.logger.info(f"Updated member data: {member_data}")
 
-        return jsonify({'success': True, 'message': 'Data anggota berhasil diperbarui'})
+        # Update session with modified data
+        keluarga_data['all_members_data'][member_index] = member_data
+        session['keluarga_data'] = keluarga_data
+        session.modified = True  # Force session update
+        
+        current_app.logger.info(f"Session updated successfully")
+
+        return redirect(url_for('main.final_page', success='Data anggota berhasil diperbarui'))
 
     except Exception as e:
-        print(f"ERROR in edit_member: {str(e)}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+        current_app.logger.error(f"ERROR in edit_member: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return redirect(url_for('main.final_page', error=f'Error: {str(e)}'))
 
 @bp.route('/edit-family', methods=['POST'])
 @login_required
 def edit_family():
     try:
         if 'keluarga_data' not in session:
-            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+            return redirect(url_for('main.index', error='Data keluarga tidak ditemukan'))
 
         keluarga_data = session['keluarga_data']
+        
+        # Debug: Log all form data
+        current_app.logger.info(f"Form data received: {dict(request.form)}")
+        current_app.logger.info(f"Original keluarga data: {keluarga_data}")
         
         # Get current member count
         current_member_count = len(keluarga_data.get('all_members_data', []))
         
         # Update family data
-        keluarga_data['dusun'] = request.form.get('dusun', '')
-        keluarga_data['rt'] = request.form.get('rt', '')
-        keluarga_data['rw'] = request.form.get('rw', '')
-        keluarga_data['nama_kepala'] = request.form.get('nama_kepala', '')
-        keluarga_data['alamat'] = request.form.get('alamat', '')
+        keluarga_data['dusun'] = request.form.get('dusun', '').strip()
+        keluarga_data['rt'] = request.form.get('rt', '').strip()
+        keluarga_data['rw'] = request.form.get('rw', '').strip()
+        keluarga_data['nama_kepala'] = request.form.get('nama_kepala', '').strip()
+        keluarga_data['alamat'] = request.form.get('alamat', '').strip()
         keluarga_data['jumlah_anggota'] = int(request.form.get('jumlah_anggota', 0))
         
         # Handle member count changes
         new_member_count = int(request.form.get('jumlah_anggota_15plus', 0))
+        
+        current_app.logger.info(f"Current member count: {current_member_count}, New member count: {new_member_count}")
         
         if new_member_count < current_member_count:
             # Remove excess members
@@ -513,27 +579,33 @@ def edit_family():
         # Update original count
         keluarga_data['original_jumlah_anggota_15plus'] = new_member_count
 
-        # Update session
-        session['keluarga_data'] = keluarga_data
+        current_app.logger.info(f"Updated keluarga data: {keluarga_data}")
 
-        return jsonify({'success': True, 'message': 'Data keluarga berhasil diperbarui'})
+        # Update session with modified data
+        session['keluarga_data'] = keluarga_data
+        session.modified = True  # Force session update
+        
+        current_app.logger.info(f"Session updated successfully")
+
+        # Check if we need to redirect to add new members
+        if new_member_count > current_member_count:
+            return redirect(url_for('main.lanjutan', success='Data keluarga berhasil diperbarui. Silakan tambahkan anggota baru.'))
+        else:
+            return redirect(url_for('main.final_page', success='Data keluarga berhasil diperbarui'))
 
     except Exception as e:
-        print(f"ERROR in edit_family: {str(e)}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+        current_app.logger.error(f"ERROR in edit_family: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return redirect(url_for('main.edit_keluarga', error=f'Error: {str(e)}'))
 
 @bp.route('/submit-final', methods=['POST'])
 @login_required
 def submit_final():
     try:
         if 'keluarga_data' not in session:
-            return jsonify({'success': False, 'message': 'Data keluarga tidak ditemukan'}), 400
+            return redirect(url_for('main.index', error='Data keluarga tidak ditemukan'))
 
         keluarga_data = session['keluarga_data']
-        
-        # Debug logging
-        print(f"DEBUG: Keluarga data: {keluarga_data}")
-        print(f"DEBUG: All members data: {keluarga_data.get('all_members_data', [])}")
         
         # Get surveyor and respondent information
         nama_pencacah = request.form.get('nama_pencacah')
@@ -544,7 +616,7 @@ def submit_final():
         
         # Validate required fields
         if not all([nama_pencacah, hp_pencacah, nama_pemberi_jawaban, hp_pemberi_jawaban]):
-            return jsonify({'success': False, 'message': 'Semua field harus diisi'}), 400
+            return redirect(url_for('main.final_page', error='Semua field harus diisi'))
 
         # Set current timestamp
         current_timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
@@ -552,7 +624,7 @@ def submit_final():
         # Check if keluarga already exists
         existing_keluarga = Keluarga.query.filter_by(keluarga_id=keluarga_data['keluarga_id']).first()
         if existing_keluarga:
-            return jsonify({'success': False, 'message': 'Data keluarga sudah ada di database'}), 400
+            return redirect(url_for('main.final_page', error='Data keluarga sudah ada di database'))
         
         # Create Keluarga record
         keluarga = Keluarga(
@@ -573,18 +645,12 @@ def submit_final():
             catatan=catatan or ''
         )
         
-        print(f"DEBUG: Creating Keluarga: {keluarga}")
-        
         db.session.add(keluarga)
         db.session.flush()  # Get the ID
         
-        print(f"DEBUG: Keluarga ID after flush: {keluarga.id}")
-        
-        # Create Individu records using database field names
+        # Create Individu records
         members_created = 0
         for member_data in keluarga_data.get('all_members_data', []):
-            print(f"DEBUG: Processing member: {member_data}")
-            
             individu = Individu(
                 keluarga_id=keluarga.id,
                 anggota_ke=member_data.get('anggota_ke', 1),
@@ -613,33 +679,23 @@ def submit_final():
                 penjualan_marketplace_sampingan2=member_data.get('penjualan_marketplace_sampingan2', '')
             )
             
-            print(f"DEBUG: Creating Individu: {individu}")
             db.session.add(individu)
             members_created += 1
         
-        print(f"DEBUG: Total members created: {members_created}")
-        
         # Commit all changes
         db.session.commit()
-        print("DEBUG: Database commit successful")
 
         # Clear session
         session.pop('keluarga_data', None)
         session.pop('individu_data', None)
 
-        return jsonify({
-            'success': True,
-            'message': f'Semua data berhasil disimpan! Total {members_created} anggota keluarga tersimpan.',
-            'redirect': True,
-            'redirect_url': url_for('main.index') + '?clear=true'
-        })
+        return redirect(url_for('main.index', success=f'Semua data berhasil disimpan! Total {members_created} anggota keluarga tersimpan.', clear='true'))
 
     except Exception as e:
         db.session.rollback()
-        print(f"ERROR in submit_final: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+        current_app.logger.error(f"ERROR in submit_final: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return redirect(url_for('main.final_page', error=f'Error: {str(e)}'))
 
 @bp.route('/download-excel')
 @login_required
@@ -648,7 +704,7 @@ def download_excel():
     try:
         keluarga_list = Keluarga.query.all()
         if not keluarga_list:
-            return jsonify({'error': 'No data found'}), 404
+            return redirect(url_for('main.dashboard', error='No data found'))
         
         all_rows = []
         for keluarga in keluarga_list:
@@ -754,34 +810,7 @@ def download_excel():
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        current_app.logger.error(f"ERROR in download_excel: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return redirect(url_for('main.dashboard', error=str(e)))
 
-@bp.route('/get-form-data')
-@login_required
-def get_form_data():
-    """Get saved form data from session"""
-    if 'keluarga_data' in session and session['keluarga_data'].get('anggota_count', 0) > 0:
-        keluarga_data = session['keluarga_data']
-        return jsonify({
-            'form_data': {
-                'rt': keluarga_data.get('rt', ''),
-                'rw': keluarga_data.get('rw', ''),
-                'dusun': keluarga_data.get('dusun', ''),
-                'nama_kepala': keluarga_data.get('nama_kepala', ''),
-                'alamat': keluarga_data.get('alamat', ''),
-                'jumlah_anggota': keluarga_data.get('jumlah_anggota', ''),
-                'jumlah_anggota_15plus': keluarga_data.get('original_jumlah_anggota_15plus', '')
-            }
-        })
-    else:
-        return jsonify({'form_data': None})
-
-@bp.route('/debug-session')
-@login_required
-def debug_session():
-    """Debug route to check session data"""
-    return jsonify({
-        'keluarga_data': session.get('keluarga_data'),
-        'individu_data': session.get('individu_data'),
-        'session_keys': list(session.keys())
-    })
